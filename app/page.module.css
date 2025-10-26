@@ -1,0 +1,91 @@
+.page {
+  min-height: 100vh;
+  display: flex;
+  flex-direction: column;
+}
+
+.homeMain {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  gap: 4rem;
+  padding: 3rem 1.5rem 5rem;
+  max-width: 1160px;
+  margin: 0 auto;
+  width: 100%;
+}
+
+.heroSection {
+  margin-top: 1rem;
+}
+
+.eventsSection {
+  display: flex;
+  flex-direction: column;
+  gap: 2rem;
+}
+
+.eventsHeader {
+  display: flex;
+  flex-direction: column;
+  gap: 0.6rem;
+  max-width: 540px;
+}
+
+.eventsLink {
+  text-transform: uppercase;
+  font-size: 0.8rem;
+  letter-spacing: 0.12em;
+  color: var(--color-gold);
+}
+
+.eventsGrid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+  gap: 1.5rem;
+}
+
+.emptyState {
+  padding: 2rem;
+  border-radius: 20px;
+  display: flex;
+  flex-direction: column;
+  gap: 0.65rem;
+  text-align: center;
+}
+
+.communitySection {
+  padding: 2.5rem;
+}
+
+.communityGrid {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 2.5rem;
+}
+
+.communityList {
+  display: flex;
+  flex-direction: column;
+  gap: 1.5rem;
+  padding: 0;
+  margin: 0;
+  list-style: none;
+}
+
+.communityListItem {
+  display: flex;
+  flex-direction: column;
+  gap: 0.5rem;
+}
+
+.communityListText {
+  margin: 0;
+  opacity: 0.75;
+}
+
+@media (max-width: 900px) {
+  .communityGrid {
+    grid-template-columns: 1fr;
+  }
+}

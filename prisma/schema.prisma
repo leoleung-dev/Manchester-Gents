@@ -1,0 +1,82 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+enum Role {
+  MEMBER
+  ADMIN
+}
+
+enum SignupStatus {
+  CONFIRMED
+  WAITLISTED
+  CANCELLED
+}
+
+model User {
+  id              String        @id @default(cuid())
+  email           String        @unique
+  passwordHash    String
+  instagramHandle String        @unique
+  name            String?
+  fullName        String?
+  shareFirstName  Boolean       @default(false)
+  phoneNumber     String?
+  generalPhotoConsent Boolean   @default(false)
+  groupFaceConsent   Boolean    @default(false)
+  otherFaceConsent   Boolean    @default(false)
+  taggingConsent     Boolean    @default(false)
+  termsConsentCulture Boolean   @default(false)
+  termsSafeSpace      Boolean   @default(false)
+  termsNoHate         Boolean   @default(false)
+  termsPrivacy        Boolean   @default(false)
+  termsGuidelines     Boolean   @default(false)
+  termsAgreed         Boolean   @default(false)
+  termsSignedAt       DateTime?
+  consentUpdatedAt    DateTime?
+  bio             String?
+  role            Role          @default(MEMBER)
+  eventsSignedUp  EventSignup[]
+  createdAt       DateTime      @default(now())
+  updatedAt       DateTime      @updatedAt
+}
+
+model Event {
+  id             String        @id @default(cuid())
+  slug           String        @unique
+  title          String
+  subtitle       String?
+  description    String?
+  location       String?
+  startTime      DateTime
+  endTime        DateTime?
+  primaryColor   String?
+  secondaryColor String?
+  accentColor    String?
+  backgroundColor String?
+  textColor      String?
+  coverImageUrl  String?
+  signupDeadline DateTime?
+  capacity       Int?
+  published      Boolean       @default(true)
+  createdAt      DateTime      @default(now())
+  updatedAt      DateTime      @updatedAt
+  attendees      EventSignup[]
+}
+
+model EventSignup {
+  id        String       @id @default(cuid())
+  user      User         @relation(fields: [userId], references: [id], onDelete: Cascade)
+  userId    String
+  event     Event        @relation(fields: [eventId], references: [id], onDelete: Cascade)
+  eventId   String
+  status    SignupStatus @default(CONFIRMED)
+  note      String?
+  specialRequests      String?
+  createdAt DateTime     @default(now())
+}

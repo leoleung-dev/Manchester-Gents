@@ -1,0 +1,53 @@
+.page {
+  min-height: 100vh;
+  display: flex;
+  flex-direction: column;
+}
+
+.dashboardMain {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  gap: 3rem;
+  padding: 3rem 1.5rem 5rem;
+  max-width: 1160px;
+  margin: 0 auto;
+  width: 100%;
+}
+
+.dashboardHeader {
+  display: flex;
+  flex-direction: column;
+  gap: 0.8rem;
+  max-width: 620px;
+}
+
+.profileLink {
+  font-size: 0.85rem;
+  opacity: 0.75;
+}
+
+.profileLink a {
+  color: var(--color-gold);
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+  font-size: 0.75rem;
+}
+
+.dashboardSection {
+  display: flex;
+  flex-direction: column;
+  gap: 1.25rem;
+}
+
+.dashboardGrid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+  gap: 1.5rem;
+}
+
+.dashboardEmpty {
+  padding: 2rem;
+  border-radius: 20px;
+  text-align: center;
+}

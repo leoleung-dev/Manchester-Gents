@@ -1,0 +1,76 @@
+:root {
+  color-scheme: light dark;
+  --color-gold-soft: #ffe293;
+  --color-gold: #ffd460;
+  --color-amber: #ffc62d;
+  --color-navy: #1c2837;
+  --color-steel: #2d4059;
+  --color-slate: #3e587b;
+  --color-body: #f7f4ed;
+  --color-card: rgba(255, 255, 255, 0.08);
+  --color-border: rgba(255, 255, 255, 0.12);
+  --gradient-hero: radial-gradient(circle at top, rgba(255, 212, 96, 0.35), rgba(45, 64, 89, 0.9));
+}
+
+* {
+  box-sizing: border-box;
+}
+
+html,
+body {
+  padding: 0;
+  margin: 0;
+  min-height: 100%;
+  font-family: var(--font-body), system-ui, -apple-system, 'Segoe UI', sans-serif;
+  background: var(--color-navy);
+  color: var(--color-body);
+}
+
+body::before {
+  content: '';
+  position: fixed;
+  inset: 0;
+  background: var(--gradient-hero);
+  pointer-events: none;
+  z-index: -1;
+}
+
+a {
+  color: inherit;
+  text-decoration: none;
+}
+
+h1,
+h2,
+h3,
+h4,
+h5,
+h6,
+.heading-font {
+  font-family: var(--font-heading), 'Thelorin', 'League Spartan', sans-serif;
+  text-transform: none;
+  letter-spacing: 0.02em;
+  font-feature-settings: 'calt' 1, 'liga' 1;
+  font-variant-ligatures: discretionary-ligatures contextual;
+  color: var(--color-gold);
+  margin: 0;
+}
+
+button {
+  font-family: inherit;
+  cursor: pointer;
+  border: none;
+}
+
+ul {
+  list-style: none;
+  padding: 0;
+}
+
+.glass-panel {
+  background: rgba(12, 22, 35, 0.75);
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  border-radius: 20px;
+  backdrop-filter: blur(16px);
+  -webkit-backdrop-filter: blur(16px);
+}

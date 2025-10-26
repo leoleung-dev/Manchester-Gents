@@ -1,0 +1,93 @@
+# API Reference (Next.js Route Handlers)
+
+All endpoints live under `app/api`. Requests/Responses use JSON. Errors return `{ error: string }` with appropriate status codes.
+
+## Auth
+
+### `POST /api/register`
+- **Purpose:** Create a new user with consent metadata.
+- **Payload:** Matches `registerSchema`.
+- **Responses:**
+  - `201` `{ user: { id, email, instagramHandle } }`
+  - `409` if email or handle already exists.
+  - `400` if validation fails (handled by Zod).
+  - `500` generic failure.
+- **Notes:** Password stored hashed; sets all consent booleans, timestamps.
+
+### `POST /api/auth/[...nextauth]`
+- NextAuth credentials endpoint (handled automatically).
+- Accepts `identifier` and `password` in body (NextAuth request).
+- Returns session/JWT cookies on success.
+
+## Profile
+
+### `PATCH /api/profile`
+- **Auth:** Requires logged-in member.
+- **Payload:** Matches `profileUpdateSchema`.
+- **Behaviour:** Updates user record consents, `termsAgreed`, and timestamp fields.
+- **Responses:**
+  - `200` `{ success: true }`
+  - `400` validation error.
+  - `401` unauthenticated.
+  - `500` server error.
+
+## Events
+
+### `GET /api/events`
+- Returns published events ordered by `startTime`.
+- Response: `{ events: Event[] }` (raw Prisma output).
+
+### `POST /api/events`
+- **Auth:** Admin only (`requireAuth('ADMIN')`).
+- **Payload:** `eventSchema`.
+- **Response:** `201 { event }`.
+
+### `PUT /api/events/{eventId}`
+- **Auth:** Admin only.
+- **Payload:** Partial event object (validated with `eventSchema.partial()`).
+- **Response:** `200 { event }`.
+
+### `DELETE /api/events/{eventId}`
+- **Auth:** Admin only.
+- **Response:** `200 { success: true }`.
+
+## Event Signup
+
+### `POST /api/events/{eventId}/signup`
+- **Auth:** Logged-in members only.
+- **Payload:** `{ specialRequests?: string }` (optional).
+- **Guards:**
+  - Validates `termsAgreed` on user.
+  - Checks deadline, capacity, duplicate RSVPs.
+- **Responses:**
+  - `201 { signup }` on success.
+  - `400` with message when terms not accepted or deadline/capacity violated.
+  - `401` unauthenticated.
+  - `404` event missing.
+  - `500` server error.
+
+### `DELETE /api/events/{eventId}/signup`
+- **Auth:** Logged-in members.
+- **Behaviour:** Removes matching RSVP via `deleteMany`.
+- **Responses:**
+  - `200 { success: true }`.
+  - `404` if no RSVP existed.
+  - `401` unauthenticated.
+
+## Auth Utilities
+
+### `lib/auth.js`
+- Exports `authOptions` for NextAuth.
+- `requireAuth(role?)` helper returns session or JSON error response.
+
+## Error Handling Conventions
+- All handlers return JSON responses.
+- Validation errors from Zod result in `400` with first issue message when trapped manually.
+- Prisma errors logged to server; 500 returned with generic message.
+
+## Adding New Endpoints
+1. Create handler under `app/api/{namespace}` in App Router syntax (`route.js`).
+2. Use `getServerSession(authOptions)` when auth needed.
+3. Validate body with Zod schema in `lib/validators.js`.
+4. Update this document with route description.
+5. If schema changes, update `documentation/data-model.md`, `auth-and-consent.md`, and any relevant UI docs.***
