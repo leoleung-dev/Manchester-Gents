@@ -17,6 +17,8 @@ Populate environment variables:
 - `NEXTAUTH_SECRET` – Run `openssl rand -base64 32` to generate.
 - `NEXTAUTH_URL` – `http://localhost:3000` during development.
 - Optional seed overrides: `SEED_ADMIN_EMAIL`, `SEED_ADMIN_PASSWORD`, `SEED_ADMIN_HANDLE`.
+- Cloudinary uploads: `CLOUDINARY_CLOUD_NAME`, `CLOUDINARY_API_KEY`, `CLOUDINARY_API_SECRET` (required for private profile photos).
+- Uploaded photos are stored in Cloudinary under the `manchester-gents/profiles/*` folders. The `original` variant keeps the full-resolution suited reference; the `cropped` variant is a 400×400 PNG served to the app for fast avatar rendering.
 
 ## Prisma / Database
 Generate client:

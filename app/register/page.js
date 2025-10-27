@@ -25,8 +25,8 @@ export default async function RegisterPage() {
             <span className="heading-font">Secure your place</span>
             <h1>Join Manchester Gents</h1>
             <p>
-              Share your Instagram username and get ready for relaxed, well-dressed evenings at The
-              Lodge in Manchester.
+              Share your Instagram username, suited details, and (optionally) a private reference
+              photo so we can welcome you at our relaxed evenings in The Lodge, Manchester.
             </p>
             <RegisterForm />
           </div>

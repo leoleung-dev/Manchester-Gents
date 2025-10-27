@@ -2,17 +2,23 @@
 
 import { useMemo, useState } from 'react';
 import { useRouter } from 'next/navigation';
+import { useSession } from 'next-auth/react';
 import RadioPill from './RadioPill';
 import { termsChecklist, photoConsentQuestions } from '@/lib/consentContent';
 import { profileUpdateSchema } from '@/lib/validators';
+import ProfilePhotoUploader from './ProfilePhotoUploader';
 
 export default function ProfileForm({ user }) {
   const router = useRouter();
+  const { update: updateSession } = useSession();
   const [formState, setFormState] = useState({
-    fullName: user.fullName || '',
-    name: user.name || '',
+    firstName: user.firstName || '',
+    lastName: user.lastName || '',
+    preferredName: user.preferredName || '',
     shareFirstName: typeof user.shareFirstName === 'boolean' ? user.shareFirstName : true,
     phoneNumber: user.phoneNumber || '',
+    profilePhotoUrl: user.profilePhotoUrl || '',
+    profilePhotoOriginalUrl: user.profilePhotoOriginalUrl || '',
     termsConsentCulture: user.termsConsentCulture,
     termsSafeSpace: user.termsSafeSpace,
     termsNoHate: user.termsNoHate,
@@ -42,14 +48,17 @@ export default function ProfileForm({ user }) {
   }, [user.consentUpdatedAt]);
 
   const handleChange = (field) => (event) => {
+    setSuccess(false);
     setFormState((prev) => ({ ...prev, [field]: event.target.value }));
   };
 
   const handleToggleTerm = (field) => () => {
+    setSuccess(false);
     setFormState((prev) => ({ ...prev, [field]: !prev[field] }));
   };
 
   const handleSelect = (field, value) => () => {
+    setSuccess(false);
     setFormState((prev) => ({ ...prev, [field]: value }));
   };
 
@@ -58,8 +67,8 @@ export default function ProfileForm({ user }) {
     setError(null);
     setSuccess(false);
 
-    if (formState.shareFirstName === null) {
-      setError('Please let us know if we can share your first name with members.');
+    if (formState.shareFirstName === false && !formState.preferredName.trim()) {
+      setError('Please provide a preferred name if you do not want your first name displayed.');
       return;
     }
 
@@ -76,10 +85,13 @@ export default function ProfileForm({ user }) {
     }
 
     const payload = {
-      fullName: formState.fullName.trim(),
-      name: formState.name.trim() || undefined,
+      firstName: formState.firstName.trim(),
+      lastName: formState.lastName.trim(),
+      preferredName: formState.preferredName.trim() || null,
       shareFirstName: formState.shareFirstName,
       phoneNumber: formState.phoneNumber.trim(),
+      profilePhotoUrl: formState.profilePhotoUrl || null,
+      profilePhotoOriginalUrl: formState.profilePhotoOriginalUrl || null,
       termsConsentCulture: formState.termsConsentCulture,
       termsSafeSpace: formState.termsSafeSpace,
       termsNoHate: formState.termsNoHate,
@@ -110,6 +122,7 @@ export default function ProfileForm({ user }) {
         throw new Error(data?.error || 'Unable to update your profile.');
       }
       setSuccess(true);
+      await updateSession();
       router.refresh();
     } catch (err) {
       setError(err.message);
@@ -127,9 +140,15 @@ export default function ProfileForm({ user }) {
       <div className="form-section">
         <span className="section-eyebrow">Personal details</span>
         <InputField
-          label="Full name"
-          value={formState.fullName}
-          onChange={handleChange('fullName')}
+          label="First name"
+          value={formState.firstName}
+          onChange={handleChange('firstName')}
+          required
+        />
+        <InputField
+          label="Last name"
+          value={formState.lastName}
+          onChange={handleChange('lastName')}
           required
         />
         <div className="field-block">
@@ -149,15 +168,30 @@ export default function ProfileForm({ user }) {
         </div>
         <InputField
           label="Preferred name (optional)"
-          value={formState.name}
-          onChange={handleChange('name')}
+          value={formState.preferredName}
+          onChange={handleChange('preferredName')}
           placeholder="How should we address you?"
         />
         <InputField
           label="Phone number (optional)"
+          type="tel"
           value={formState.phoneNumber}
           onChange={handleChange('phoneNumber')}
           placeholder="Update this if your contact number changes"
+        />
+        <ProfilePhotoUploader
+          value={{
+            originalUrl: formState.profilePhotoOriginalUrl,
+            croppedUrl: formState.profilePhotoUrl
+          }}
+          onChange={({ originalUrl, croppedUrl }) => {
+            setSuccess(false);
+            setFormState((prev) => ({
+              ...prev,
+              profilePhotoOriginalUrl: originalUrl,
+              profilePhotoUrl: croppedUrl
+            }));
+          }}
         />
       </div>
       <div className="form-section">

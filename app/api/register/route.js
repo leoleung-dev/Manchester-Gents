@@ -1,6 +1,7 @@
 import prisma from '@/lib/prisma';
 import { hashPassword } from '@/lib/password';
 import { registerSchema } from '@/lib/validators';
+import { getDisplayName } from '@/lib/displayName';
 
 export async function POST(request) {
   try {
@@ -26,14 +27,30 @@ export async function POST(request) {
     const passwordHash = await hashPassword(data.password);
     const consentTimestamp = new Date();
 
+    const fullName = `${data.firstName} ${data.lastName}`.trim();
+    const preferredName = data.preferredName ?? null;
+    const displayName = getDisplayName({
+      firstName: data.firstName,
+      lastName: data.lastName,
+      preferredName,
+      shareFirstName: data.shareFirstName,
+      instagramHandle: handle,
+      name: data.preferredName
+    });
+
     const user = await prisma.user.create({
       data: {
         email,
         instagramHandle: handle,
-        name: data.name || data.fullName,
-        fullName: data.fullName,
+        firstName: data.firstName,
+        lastName: data.lastName,
+        preferredName,
+        name: displayName,
+        fullName,
         shareFirstName: data.shareFirstName,
         phoneNumber: data.phoneNumber ?? null,
+        profilePhotoUrl: data.profilePhotoUrl ?? null,
+        profilePhotoOriginalUrl: data.profilePhotoOriginalUrl ?? null,
         generalPhotoConsent: data.generalPhotoConsent,
         groupFaceConsent: data.groupFaceConsent,
         otherFaceConsent: data.otherFaceConsent,

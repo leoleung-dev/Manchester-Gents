@@ -55,7 +55,11 @@ export default async function DashboardPage() {
       <NavBar />
       <main className={styles.dashboardMain}>
         <header className={styles.dashboardHeader}>
-          <h1>Welcome back, @{session.user.instagramHandle}</h1>
+          <h1>
+            Welcome back,
+            {' '}
+            {session.user.name || `@${session.user.instagramHandle}`}
+          </h1>
           <p>See the Lodge socials you’ve RSVP’d for and claim your place at the next relaxed meetup.</p>
           <p className={styles.profileLink}>
             Need to review your consents? <Link href="/profile">Visit your profile</Link>.

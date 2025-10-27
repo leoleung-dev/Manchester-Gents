@@ -6,6 +6,7 @@
 - **Database:** Hosted PostgreSQL (Neon or similar), accessed via Prisma Client.
 - **Authentication:** NextAuth with credential-based login (email or Instagram handle + password).
 - **Styling:** Global styles in `app/globals.css`, component-level CSS Modules for server-rendered pages, and minimal `styled-jsx` for client components.
+- **Media storage:** Cloudinary handles private member reference photos and cropped, low-resolution avatars via the profile photo upload endpoint.
 
 ## Key Modules
 | Area | Location | Purpose |
@@ -14,16 +15,17 @@
 | Landing & marketing | `app/page.js`, `components/HeroBanner.js`, `components/EventCard.js` | Render next event hero, countdown, and highlight cards. |
 | Events | `app/events`, `components/EventSignupButton.js` | Event list/detail, RSVP actions, palette-driven styling. |
 | Dashboard | `app/dashboard/page.js` | Member reservations and recommended events. |
-| Profile | `app/profile/page.js`, `components/ProfileForm.js` | Central profile + consent editor. |
+| Profile | `app/profile/page.js`, `components/ProfileOverview.js`, `components/ProfileForm.js` | Member overview with optional consent editor. |
 | Admin | `app/admin/page.js`, `components/AdminEventForm.js` | Event creation & theme management (admin-only). |
+| Admin members | `app/admin/members/page.js` | Member directory with consent summaries and reference photos. |
 | Authentication | `components/AuthForm.js`, `app/login`, `app/register`, `app/api/auth/[...nextauth]` | Registration/login flows. |
-| API routes | `app/api/**/*` | Next.js Route Handlers for registration, login, events CRUD, RSVP operations, consent updates. |
+| API routes | `app/api/**/*` | Next.js Route Handlers for registration, login, events CRUD, RSVP operations, consent updates, and private profile photo uploads. |
 | Data layer | `prisma/schema.prisma`, `lib/prisma.js`, `prisma/migrations/*` | Prisma schema & generated client. |
-| Domain helpers | `lib/auth.js`, `lib/validators.js`, `lib/password.js`, `lib/consentContent.js` | Auth config, Zod schemas, hashing, consent copy. |
+| Domain helpers | `lib/auth.js`, `lib/validators.js`, `lib/password.js`, `lib/consentContent.js`, `lib/displayName.js` | Auth config, Zod schemas, hashing, consent copy, display-name utilities. |
 
 ## Component Types
 - **Server components (default):** Page-level rendering, data fetching, static layout.
-- **Client components:** Forms, interactive buttons, stateful modals (`'use client'` at top). Example: `EventSignupButton.js`, `AuthForm.js`, `ProfileForm.js`.
+- **Client components:** Forms, interactive buttons, stateful modals (`'use client'` at top). Example: `EventSignupButton.js`, `AuthForm.js`, `ProfileOverview.js`, `ProfileForm.js`.
 
 ## Styling Approach
 - Theme variables defined in `app/globals.css` (brand palette, gradients).
@@ -36,7 +38,7 @@
 ## Environment & Config
 - **`next.config.js`:** CommonJS export with image remote patterns and server action origins.
 - **`package.json`:** `"type"` intentionally omitted to stay in CommonJS (NextAuth compatibility).
-- **`.env` / `.env.local`:** Must include `DATABASE_URL`, `NEXTAUTH_SECRET`, `NEXTAUTH_URL`, and optional `SEED_ADMIN_*`.
+- **`.env` / `.env.local`:** Must include `DATABASE_URL`, `NEXTAUTH_SECRET`, `NEXTAUTH_URL`, Cloudinary credentials (`CLOUDINARY_CLOUD_NAME`, `CLOUDINARY_API_KEY`, `CLOUDINARY_API_SECRET`), and optional `SEED_ADMIN_*`.
 - **Prisma commands:** Provided via npm scripts (`prisma:generate`, `prisma:migrate`, `prisma:seed`).
 
 ## Build & Deployment Notes

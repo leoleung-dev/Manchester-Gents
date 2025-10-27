@@ -6,6 +6,7 @@ import { useRouter } from 'next/navigation';
 import { z } from 'zod';
 import { registerSchema as registerValidation } from '@/lib/validators';
 import { termsChecklist, photoConsentQuestions } from '@/lib/consentContent';
+import ProfilePhotoUploader from './ProfilePhotoUploader';
 import RadioPill from './RadioPill';
 
 const loginSchema = z.object({
@@ -19,10 +20,13 @@ export function RegisterForm() {
     email: '',
     instagramHandle: '',
     password: '',
-    name: '',
-    fullName: '',
-    shareFirstName: null,
+    firstName: '',
+    lastName: '',
+    preferredName: '',
+    shareFirstName: true,
     phoneNumber: '',
+    profilePhotoUrl: '',
+    profilePhotoOriginalUrl: '',
     termsConsentCulture: false,
     termsSafeSpace: false,
     termsNoHate: false,
@@ -52,8 +56,8 @@ export function RegisterForm() {
     event.preventDefault();
     setError(null);
 
-    if (formState.shareFirstName === null) {
-      setError('Please let us know if we can share your first name with other members.');
+    if (formState.shareFirstName === false && !formState.preferredName.trim()) {
+      setError('Please add a preferred name if you prefer not to share your first name.');
       return;
     }
 
@@ -73,10 +77,13 @@ export function RegisterForm() {
       email: formState.email.trim(),
       instagramHandle: formState.instagramHandle.trim(),
       password: formState.password,
-      name: formState.name.trim() || undefined,
-      fullName: formState.fullName.trim(),
+      firstName: formState.firstName.trim(),
+      lastName: formState.lastName.trim(),
+      preferredName: formState.preferredName.trim() || null,
       shareFirstName: formState.shareFirstName,
       phoneNumber: formState.phoneNumber.trim(),
+      profilePhotoUrl: formState.profilePhotoUrl || null,
+      profilePhotoOriginalUrl: formState.profilePhotoOriginalUrl || null,
       termsConsentCulture: formState.termsConsentCulture,
       termsSafeSpace: formState.termsSafeSpace,
       termsNoHate: formState.termsNoHate,
@@ -125,10 +132,17 @@ export function RegisterForm() {
       <div className="form-section">
         <span className="section-eyebrow">Your details</span>
         <FormField
-          label="Full name"
+          label="First name"
           type="text"
-          value={formState.fullName}
-          onChange={handleChange('fullName')}
+          value={formState.firstName}
+          onChange={handleChange('firstName')}
+          required
+        />
+        <FormField
+          label="Last name"
+          type="text"
+          value={formState.lastName}
+          onChange={handleChange('lastName')}
           required
         />
         <div className="field-block">
@@ -151,8 +165,8 @@ export function RegisterForm() {
         <FormField
           label="Preferred name (optional)"
           type="text"
-          value={formState.name}
-          onChange={handleChange('name')}
+          value={formState.preferredName}
+          onChange={handleChange('preferredName')}
           placeholder="How should we address you?"
         />
         <FormField
@@ -183,6 +197,19 @@ export function RegisterForm() {
           value={formState.password}
           onChange={handleChange('password')}
           required
+        />
+        <ProfilePhotoUploader
+          value={{
+            originalUrl: formState.profilePhotoOriginalUrl,
+            croppedUrl: formState.profilePhotoUrl
+          }}
+          onChange={({ originalUrl, croppedUrl }) =>
+            setFormState((prev) => ({
+              ...prev,
+              profilePhotoOriginalUrl: originalUrl,
+              profilePhotoUrl: croppedUrl
+            }))
+          }
         />
       </div>
       <div className="form-section">

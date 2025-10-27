@@ -13,6 +13,9 @@ async function main() {
   const admin = await prisma.user.upsert({
     where: { email: adminEmail },
     update: {
+      firstName: 'Club',
+      lastName: 'Admin',
+      preferredName: 'Club Admin',
       shareFirstName: true,
       generalPhotoConsent: true,
       groupFaceConsent: true,
@@ -33,6 +36,9 @@ async function main() {
       passwordHash,
       role: 'ADMIN',
       name: 'Club Admin',
+      firstName: 'Club',
+      lastName: 'Admin',
+      preferredName: 'Club Admin',
       fullName: 'Club Admin',
       shareFirstName: true,
       generalPhotoConsent: true,

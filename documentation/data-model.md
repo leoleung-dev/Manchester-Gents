@@ -11,10 +11,15 @@ Stores member identity, authentication, and consent preferences.
 | `email` | `String` | Unique, lower-case. Used for login + comms. |
 | `instagramHandle` | `String` | Unique handle without leading `@`. |
 | `passwordHash` | `String` | Bcrypt hash. |
-| `name` | `String?` | Preferred display name (optional). |
-| `fullName` | `String?` | Required during registration; never shared publicly. |
+| `firstName` | `String?` | Member’s real first name (required on signup). |
+| `lastName` | `String?` | Member’s real last name (required on signup). |
+| `preferredName` | `String?` | Alternative name used when the member opts not to share their first name (required if `shareFirstName` is false). |
+| `name` | `String?` | Computed display name (preferred or first name based on privacy setting). |
+| `fullName` | `String?` | Convenience string combining first and last name. |
 | `shareFirstName` | `Boolean` | Whether first name can be shown to other members. |
 | `phoneNumber` | `String?` | Optional contact number. |
+| `profilePhotoUrl` | `String?` | Cropped Cloudinary avatar (400×400 PNG) used in admin/member UI. |
+| `profilePhotoOriginalUrl` | `String?` | Full-resolution Cloudinary upload kept private for the admin team when editing imagery. |
 | `generalPhotoConsent` | `Boolean` | Consent for any media capture. |
 | `groupFaceConsent` | `Boolean` | Consent for including face in group shots. |
 | `otherFaceConsent` | `Boolean` | Consent for close-ups / individual shots. |
@@ -67,6 +72,7 @@ Represents a member’s reservation for a specific event.
 - `termsSignedAt` and `consentUpdatedAt` update on registration and profile edits.
 - Registration requires agreeing to all terms and selecting each photo preference upfront.
 - API guards (`/api/events/[eventId]/signup`) validate `termsAgreed` before creating RSVPs.
+- Private reference photos are stored via `profilePhotoUrl` and never shown in member-facing UI.
 
 ## Common Queries
 - **Fetch next event:** `prisma.event.findMany` ordered by `startTime`, limited to future/published (see `app/page.js`).

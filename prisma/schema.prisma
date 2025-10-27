@@ -23,10 +23,15 @@ model User {
   email           String        @unique
   passwordHash    String
   instagramHandle String        @unique
+  firstName       String?
+  lastName        String?
+  preferredName   String?
   name            String?
   fullName        String?
   shareFirstName  Boolean       @default(false)
   phoneNumber     String?
+  profilePhotoUrl String?
+  profilePhotoOriginalUrl String?
   generalPhotoConsent Boolean   @default(false)
   groupFaceConsent   Boolean    @default(false)
   otherFaceConsent   Boolean    @default(false)

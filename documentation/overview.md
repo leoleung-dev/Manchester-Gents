@@ -24,8 +24,8 @@ Administrators can:
 2. **Event catalogue** (list + detail pages) describing each relaxed meetup.
 3. **RSVP flow** leveraging stored consents; special requests captured per booking.
 4. **Member dashboard** summarising reservations and recommended events.
-5. **Profile management** for updating consents, preferred name, and contact info.
-6. **Admin interface** for event creation, palette control, and ongoing edits.
+5. **Profile management** for updating names, private suited photo, consents, and contact info.
+6. **Admin interface** for event creation, palette control, member reviews, and ongoing edits.
 
 ## Directory Map (Top Level)
 - `app/` – Next.js App Router pages and layouts.
@@ -33,7 +33,7 @@ Administrators can:
 - `lib/` – Prisma client, auth helpers, validation, and consent copy.
 - `prisma/` – Schema, migrations, and seed script.
 - `documentation/` – This knowledge base for LLMs/contributors.
-- `public/` (not yet populated) – Static assets placeholder.
+- `public/` – Static assets (logos, fonts). Member photo uploads are stored externally in Cloudinary.
 
 ## Documentation Set
 This overview is part of a larger documentation bundle located under `/documentation`. The bundle includes:

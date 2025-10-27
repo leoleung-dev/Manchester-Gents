@@ -2,6 +2,7 @@ import { getServerSession } from 'next-auth';
 import { authOptions } from '@/lib/auth';
 import prisma from '@/lib/prisma';
 import { profileUpdateSchema } from '@/lib/validators';
+import { getDisplayName } from '@/lib/displayName';
 
 export async function PATCH(request) {
   const session = await getServerSession(authOptions);
@@ -12,15 +13,30 @@ export async function PATCH(request) {
   try {
     const body = await request.json();
     const data = profileUpdateSchema.parse(body);
+    const fullName = `${data.firstName} ${data.lastName}`.trim();
+    const preferredName = data.preferredName ?? null;
+    const displayName = getDisplayName({
+      firstName: data.firstName,
+      lastName: data.lastName,
+      preferredName,
+      shareFirstName: data.shareFirstName,
+      instagramHandle: session.user.instagramHandle,
+      name: session.user.name
+    });
     const consentTimestamp = new Date();
 
     await prisma.user.update({
       where: { id: session.user.id },
       data: {
-        name: data.name?.trim() || null,
-        fullName: data.fullName.trim(),
+        firstName: data.firstName,
+        lastName: data.lastName,
+        preferredName,
+        name: displayName,
+        fullName,
         shareFirstName: data.shareFirstName,
         phoneNumber: data.phoneNumber ?? null,
+        profilePhotoUrl: data.profilePhotoUrl ?? null,
+        profilePhotoOriginalUrl: data.profilePhotoOriginalUrl ?? null,
         termsConsentCulture: data.termsConsentCulture,
         termsSafeSpace: data.termsSafeSpace,
         termsNoHate: data.termsNoHate,

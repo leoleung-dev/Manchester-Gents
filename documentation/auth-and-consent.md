@@ -8,16 +8,16 @@
 - **Protected routes:** Server components fetch sessions via `getServerSession(authOptions)`; unauthenticated users are redirected (e.g., `/dashboard`, `/profile`, `/admin`).
 
 ### Registration Flow
-1. **UI:** `components/AuthForm.js` collects email, Instagram handle, password, full name, optional preferred name/phone, and all consents.
+1. **UI:** `components/AuthForm.js` collects email, Instagram handle, password, first & last name, optional preferred name/phone, a private suited photo upload (with in-app circle cropper), and all consent toggles.
 2. **Validation:** Client uses Zod schema (`registerValidation`) mirroring `registerSchema`.
 3. **API:** `POST /api/register` parses payload with `registerSchema` and creates user with consent metadata.
 4. **Auto-login:** After successful creation, the form calls `signIn` silently and redirects to `/dashboard`.
-5. **Data stored on User:** All boolean consents, `termsSignedAt`, and `consentUpdatedAt` set at registration time.
+5. **Data stored on User:** First/last name, preferred name, consent booleans, private `profilePhotoUrl`, `termsSignedAt`, and `consentUpdatedAt` set at registration time.
 
 ### Login Flow
 1. **Form:** `LoginForm` accepts email/Instagram handle + password.
 2. **Authentication:** NextAuth checks credentials and loads user via Prisma.
-3. **Session:** Session data includes `user.id`, `role`, and `instagramHandle` for navigation.
+3. **Session:** Session data includes `user.id`, `role`, `instagramHandle`, name metadata, and the computed display name that respects preferred-name privacy.
 
 ## Consent Lifecycle
 
@@ -26,12 +26,13 @@
 - `termsAgreed` signals that all guideline flags are `true`.
 - `termsSignedAt` captures the latest acknowledgement timestamp.
 - `consentUpdatedAt` tracks the most recent profile update.
+- `profilePhotoOriginalUrl` stores the full-resolution upload; `profilePhotoUrl` stores the cropped, low-resolution Cloudinary asset used for previews (never shared with members).
 
 ### Updating Consents
-- **Profile Page:** `/profile` renders `ProfileForm`, prefilled from Prisma.
+- **Profile Page:** `/profile` surfaces `ProfileOverview` for read-only context and an edit CTA. Selecting edit reveals `ProfileForm`, prefilled from Prisma, allowing updates to names, phone, private photo, and consent toggles.
 - **API:** `PATCH /api/profile` validates payload via `profileUpdateSchema` and updates the user row.
 - **UI Feedback:** Form displays success/error messaging and shows last updated timestamp.
-- **LLM note:** Whenever profile consent fields change, update `profileUpdateSchema`, `ProfileForm`, and relevant documentation.
+- **LLM note:** Whenever profile consent fields change, update `profileUpdateSchema`, `ProfileOverview`, `ProfileForm`, and relevant documentation.
 
 ### RSVP Requirements
 - `POST /api/events/{eventId}/signup` checks:

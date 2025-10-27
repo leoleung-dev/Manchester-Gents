@@ -7,6 +7,7 @@ import { authOptions } from '@/lib/auth';
 import { getServerSession } from 'next-auth';
 import { notFound } from 'next/navigation';
 import { format } from 'date-fns';
+import { getDisplayName } from '@/lib/displayName';
 import styles from './page.module.css';
 
 async function getEvent(slug) {
@@ -16,7 +17,13 @@ async function getEvent(slug) {
       attendees: {
         include: {
           user: {
-            select: { instagramHandle: true, name: true }
+            select: {
+              instagramHandle: true,
+              firstName: true,
+              lastName: true,
+              preferredName: true,
+              shareFirstName: true
+            }
           }
         }
       }
@@ -100,12 +107,18 @@ export default async function EventDetailPage({ params }) {
               <div className={styles.sidebarSection}>
                 <span className="heading-font">Guest list</span>
                 <ul className={styles.guestList}>
-                  {event.attendees.slice(0, 10).map((signup) => (
-                    <li key={signup.id}>
-                      @{signup.user.instagramHandle}
-                      {signup.user.name ? ` · ${signup.user.name}` : ''}
-                    </li>
-                  ))}
+                  {event.attendees.slice(0, 10).map((signup) => {
+                    const displayName = getDisplayName({
+                      ...signup.user,
+                      instagramHandle: signup.user.instagramHandle
+                    });
+                    return (
+                      <li key={signup.id}>
+                        {displayName || `@${signup.user.instagramHandle}`}
+                        {displayName && ` · @${signup.user.instagramHandle}`}
+                      </li>
+                    );
+                  })}
                   {event.attendees.length === 0 && <li>Be the first to join.</li>}
                 </ul>
               </div>

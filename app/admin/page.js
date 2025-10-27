@@ -32,6 +32,9 @@ export default async function AdminPage() {
         <header className={styles.adminHeader}>
           <h1>Admin control room</h1>
           <p>Manage the calendar, color palettes, and guest list access.</p>
+          <a href="/admin/members" className={styles.membersLink}>
+            View member directory →
+          </a>
         </header>
         <section className={styles.adminSection}>
           <span className="heading-font">Create or update an experience</span>

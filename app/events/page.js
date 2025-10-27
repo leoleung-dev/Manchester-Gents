@@ -7,7 +7,7 @@ import styles from './page.module.css';
 async function getEvents() {
   return prisma.event.findMany({
     where: { published: true },
-    orderBy: { startTime: 'asc' }
+    orderBy: { startTime: 'desc' }
   });
 }
 

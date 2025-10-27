@@ -9,6 +9,8 @@ A modern members-only experience built with Next.js for the Manchester Gents soc
 - Member dashboard showing reservations and recommended events.
 - Members capture terms & photo consents during signup and can revisit them any time from their profile.
 - Members can reserve or cancel event spots directly from the event page.
+- Private suited reference photo upload (kept off-member-facing surfaces) to help the team identify attendees in post-production.
+- Admin member directory with consent summaries and reference photos.
 - Serverless API routes backed by Prisma and PostgreSQL.
 - Ready for Vercel deployment with server actions and dynamic theming.
 
@@ -35,6 +37,7 @@ cp .env.example .env.local
 - `DATABASE_URL` — PostgreSQL connection string (Recommended: Neon, Supabase, Vercel Postgres, or Railway).
 - `NEXTAUTH_SECRET` — A 32+ character string (generate with `openssl rand -base64 32`).
 - `NEXTAUTH_URL` — `http://localhost:3000` for local development, or your Vercel URL in production.
+- `CLOUDINARY_CLOUD_NAME`, `CLOUDINARY_API_KEY`, `CLOUDINARY_API_SECRET` — credentials for storing private member reference photos.
 - Optional seed helpers (`SEED_ADMIN_*`) customise the seeded admin account.
 
 ### Database setup

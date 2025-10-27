@@ -1,7 +1,7 @@
 # UI & UX Walkthrough
 
 ## Global Elements
-- **Navigation (`components/NavBar.js`):** Uses the horizontal Manchester Gents logo SVG (includes lettering) as the home link; links to Home, Events, Dashboard, Profile, Admin (if role=ADMIN). Login/Join buttons for guests.
+- **Navigation (`components/NavBar.js`):** Uses the horizontal Manchester Gents logo SVG (includes lettering) as the home link; links to Home, Events, Dashboard, Profile, Admin (if role=ADMIN). Logged-in members see their display name (respecting preferred-name privacy) on the Profile CTA.
 - **Footer (`components/Footer.js`):** Contact links, Instagram, privacy policy, copyright.
 - **Brand Styling:** Headings use custom Thelorin font (loaded via `next/font/local` from `public/fonts/Thelorin.otf`) with contextual ligatures enabled so script connections remain intact; body text uses Inter (`next/font/google`). Palette defined in CSS variables (`app/globals.css`).
 
@@ -35,27 +35,32 @@
 - Uses `EventCard` for consistency.
 
 ### Profile (`app/profile/page.js`)
-- Contact summary (email and Instagram).
-- `ProfileForm` with three sections:
-  1. **Personal details:** Full name, preferred name, share-first-name toggle, phone.
-  2. **Terms & guidelines:** Interactive cards for each consent item.
+- `ProfileOverview` shows member snapshot cards (contact, name privacy, consent statuses, latest suited photo) so the page feels like a personal dashboard.
+- “Edit profile & consents” CTA reveals `ProfileForm`, which still contains:
+  1. **Personal details:** First/last name, optional preferred name (required when hiding first name), share-first-name toggle, phone, and private suited photo upload with an in-app circle cropper.
+  2. **Terms & guidelines:** Interactive cards for each consent item (overview reduces this to a single “Agreed” status badge when everything is confirmed).
   3. **Photo preferences:** Yes/No pills for all media questions.
-- Save button persists to `/api/profile`.
-- Displays last updated timestamp computed from `consentUpdatedAt`.
+- Saving posts to `/api/profile`, refreshes the page, and collapses back to the overview with the updated timestamp from `consentUpdatedAt`.
 
 ### Authentication
 - **Login (`app/login/page.js`):** Form for email/Instagram + password; card layout with CTA to register.
-- **Register (`app/register/page.js`):** Extended form capturing personal details, terms, and photo consents. Mirrors profile form components for consistency.
+- **Register (`app/register/page.js`):** Extended form capturing first/last name, optional preferred name, private suited photo upload (with circular cropper), plus consent toggles. Mirrors profile form components for consistency.
 
 ### Admin (`app/admin/page.js`)
 - Event creation form (title, slug, schedule, palette).
 - Listing of existing events with collapsible forms to edit palettes/details.
+- Quick link to the member directory for reviewing attendees.
 - Only accessible to admin-role users (checked via NextAuth session).
+
+### Member directory (`app/admin/members/page.js`)
+- Table of all registered gents with private reference photo preview, contact details, and consent summary.
+- Designed for admin review; photos remain private even though URLs are Cloudinary-hosted.
 
 ## Components of Interest
 - **`EventSignupButton`:** Client component managing reservation state, special requests, cancellation confirmations, and error messaging.
 - **`AuthForm`:** Two exports (RegisterForm, LoginForm) using shared `FormField`.
-- **`ProfileForm`:** Mirrors registration layout but focuses on editing existing data.
+- **`ProfileOverview`:** Read-first experience summarising member data/consents and toggling the editor.
+- **`ProfileForm`:** Mirrors registration layout but focuses on editing name privacy, private reference photo, and consent data.
 - **`AdminEventForm`:** Uses color inputs, datetime selectors, handles creation and updates via fetch.
 
 ## UX Notes

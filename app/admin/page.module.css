@@ -20,6 +20,13 @@
   gap: 0.8rem;
 }
 
+.membersLink {
+  font-size: 0.78rem;
+  text-transform: uppercase;
+  letter-spacing: 0.16em;
+  color: var(--color-gold);
+}
+
 .adminSection {
   display: flex;
   flex-direction: column;

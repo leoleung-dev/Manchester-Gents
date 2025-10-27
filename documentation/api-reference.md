@@ -30,6 +30,18 @@ All endpoints live under `app/api`. Requests/Responses use JSON. Errors return `
   - `400` validation error.
   - `401` unauthenticated.
   - `500` server error.
+- **Note:** Also updates first/last/preferred names, phone number, and private profile photo URL.
+
+### `POST /api/profile/photo`
+- **Auth:** Optional (used by registration and profile flows).
+- **Payload:** `multipart/form-data` with fields:
+  - `file` – JPEG/PNG/WebP ≤ 5 MB.
+  - `variant` – either `original` (default) or `cropped`.
+- **Behaviour:** Streams uploads to Cloudinary under `manchester-gents/profiles/{variant}`. `original` retains the member’s full-resolution suited reference; `cropped` normalises to a 400×400 PNG used for avatars.
+- **Responses:**
+  - `201` `{ url, publicId, variant }`
+  - `400` when file missing/invalid.
+  - `500` on storage failure.
 
 ## Events
 
