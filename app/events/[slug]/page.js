@@ -144,10 +144,11 @@ export default async function EventDetailPage({ params }) {
                       ...signup.user,
                       instagramHandle: signup.user.instagramHandle
                     });
+                    const handleLabel = `@${signup.user.instagramHandle}`;
+                    const showName = Boolean(session?.user);
                     return (
                       <li key={signup.id}>
-                        {displayName || `@${signup.user.instagramHandle}`}
-                        {displayName && ` · @${signup.user.instagramHandle}`}
+                        {showName && displayName ? `${displayName} · ${handleLabel}` : handleLabel}
                       </li>
                     );
                   })}

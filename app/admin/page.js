@@ -41,12 +41,6 @@ export default async function AdminPage() {
   }
 
   const { events, users } = await getAdminData();
-  const upcomingEvents = events.filter((event) => {
-    if (!event.startTime) {
-      return true;
-    }
-    return new Date(event.startTime) >= new Date();
-  });
 
   return (
     <div className={styles.page}>
@@ -65,10 +59,7 @@ export default async function AdminPage() {
             <AdminEventForm />
           </div>
           <div className={styles.formCard}>
-            <AdminAddToEventForm
-              events={upcomingEvents.length ? upcomingEvents : events}
-              users={users}
-            />
+            <AdminAddToEventForm events={events} users={users} />
           </div>
         </section>
         <section className={styles.adminSection}>

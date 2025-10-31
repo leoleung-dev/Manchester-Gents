@@ -22,9 +22,14 @@ function getUserLabel(user = {}) {
 
 export default function AdminAddToEventForm({ events = [], users = [] }) {
   const sortedEvents = useMemo(() => {
-    return [...events]
-      .filter((event) => event?.startTime)
-      .sort((a, b) => new Date(a.startTime) - new Date(b.startTime));
+    return [...events].sort((a, b) => {
+      const timeA = a.startTime ? new Date(a.startTime).getTime() : Number.POSITIVE_INFINITY;
+      const timeB = b.startTime ? new Date(b.startTime).getTime() : Number.POSITIVE_INFINITY;
+      if (timeA === timeB) {
+        return (a.title || '').localeCompare(b.title || '');
+      }
+      return timeA - timeB;
+    });
   }, [events]);
 
   const sortedUsers = useMemo(() => {
