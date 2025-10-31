@@ -60,6 +60,7 @@ model Event {
   location       String?
   startTime      DateTime
   endTime        DateTime?
+  groupChatLink  String?
   primaryColor   String?
   secondaryColor String?
   accentColor    String?

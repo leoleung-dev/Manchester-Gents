@@ -11,6 +11,7 @@ const emptyForm = {
   subtitle: '',
   description: '',
   location: '',
+  groupChatLink: '',
   startTime: '',
   endTime: '',
   primaryColor: '#ffd460',
@@ -109,6 +110,13 @@ export default function AdminEventForm({ existingEvent }) {
           placeholder="Optional"
         />
       </div>
+      <FormField
+        label="Group chat link"
+        value={formState.groupChatLink}
+        onChange={handleChange('groupChatLink')}
+        type="url"
+        placeholder="https://chat.whatsapp.com/..."
+      />
       <div className="form-grid">
         <FormField
           label="Start time"
@@ -201,6 +209,7 @@ function mapEvent(event) {
     subtitle: event.subtitle || '',
     description: event.description || '',
     location: event.location || '',
+    groupChatLink: event.groupChatLink || '',
     startTime: event.startTime ? new Date(event.startTime).toISOString().slice(0, 16) : '',
     endTime: event.endTime ? new Date(event.endTime).toISOString().slice(0, 16) : '',
     primaryColor: event.primaryColor || '#ffd460',

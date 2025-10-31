@@ -3,27 +3,38 @@
 import { useEffect, useMemo, useState } from 'react';
 import { useRouter } from 'next/navigation';
 import { useSession } from 'next-auth/react';
+import { termsChecklist, photoConsentQuestions } from '@/lib/consentContent';
 
-export default function EventSignupButton({ eventId, deadline, existingSignup }) {
+const TOTAL_STEPS = 3;
+
+export default function EventSignupButton({
+  eventId,
+  deadline,
+  existingSignup,
+  consentSnapshot,
+  groupChatLink
+}) {
   const router = useRouter();
   const { data: session, status } = useSession();
   const [note, setNote] = useState(existingSignup?.specialRequests || '');
-  const [showRequestField, setShowRequestField] = useState(Boolean(existingSignup?.specialRequests));
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [isCancelling, setIsCancelling] = useState(false);
   const [showCancelConfirm, setShowCancelConfirm] = useState(false);
   const [error, setError] = useState(null);
+  const [step, setStep] = useState(existingSignup ? TOTAL_STEPS + 1 : 1);
 
   useEffect(() => {
     setNote(existingSignup?.specialRequests || '');
-    setShowRequestField(Boolean(existingSignup?.specialRequests));
     setShowCancelConfirm(false);
     setError(null);
+    setStep(existingSignup ? TOTAL_STEPS + 1 : 1);
   }, [existingSignup]);
 
   const isLoggedIn = Boolean(session);
   const isLoading = status === 'loading';
   const isRegistered = Boolean(existingSignup);
+  const showReservedState = isRegistered || step === TOTAL_STEPS + 1;
+
   const isClosed = useMemo(() => {
     if (!deadline) {
       return false;
@@ -31,21 +42,69 @@ export default function EventSignupButton({ eventId, deadline, existingSignup })
     return new Date(deadline) < new Date();
   }, [deadline]);
 
+  const consentNeedsAttention = useMemo(() => {
+    if (!consentSnapshot) {
+      return false;
+    }
+    const missingTerms = termsChecklist.some((term) => consentSnapshot[term.key] !== true);
+    const incompletePhoto = photoConsentQuestions.some(
+      (question) => typeof consentSnapshot[question.key] !== 'boolean'
+    );
+    return missingTerms || incompletePhoto;
+  }, [consentSnapshot]);
+
+  const consentUpdatedAtText = useMemo(() => {
+    if (!consentSnapshot?.consentUpdatedAt) {
+      return null;
+    }
+    try {
+      return new Intl.DateTimeFormat('en-GB', {
+        dateStyle: 'medium',
+        timeStyle: 'short'
+      }).format(new Date(consentSnapshot.consentUpdatedAt));
+    } catch (err) {
+      return consentSnapshot.consentUpdatedAt;
+    }
+  }, [consentSnapshot]);
+
+  const chatHostname = useMemo(() => {
+    if (!groupChatLink) {
+      return null;
+    }
+    try {
+      const url = new URL(groupChatLink);
+      return url.hostname.replace(/^www\./, '');
+    } catch (err) {
+      return groupChatLink;
+    }
+  }, [groupChatLink]);
+
+  const handleNext = () => {
+    if (!isLoggedIn) {
+      router.push('/login?from=event');
+      return;
+    }
+    if (step < TOTAL_STEPS) {
+      setStep((prev) => Math.min(TOTAL_STEPS, prev + 1));
+    }
+  };
+
+  const handleBack = () => {
+    setStep((prev) => Math.max(1, prev - 1));
+  };
+
   const handleReserve = async () => {
     if (!isLoggedIn) {
       router.push('/login?from=event');
       return;
     }
-    if (isClosed) {
+    if (isClosed || isSubmitting) {
       return;
     }
     setIsSubmitting(true);
     setError(null);
     try {
-      const payload =
-        showRequestField && note.trim().length
-          ? { specialRequests: note.trim() }
-          : {};
+      const payload = note.trim().length ? { specialRequests: note.trim() } : {};
       const response = await fetch(`/api/events/${eventId}/signup`, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
@@ -55,6 +114,7 @@ export default function EventSignupButton({ eventId, deadline, existingSignup })
         const data = await response.json();
         throw new Error(data?.error || 'Unable to reserve your spot right now.');
       }
+      setStep(TOTAL_STEPS + 1);
       router.refresh();
     } catch (err) {
       setError(err.message);
@@ -66,6 +126,9 @@ export default function EventSignupButton({ eventId, deadline, existingSignup })
   const handleCancel = async () => {
     if (!isLoggedIn) {
       router.push('/login?from=event');
+      return;
+    }
+    if (isCancelling) {
       return;
     }
     setIsCancelling(true);
@@ -90,93 +153,204 @@ export default function EventSignupButton({ eventId, deadline, existingSignup })
     return null;
   }
 
+  const pendingRequests = existingSignup?.specialRequests || (step === TOTAL_STEPS + 1 ? note.trim() : null);
+  const canCancel = isRegistered;
+  const showChatLink = Boolean(groupChatLink);
+
   return (
     <div className="rsvp-container">
-      {isRegistered ? (
+      {showReservedState ? (
         <div className="reserved-card">
-          <span>🎩 You are confirmed for this event.</span>
-          {existingSignup?.specialRequests && (
-            <p className="reserved-note">
-              Special request: {existingSignup.specialRequests}
-            </p>
+          <span className="reserved-eyebrow">🎩 You are confirmed for this event.</span>
+          {pendingRequests && (
+            <p className="reserved-note">Special request: {pendingRequests}</p>
           )}
-          {showCancelConfirm ? (
-            <div className="cancel-panel">
-              <p>Need to free up your spot?</p>
-              <div className="button-row">
-                <button
-                  type="button"
-                  className="secondary-btn"
-                  disabled={isCancelling}
-                  onClick={() => setShowCancelConfirm(false)}
-                >
-                  Keep my reservation
-                </button>
-                <button
-                  type="button"
-                  className="danger-btn"
-                  disabled={isCancelling}
-                  onClick={handleCancel}
-                >
-                  {isCancelling ? 'Cancelling…' : 'Cancel RSVP'}
-                </button>
-              </div>
-            </div>
-          ) : (
-            <button
-              type="button"
-              className="secondary-btn"
-              onClick={() => setShowCancelConfirm(true)}
+          {showChatLink ? (
+            <a
+              href={groupChatLink}
+              className="chat-link"
+              target="_blank"
+              rel="noopener noreferrer"
             >
-              Cancel my RSVP
-            </button>
+              Join the attendee chat {chatHostname ? `(${chatHostname})` : ''}
+            </a>
+          ) : (
+            <p className="hint">We will share the attendee chat link soon.</p>
+          )}
+          {canCancel ? (
+            showCancelConfirm ? (
+              <div className="cancel-panel">
+                <p>Need to free up your spot?</p>
+                <div className="button-row">
+                  <button
+                    type="button"
+                    className="secondary-btn"
+                    disabled={isCancelling}
+                    onClick={() => setShowCancelConfirm(false)}
+                  >
+                    Keep my reservation
+                  </button>
+                  <button
+                    type="button"
+                    className="danger-btn"
+                    disabled={isCancelling}
+                    onClick={handleCancel}
+                  >
+                    {isCancelling ? 'Cancelling…' : 'Cancel RSVP'}
+                  </button>
+                </div>
+              </div>
+            ) : (
+              <button
+                type="button"
+                className="secondary-btn"
+                onClick={() => setShowCancelConfirm(true)}
+              >
+                Cancel my RSVP
+              </button>
+            )
+          ) : (
+            <p className="hint">We are confirming your reservation…</p>
           )}
         </div>
       ) : (
-        <div className="reserve-card">
-          {showRequestField && (
-            <label className="request-field">
-              <span>Special requests (optional)</span>
-              <textarea
-                rows={3}
-                value={note}
-                onChange={(event) => setNote(event.target.value)}
-                placeholder="Dietary needs, access considerations, or other notes for the host."
-              />
-              <button
-                type="button"
-                className="link-button"
-                onClick={() => setShowRequestField(false)}
-              >
-                Remove special request
-              </button>
-            </label>
-          )}
+        <div className="step-card">
+          <div className="step-header">
+            <span className="step-count">Step {step} of {TOTAL_STEPS}</span>
+            <h3 className="step-title">
+              {step === 1 && 'Refresh the Manchester Gents code'}
+              {step === 2 && 'Share any special requirements'}
+              {step === 3 && 'Lock in your spot & meet the attendees'}
+            </h3>
+          </div>
+          <div className="step-content">
+            {step === 1 && (
+              <>
+                <p className="step-copy">
+                  Here is a quick refresher of the promises and photo preferences on your profile.
+                  Update them anytime from the member profile page.
+                </p>
+                <div className="consent-columns">
+                  <div className="consent-column">
+                    <span className="section-eyebrow">Community commitments</span>
+                    <ul className="consent-list">
+                      {termsChecklist.map((term) => {
+                        const accepted = consentSnapshot?.[term.key] === true;
+                        return (
+                          <li key={term.key} className={accepted ? 'consent-ok' : 'consent-missing'}>
+                            <span className="consent-label">
+                              {accepted ? '✓' : '•'} {term.title}
+                            </span>
+                            <p>{term.description}</p>
+                          </li>
+                        );
+                      })}
+                    </ul>
+                  </div>
+                  <div className="consent-column">
+                    <span className="section-eyebrow">Photo preferences</span>
+                    <ul className="consent-list">
+                      {photoConsentQuestions.map((question) => {
+                        const value = consentSnapshot?.[question.key];
+                        const display =
+                          value === true ? 'Yes' : value === false ? 'No' : 'Not set';
+                        return (
+                          <li key={question.key} className={value === true || value === false ? 'consent-ok' : 'consent-missing'}>
+                            <span className="consent-label">{question.helper}</span>
+                            <p>{question.label}</p>
+                            <span className="photo-value">{display}</span>
+                          </li>
+                        );
+                      })}
+                    </ul>
+                  </div>
+                </div>
+                {consentUpdatedAtText && (
+                  <p className="step-note">Last updated {consentUpdatedAtText}.</p>
+                )}
+                {consentNeedsAttention && (
+                  <div className="step-warning">
+                    <p>It looks like a few items still need your approval. Please review your profile before confirming your RSVP.</p>
+                    <button type="button" className="secondary-btn" onClick={() => router.push('/profile')}>
+                      Review my consents
+                    </button>
+                  </div>
+                )}
+                {!isLoggedIn && (
+                  <p className="step-note">Sign in to continue with your RSVP.</p>
+                )}
+              </>
+            )}
+            {step === 2 && (
+              <>
+                <p className="step-copy">
+                  Let us know about dietary needs, accessibility considerations, or anything else we should prepare.
+                </p>
+                <label className="request-field">
+                  <span>Special requests (optional)</span>
+                  <textarea
+                    rows={4}
+                    value={note}
+                    onChange={(event) => setNote(event.target.value)}
+                    placeholder="Drop any needs we should know about before the social."
+                  />
+                </label>
+              </>
+            )}
+            {step === 3 && (
+              <>
+                <p className="step-copy">
+                  Ready to reserve your place? We will confirm your RSVP and share the attendee chat so you can say hello ahead of time.
+                </p>
+                <div className="chat-preview">
+                  <span className="section-eyebrow">Attendee chat</span>
+                  {showChatLink ? (
+                    <p>
+                      We will open the chat{' '}
+                      {chatHostname ? `on ${chatHostname}` : 'with the link below'} after you confirm.
+                    </p>
+                  ) : (
+                    <p>The chat invite will be shared once it is ready.</p>
+                  )}
+                </div>
+                {consentNeedsAttention && (
+                  <p className="step-warning-text">
+                    Update your consents before confirming — the RSVP button will unlock once everything is agreed.
+                  </p>
+                )}
+              </>
+            )}
+          </div>
           <div className="button-row">
-            <button
-              type="button"
-              className="primary-btn"
-              onClick={handleReserve}
-              disabled={isSubmitting || isClosed}
-            >
-              {isClosed ? 'Registration closed' : isSubmitting ? 'Reserving…' : 'Reserve my spot'}
-            </button>
-            {!showRequestField && !isClosed && (
+            {step > 1 && (
+              <button type="button" className="secondary-btn" onClick={handleBack}>
+                Back
+              </button>
+            )}
+            {step < TOTAL_STEPS && (
               <button
                 type="button"
-                className="link-button"
-                onClick={() => setShowRequestField(true)}
+                className="primary-btn"
+                onClick={handleNext}
+                disabled={isClosed}
               >
-                Add special request
+                {isClosed ? 'Registration closed' : 'Continue'}
+              </button>
+            )}
+            {step === TOTAL_STEPS && (
+              <button
+                type="button"
+                className="primary-btn"
+                onClick={handleReserve}
+                disabled={isSubmitting || isClosed || consentNeedsAttention}
+              >
+                {isClosed ? 'Registration closed' : isSubmitting ? 'Reserving…' : 'Confirm RSVP'}
               </button>
             )}
           </div>
         </div>
       )}
-      {!isLoggedIn && !isRegistered && !isClosed && (
-        <p className="hint">Sign in to reserve your place at this event.</p>
-      )}
-      {isClosed && !isRegistered && (
+      {(!showReservedState && isClosed) && (
         <p className="hint">Registration is closed for this experience.</p>
       )}
       {error && <p className="error">{error}</p>}
@@ -184,34 +358,123 @@ export default function EventSignupButton({ eventId, deadline, existingSignup })
         .rsvp-container {
           display: flex;
           flex-direction: column;
-          gap: 0.75rem;
+          gap: 0.85rem;
         }
-        .reserve-card,
-        .reserved-card {
+        .step-card {
           display: flex;
           flex-direction: column;
-          gap: 0.75rem;
+          gap: 1.25rem;
+          padding: 1.5rem;
+          border-radius: 18px;
+          background: rgba(11, 21, 35, 0.72);
+          border: 1px solid rgba(255, 255, 255, 0.08);
         }
-        .reserved-card {
-          padding: 0.9rem 1.2rem;
-          border-radius: 16px;
-          background: rgba(52, 211, 153, 0.12);
-          border: 1px solid rgba(52, 211, 153, 0.35);
-          font-size: 0.88rem;
-          letter-spacing: 0.08em;
+        .step-header {
+          display: flex;
+          flex-direction: column;
+          gap: 0.4rem;
+        }
+        .step-count {
+          font-size: 0.75rem;
+          letter-spacing: 0.18em;
           text-transform: uppercase;
+          opacity: 0.65;
         }
-        .reserved-note {
+        .step-title {
+          margin: 0;
+          font-size: 1.1rem;
+        }
+        .step-content {
+          display: flex;
+          flex-direction: column;
+          gap: 1rem;
+        }
+        .step-copy {
+          margin: 0;
+          font-size: 0.9rem;
+          opacity: 0.78;
+          line-height: 1.5;
+        }
+        .step-note {
+          margin: 0;
+          font-size: 0.8rem;
+          opacity: 0.7;
+        }
+        .step-warning {
+          display: flex;
+          flex-direction: column;
+          gap: 0.6rem;
+          padding: 0.9rem 1rem;
+          border-radius: 14px;
+          background: rgba(255, 197, 45, 0.12);
+          border: 1px solid rgba(255, 197, 45, 0.4);
+        }
+        .step-warning p {
           margin: 0;
           font-size: 0.85rem;
-          letter-spacing: 0;
-          text-transform: none;
-          opacity: 0.8;
+          color: #ffd460;
+        }
+        .step-warning-text {
+          margin: 0;
+          font-size: 0.82rem;
+          color: #ffd460;
+        }
+        .consent-columns {
+          display: grid;
+          gap: 1rem;
+          grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+        }
+        .consent-column {
+          display: flex;
+          flex-direction: column;
+          gap: 0.6rem;
+        }
+        .section-eyebrow {
+          font-size: 0.75rem;
+          letter-spacing: 0.18em;
+          text-transform: uppercase;
+          opacity: 0.7;
+        }
+        .consent-list {
+          margin: 0;
+          padding: 0;
+          list-style: none;
+          display: flex;
+          flex-direction: column;
+          gap: 0.6rem;
+        }
+        .consent-list li {
+          padding: 0.85rem 1rem;
+          border-radius: 14px;
+          border: 1px solid rgba(255, 255, 255, 0.08);
+          background: rgba(12, 20, 33, 0.65);
+          display: flex;
+          flex-direction: column;
+          gap: 0.35rem;
+        }
+        .consent-ok {
+          border-color: rgba(132, 255, 198, 0.35);
+          background: rgba(132, 255, 198, 0.08);
+        }
+        .consent-missing {
+          border-color: rgba(255, 148, 148, 0.35);
+          background: rgba(255, 148, 148, 0.08);
+        }
+        .consent-label {
+          font-size: 0.78rem;
+          letter-spacing: 0.12em;
+          text-transform: uppercase;
+        }
+        .photo-value {
+          font-size: 0.75rem;
+          letter-spacing: 0.08em;
+          text-transform: uppercase;
+          opacity: 0.72;
         }
         .request-field {
           display: flex;
           flex-direction: column;
-          gap: 0.5rem;
+          gap: 0.6rem;
         }
         .request-field span {
           font-size: 0.78rem;
@@ -227,6 +490,15 @@ export default function EventSignupButton({ eventId, deadline, existingSignup })
           color: inherit;
           resize: vertical;
           min-height: 120px;
+        }
+        .chat-preview {
+          display: flex;
+          flex-direction: column;
+          gap: 0.5rem;
+          padding: 0.9rem 1rem;
+          border-radius: 14px;
+          border: 1px solid rgba(255, 255, 255, 0.08);
+          background: rgba(12, 20, 33, 0.65);
         }
         .button-row {
           display: flex;
@@ -258,6 +530,11 @@ export default function EventSignupButton({ eventId, deadline, existingSignup })
           background: rgba(20, 32, 49, 0.7);
           border: 1px solid rgba(255, 255, 255, 0.12);
           color: var(--color-gold);
+          cursor: pointer;
+        }
+        .secondary-btn:disabled {
+          opacity: 0.6;
+          cursor: not-allowed;
         }
         .danger-btn {
           padding: 0.7rem 1.6rem;
@@ -268,24 +545,43 @@ export default function EventSignupButton({ eventId, deadline, existingSignup })
           border: 1px solid rgba(255, 104, 104, 0.35);
           color: #ffb4b4;
         }
-        .link-button {
-          background: transparent;
-          border: none;
+        .reserved-card {
+          display: flex;
+          flex-direction: column;
+          gap: 0.9rem;
+          padding: 1.2rem 1.4rem;
+          border-radius: 18px;
+          background: rgba(52, 211, 153, 0.12);
+          border: 1px solid rgba(52, 211, 153, 0.35);
+        }
+        .reserved-eyebrow {
+          font-size: 0.88rem;
+          letter-spacing: 0.08em;
+          text-transform: uppercase;
+        }
+        .reserved-note {
+          margin: 0;
+          font-size: 0.85rem;
+          opacity: 0.8;
+        }
+        .chat-link {
+          display: inline-flex;
+          align-items: center;
+          justify-content: flex-start;
+          gap: 0.4rem;
+          padding: 0.75rem 1.2rem;
+          border-radius: 12px;
+          background: rgba(15, 23, 39, 0.85);
+          border: 1px solid rgba(255, 212, 96, 0.45);
           color: var(--color-gold);
           text-transform: uppercase;
-          letter-spacing: 0.14em;
-          font-size: 0.75rem;
-          cursor: pointer;
-          padding: 0;
-        }
-        .link-button:hover {
-          opacity: 0.8;
+          letter-spacing: 0.12em;
+          font-size: 0.78rem;
         }
         .cancel-panel {
           display: flex;
           flex-direction: column;
           gap: 0.6rem;
-          text-transform: none;
         }
         .cancel-panel p {
           margin: 0;
@@ -301,6 +597,11 @@ export default function EventSignupButton({ eventId, deadline, existingSignup })
           margin: 0;
           font-size: 0.8rem;
           color: #ff9f9f;
+        }
+        @media (max-width: 640px) {
+          .step-card {
+            padding: 1.2rem;
+          }
         }
       `}</style>
     </div>

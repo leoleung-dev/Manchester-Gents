@@ -42,6 +42,7 @@ Represents a social experience members can RSVP for.
 | `title`, `subtitle`, `description` | `String` | Marketing copy. |
 | `location` | `String?` | Venue details. |
 | `startTime`, `endTime` | `DateTime` | Scheduling. |
+| `groupChatLink` | `String?` | Optional URL to the attendee chat for quick access post-RSVP. |
 | `primaryColor`, `secondaryColor`, `accentColor`, `backgroundColor`, `textColor` | `String?` | Theme palette values. |
 | `coverImageUrl` | `String?` | Optional hero asset. |
 | `signupDeadline` | `DateTime?` | RSVP cutoff. |

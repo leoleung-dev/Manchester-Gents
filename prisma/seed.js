@@ -66,6 +66,7 @@ async function main() {
       description:
         'A relaxed two-hour meetup for well-dressed gents at The Lodge in Manchester. No agenda — just sharp tailoring, easy conversation, and the option to carry on downstairs at The Eagle afterwards.',
       location: 'The Lodge · Manchester',
+      groupChatLink: 'https://chat.whatsapp.com/example-event-link',
       startTime: new Date(Date.now() + 1000 * 60 * 60 * 24 * 10),
       endTime: new Date(Date.now() + 1000 * 60 * 60 * 24 * 10 + 1000 * 60 * 60 * 3),
       primaryColor: '#ffd460',

@@ -53,6 +53,24 @@ export default async function EventDetailPage({ params }) {
     notFound();
   }
 
+  const attendeeConsentRecord = session?.user?.id
+    ? await prisma.user.findUnique({
+        where: { id: session.user.id },
+        select: {
+          consentUpdatedAt: true,
+          termsConsentCulture: true,
+          termsSafeSpace: true,
+          termsNoHate: true,
+          termsPrivacy: true,
+          termsGuidelines: true,
+          generalPhotoConsent: true,
+          groupFaceConsent: true,
+          otherFaceConsent: true,
+          taggingConsent: true
+        }
+      })
+    : null;
+
   const existingSignup = session
     ? event.attendees.find((signup) => signup.userId === session.user.id)
     : null;
@@ -62,6 +80,15 @@ export default async function EventDetailPage({ params }) {
       ' · ' +
       format(new Date(event.startTime), 'h:mmaaa')
     : 'Date to be confirmed';
+
+  const attendeeConsent = attendeeConsentRecord
+    ? {
+        ...attendeeConsentRecord,
+        consentUpdatedAt: attendeeConsentRecord.consentUpdatedAt
+          ? attendeeConsentRecord.consentUpdatedAt.toISOString()
+          : null
+      }
+    : null;
 
   const palette = {
     primaryColor: event.primaryColor,
@@ -87,23 +114,11 @@ export default async function EventDetailPage({ params }) {
                 eventId={event.id}
                 deadline={event.signupDeadline}
                 existingSignup={existingSignup}
+                consentSnapshot={attendeeConsent}
+                groupChatLink={event.groupChatLink}
               />
             </div>
             <aside className={`${styles.eventSidebar} glass-panel`}>
-              <div className={styles.sidebarSection}>
-                <span className="heading-font">Palette preview</span>
-                <div className={styles.paletteGrid}>
-                  {['primaryColor', 'secondaryColor', 'accentColor'].map((key) => (
-                    <div
-                      key={key}
-                      className={styles.paletteSwatch}
-                      style={{ background: event[key] || 'var(--color-slate)' }}
-                    >
-                      <span>{event[key] || 'Default'}</span>
-                    </div>
-                  ))}
-                </div>
-              </div>
               <div className={styles.sidebarSection}>
                 <span className="heading-font">Guest list</span>
                 <ul className={styles.guestList}>
