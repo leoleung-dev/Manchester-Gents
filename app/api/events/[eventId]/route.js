@@ -2,6 +2,9 @@ import prisma from '@/lib/prisma';
 import { requireAuth } from '@/lib/auth';
 import { eventSchema } from '@/lib/validators';
 
+export const dynamic = 'force-dynamic';
+export const runtime = 'nodejs';
+
 function normalizeEventInput(data) {
   const eventData = { ...data };
   if (eventData.startTime === '') {
