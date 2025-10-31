@@ -30,6 +30,20 @@ async function uploadToCloudinary(buffer, folder, options = {}) {
 }
 
 export async function POST(request) {
+  const requiredEnv = [
+    'CLOUDINARY_CLOUD_NAME',
+    'CLOUDINARY_API_KEY',
+    'CLOUDINARY_API_SECRET'
+  ];
+  const missingEnv = requiredEnv.filter((key) => !process.env[key]);
+  if (missingEnv.length) {
+    console.error('Profile photo upload error: missing Cloudinary env vars', missingEnv);
+    return NextResponse.json(
+      { error: `Cloudinary configuration missing: ${missingEnv.join(', ')}` },
+      { status: 500 }
+    );
+  }
+
   try {
     const formData = await request.formData();
     const file = formData.get('file');
@@ -49,11 +63,16 @@ export async function POST(request) {
 
     const arrayBuffer = await file.arrayBuffer();
     const buffer = Buffer.from(arrayBuffer);
-    const folder = variant === 'cropped'
-      ? 'manchester-gents/profiles/cropped'
-      : 'manchester-gents/profiles/original';
+    const folder =
+      variant === 'cropped'
+        ? 'manchester-gents/profiles/cropped'
+        : 'manchester-gents/profiles/original';
 
-    const result = await uploadToCloudinary(buffer, folder, variant === 'cropped' ? { format: 'png' } : {});
+    const result = await uploadToCloudinary(
+      buffer,
+      folder,
+      variant === 'cropped' ? { format: 'png' } : {}
+    );
 
     return NextResponse.json(
       {
