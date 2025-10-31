@@ -7,7 +7,7 @@ export const runtime = 'nodejs';
 export const size = { width: 1200, height: 630 };
 export const contentType = 'image/png';
 
-export async function GET(request, { params }) {
+export default async function GET(request, { params }) {
   const { slug } = params;
   const event = await prisma.event.findUnique({
     where: { slug },
