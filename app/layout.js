@@ -18,7 +18,26 @@ const bodyFont = Inter({
 export const metadata = {
   title: 'Manchester Gents',
   description:
-    'Relaxed socials for suited gents at The Lodge in Manchester — drinks, conversation, and effortless style.'
+    'Relaxed socials for suited gents at The Lodge in Manchester — drinks, conversation, and effortless style.',
+  icons: {
+    icon: [
+      { url: '/icons/favicon.ico', type: 'image/x-icon' }
+    ],
+    shortcut: [
+      { url: '/icons/favicon.ico', type: 'image/x-icon' }
+    ],
+    apple: [
+      { url: '/icons/apple-touch-icon.png' },
+      { url: '/icons/apple-touch-icon-57x57.png', sizes: '57x57' },
+      { url: '/icons/apple-touch-icon-72x72.png', sizes: '72x72' },
+      { url: '/icons/apple-touch-icon-76x76.png', sizes: '76x76' },
+      { url: '/icons/apple-touch-icon-114x114.png', sizes: '114x114' },
+      { url: '/icons/apple-touch-icon-120x120.png', sizes: '120x120' },
+      { url: '/icons/apple-touch-icon-144x144.png', sizes: '144x144' },
+      { url: '/icons/apple-touch-icon-152x152.png', sizes: '152x152' },
+      { url: '/icons/apple-touch-icon-180x180.png', sizes: '180x180' }
+    ]
+  }
 };
 
 export default function RootLayout({ children }) {
