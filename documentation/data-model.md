@@ -24,6 +24,7 @@ Stores member identity, authentication, and consent preferences.
 | `groupFaceConsent` | `Boolean` | Consent for including face in group shots. |
 | `otherFaceConsent` | `Boolean` | Consent for close-ups / individual shots. |
 | `taggingConsent` | `Boolean` | OK to tag on social posts. |
+| `isPlaceholder` | `Boolean` | Marks lightweight records created for historical attendees. |
 | `termsConsentCulture`, `termsSafeSpace`, `termsNoHate`, `termsPrivacy`, `termsGuidelines` | `Boolean` | Individual agreements to key guidelines. |
 | `termsAgreed` | `Boolean` | Derived flag indicating all terms are acknowledged. |
 | `termsSignedAt` | `DateTime?` | Timestamp of the latest consent agreement. |
@@ -43,6 +44,7 @@ Represents a social experience members can RSVP for.
 | `location` | `String?` | Venue details. |
 | `startTime`, `endTime` | `DateTime` | Scheduling. |
 | `groupChatLink` | `String?` | Optional URL to the attendee chat for quick access post-RSVP. |
+| `galleryUrl` | `String?` | Optional URL to the post-event photo gallery. |
 | `primaryColor`, `secondaryColor`, `accentColor`, `backgroundColor`, `textColor` | `String?` | Theme palette values. |
 | `coverImageUrl` | `String?` | Optional hero asset. |
 | `signupDeadline` | `DateTime?` | RSVP cutoff. |

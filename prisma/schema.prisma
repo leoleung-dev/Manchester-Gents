@@ -36,6 +36,7 @@ model User {
   groupFaceConsent   Boolean    @default(false)
   otherFaceConsent   Boolean    @default(false)
   taggingConsent     Boolean    @default(false)
+  isPlaceholder      Boolean    @default(false)
   termsConsentCulture Boolean   @default(false)
   termsSafeSpace      Boolean   @default(false)
   termsNoHate         Boolean   @default(false)
@@ -61,6 +62,7 @@ model Event {
   startTime      DateTime
   endTime        DateTime?
   groupChatLink  String?
+  galleryUrl     String?    @map("galleryurl")
   primaryColor   String?
   secondaryColor String?
   accentColor    String?

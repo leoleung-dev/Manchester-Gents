@@ -337,6 +337,10 @@ export default function ProfileOverview({ user }) {
           justify-content: space-between;
           align-items: center;
           gap: 1rem;
+          flex-wrap: wrap;
+        }
+        .editor-head .heading-font {
+          flex: 1 1 220px;
         }
         .close-button {
           padding: 0.6rem 1.4rem;
@@ -350,7 +354,7 @@ export default function ProfileOverview({ user }) {
         }
         @media (max-width: 720px) {
           .hero {
-            padding: 1.75rem;
+            padding: 1.5rem;
           }
           .hero-photo {
             width: 100%;
@@ -359,6 +363,9 @@ export default function ProfileOverview({ user }) {
           .photo-caption {
             text-align: left;
           }
+          .info-card {
+            padding: 1.25rem;
+          }
           .launch-edit,
           .close-button {
             width: 100%;
@@ -366,6 +373,14 @@ export default function ProfileOverview({ user }) {
           }
           .contact-details {
             gap: 0.85rem;
+          }
+          .editor {
+            gap: 1.25rem;
+          }
+          .editor-head {
+            flex-direction: column;
+            align-items: flex-start;
+            gap: 0.75rem;
           }
         }
       `}</style>

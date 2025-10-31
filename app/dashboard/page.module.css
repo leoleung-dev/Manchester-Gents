@@ -9,7 +9,7 @@
   display: flex;
   flex-direction: column;
   gap: 3rem;
-  padding: 3rem 1.5rem 5rem;
+  padding: clamp(2.5rem, 6vw, 3.5rem) clamp(1rem, 5vw, 1.75rem) clamp(4rem, 10vw, 5.5rem);
   max-width: 1160px;
   margin: 0 auto;
   width: 100%;
@@ -50,4 +50,13 @@
   padding: 2rem;
   border-radius: 20px;
   text-align: center;
+}
+
+@media (max-width: 720px) {
+  .dashboardMain {
+    gap: 2.5rem;
+  }
+  .dashboardEmpty {
+    padding: 1.5rem;
+  }
 }

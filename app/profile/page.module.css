@@ -8,11 +8,11 @@
   flex: 1;
   max-width: 1160px;
   margin: 0 auto;
-  padding: 3rem 1.5rem 5rem;
+  padding: clamp(2.5rem, 6vw, 3.25rem) clamp(1rem, 5vw, 1.75rem) clamp(4rem, 10vw, 5.5rem);
   display: flex;
   flex-direction: column;
   gap: 2.5rem;
-  width: 100%%;
+  width: 100%;
 }
 
 .profileHeader {
@@ -20,4 +20,10 @@
   flex-direction: column;
   gap: 0.85rem;
   max-width: 640px;
+}
+
+@media (max-width: 640px) {
+  .profileMain {
+    gap: 2rem;
+  }
 }

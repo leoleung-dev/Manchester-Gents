@@ -315,6 +315,7 @@ export function RegisterForm() {
         .terms-grid {
           display: grid;
           gap: 1rem;
+          grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
         }
         .term-card {
           text-align: left;
@@ -346,6 +347,7 @@ export function RegisterForm() {
         .photo-grid {
           display: grid;
           gap: 1rem;
+          grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
         }
         .photo-card {
           border-radius: 16px;
@@ -385,6 +387,18 @@ export function RegisterForm() {
           margin: 0;
           color: #ff9f9f;
           font-size: 0.8rem;
+        }
+        @media (max-width: 720px) {
+          .form-section {
+            padding: 1rem;
+          }
+          .radio-group {
+            gap: 0.5rem;
+          }
+          .auth-submit {
+            width: 100%;
+            text-align: center;
+          }
         }
       `}</style>
     </form>
@@ -472,6 +486,12 @@ export function LoginForm() {
           margin: 0;
           color: #ff9f9f;
           font-size: 0.8rem;
+        }
+        @media (max-width: 720px) {
+          .auth-submit {
+            width: 100%;
+            text-align: center;
+          }
         }
       `}</style>
     </form>

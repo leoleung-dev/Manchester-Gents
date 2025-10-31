@@ -6,6 +6,7 @@ import { authOptions } from '@/lib/auth';
 import NavBar from '@/components/NavBar';
 import Footer from '@/components/Footer';
 import { getDisplayName } from '@/lib/displayName';
+import AdminPlaceholderForm from '@/components/AdminPlaceholderForm';
 import styles from './members.module.css';
 
 async function getMembers() {
@@ -26,7 +27,8 @@ async function getMembers() {
       groupFaceConsent: true,
       otherFaceConsent: true,
       taggingConsent: true,
-      createdAt: true
+      createdAt: true,
+      isPlaceholder: true
     }
   });
 }
@@ -51,6 +53,9 @@ export default async function AdminMembersPage() {
           <h1>Member directory</h1>
           <p>Review all registered gents, their consent preferences, and private reference photos.</p>
         </header>
+        <section className={styles.placeholderSection}>
+          <AdminPlaceholderForm />
+        </section>
         <div className={styles.tableWrapper}>
           <table className={styles.table}>
             <thead>
@@ -90,9 +95,14 @@ export default async function AdminMembersPage() {
                     <td>
                       <div className={styles.nameBlock}>
                         <span className={styles.name}>{displayName}</span>
-                        <span className={styles.subtle}>
-                          {member.shareFirstName ? 'Sharing first name' : 'Prefers alias'}
-                        </span>
+                        <div className={styles.metaRow}>
+                          <span className={styles.subtle}>
+                            {member.shareFirstName ? 'Sharing first name' : 'Prefers alias'}
+                          </span>
+                          {member.isPlaceholder && (
+                            <span className={styles.placeholderBadge}>Placeholder</span>
+                          )}
+                        </div>
                       </div>
                     </td>
                     <td>

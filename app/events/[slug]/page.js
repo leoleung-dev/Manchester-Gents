@@ -96,6 +96,7 @@ export default async function EventDetailPage({ params }) {
     backgroundColor: event.backgroundColor,
     textColor: event.textColor
   };
+  const eventHasStarted = event.startTime ? new Date(event.startTime) <= new Date() : false;
 
   return (
     <div className={styles.page}>
@@ -119,6 +120,22 @@ export default async function EventDetailPage({ params }) {
               />
             </div>
             <aside className={`${styles.eventSidebar} glass-panel`}>
+              {eventHasStarted && event.galleryUrl && (
+                <div className={styles.sidebarSection}>
+                  <span className="heading-font">Event gallery</span>
+                  <p className={styles.sidebarCopy}>
+                    Relive the night and download your favourite shots from the club photographer.
+                  </p>
+                  <a
+                    href={event.galleryUrl}
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    className={styles.galleryLink}
+                  >
+                    View the gallery →
+                  </a>
+                </div>
+              )}
               <div className={styles.sidebarSection}>
                 <span className="heading-font">Guest list</span>
                 <ul className={styles.guestList}>

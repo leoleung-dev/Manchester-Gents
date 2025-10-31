@@ -12,6 +12,7 @@ const emptyForm = {
   description: '',
   location: '',
   groupChatLink: '',
+  galleryUrl: '',
   startTime: '',
   endTime: '',
   primaryColor: '#ffd460',
@@ -138,6 +139,13 @@ export default function AdminEventForm({ existingEvent }) {
         onChange={handleChange('signupDeadline')}
         type="datetime-local"
       />
+      <FormField
+        label="Gallery link"
+        value={formState.galleryUrl}
+        onChange={handleChange('galleryUrl')}
+        type="url"
+        placeholder="https://..."
+      />
       <div className="color-grid">
         {[
           ['primaryColor', 'Primary'],
@@ -210,6 +218,7 @@ function mapEvent(event) {
     description: event.description || '',
     location: event.location || '',
     groupChatLink: event.groupChatLink || '',
+    galleryUrl: event.galleryUrl || '',
     startTime: event.startTime ? new Date(event.startTime).toISOString().slice(0, 16) : '',
     endTime: event.endTime ? new Date(event.endTime).toISOString().slice(0, 16) : '',
     primaryColor: event.primaryColor || '#ffd460',

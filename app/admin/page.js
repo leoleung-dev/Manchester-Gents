@@ -1,16 +1,33 @@
 import NavBar from '@/components/NavBar';
 import Footer from '@/components/Footer';
 import AdminEventForm from '@/components/AdminEventForm';
+import AdminAddToEventForm from '@/components/AdminAddToEventForm';
 import prisma from '@/lib/prisma';
 import { authOptions } from '@/lib/auth';
 import { getServerSession } from 'next-auth';
 import { redirect } from 'next/navigation';
+import { format } from 'date-fns';
 import styles from './page.module.css';
 
 async function getAdminData() {
-  return prisma.event.findMany({
-    orderBy: { startTime: 'desc' }
-  });
+  const [events, users] = await Promise.all([
+    prisma.event.findMany({
+      orderBy: { startTime: 'asc' }
+    }),
+    prisma.user.findMany({
+      orderBy: [{ isPlaceholder: 'asc' }, { instagramHandle: 'asc' }],
+      select: {
+        id: true,
+        instagramHandle: true,
+        firstName: true,
+        lastName: true,
+        preferredName: true,
+        shareFirstName: true,
+        isPlaceholder: true
+      }
+    })
+  ]);
+  return { events, users };
 }
 
 export const metadata = {
@@ -23,7 +40,13 @@ export default async function AdminPage() {
     redirect('/');
   }
 
-  const events = await getAdminData();
+  const { events, users } = await getAdminData();
+  const upcomingEvents = events.filter((event) => {
+    if (!event.startTime) {
+      return true;
+    }
+    return new Date(event.startTime) >= new Date();
+  });
 
   return (
     <div className={styles.page}>
@@ -36,14 +59,27 @@ export default async function AdminPage() {
             View member directory →
           </a>
         </header>
-        <section className={styles.adminSection}>
-          <span className="heading-font">Create or update an experience</span>
-          <AdminEventForm />
+        <section className={styles.adminGrid}>
+          <div className={styles.formCard}>
+            <span className="heading-font">Create or update an experience</span>
+            <AdminEventForm />
+          </div>
+          <div className={styles.formCard}>
+            <AdminAddToEventForm
+              events={upcomingEvents.length ? upcomingEvents : events}
+              users={users}
+            />
+          </div>
         </section>
         <section className={styles.adminSection}>
           <span className="heading-font">Existing events</span>
           <div className={styles.adminList}>
-            {events.map((event) => (
+            {events.map((event) => {
+              const startTime = event.startTime ? new Date(event.startTime) : null;
+              const schedule = startTime
+                ? format(startTime, 'd MMM yyyy • h:mmaaa')
+                : 'Schedule TBA';
+              return (
               <article key={event.id} className={`${styles.adminEvent} glass-panel`}>
                 <div className={styles.adminEventTop}>
                   <div>
@@ -54,13 +90,16 @@ export default async function AdminPage() {
                     {event.published ? 'Published' : 'Draft'}
                   </span>
                 </div>
-                <p className={styles.adminEventDescription}>{event.description}</p>
+                <p className={styles.adminEventMeta}>{schedule}{event.location ? ` · ${event.location}` : ''}</p>
+                <p className={styles.adminEventDescription}>
+                  {event.description || 'No description provided yet.'}
+                </p>
                 <details className={styles.details}>
                   <summary className={styles.summary}>Edit palette</summary>
                   <AdminEventForm existingEvent={event} />
                 </details>
               </article>
-            ))}
+            );})}
             {events.length === 0 && (
               <div className={`${styles.adminEmpty} glass-panel`}>
                 <h3>No events created yet</h3>

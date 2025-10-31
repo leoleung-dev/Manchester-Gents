@@ -213,7 +213,7 @@ export default function EventSignupButton({
             <p className="hint">We are confirming your reservation…</p>
           )}
         </div>
-      ) : (
+      ) : isClosed ? null : (
         <div className="step-card">
           <div className="step-header">
             <span className="step-count">Step {step} of {TOTAL_STEPS}</span>
@@ -350,9 +350,7 @@ export default function EventSignupButton({
           </div>
         </div>
       )}
-      {(!showReservedState && isClosed) && (
-        <p className="hint">Registration is closed for this experience.</p>
-      )}
+      {(!showReservedState && isClosed) && null}
       {error && <p className="error">{error}</p>}
       <style jsx>{`
         .rsvp-container {

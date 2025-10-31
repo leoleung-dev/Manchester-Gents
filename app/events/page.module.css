@@ -8,8 +8,8 @@
   flex: 1;
   display: flex;
   flex-direction: column;
-  gap: 2.5rem;
-  padding: 3rem 1.5rem 5rem;
+  gap: 3rem;
+  padding: clamp(2.5rem, 6vw, 3.25rem) clamp(1rem, 5vw, 1.75rem) clamp(4rem, 10vw, 5.5rem);
   max-width: 1160px;
   margin: 0 auto;
   width: 100%;
@@ -18,18 +18,89 @@
 .eventsHero {
   display: flex;
   flex-direction: column;
-  gap: 0.75rem;
+  gap: 0.85rem;
   max-width: 620px;
+  padding: clamp(1.75rem, 5vw, 2.5rem);
+  border-radius: 28px;
+  background: rgba(12, 22, 35, 0.72);
+  border: 1px solid rgba(255, 255, 255, 0.08);
 }
 
 .eventsList {
   display: grid;
-  gap: 1.5rem;
-  grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+  grid-template-columns: repeat(auto-fit, minmax(260px, 1fr));
+  gap: clamp(1.4rem, 3vw, 1.9rem);
+  position: relative;
+  padding: clamp(1.5rem, 4vw, 2.25rem);
+  border-radius: 26px;
+  background: rgba(12, 22, 35, 0.72);
+  border: 1px solid rgba(255, 255, 255, 0.08);
+}
+
+.eventsList::before {
+  content: '';
+  position: absolute;
+  inset: clamp(-2rem, -4vw, -1.5rem) clamp(-1rem, -3vw, -0.5rem) auto
+    clamp(-1rem, -3vw, -0.5rem);
+  height: 1px;
+  background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.12), transparent);
+  pointer-events: none;
+}
+
+.featuredCardWrapper {
+  grid-column: 1 / -1;
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(260px, 1fr));
+  gap: clamp(1.25rem, 3vw, 1.75rem);
+}
+
+.eventCardWrapper {
+  display: flex;
+}
+
+.featuredCardWrapper > *,
+.eventCardWrapper > * {
+  width: 100%;
+}
+
+.eventsGroup {
+  display: flex;
+  flex-direction: column;
+  gap: clamp(1.6rem, 4vw, 2rem);
+}
+
+.groupHeader {
+  display: flex;
+  flex-direction: column;
+  gap: 0.65rem;
+  max-width: 560px;
 }
 
 .noEvents {
-  padding: 2rem;
+  padding: clamp(1.5rem, 4vw, 2rem);
   text-align: center;
   border-radius: 20px;
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  background: rgba(15, 26, 40, 0.5);
+}
+
+@media (max-width: 720px) {
+  .eventsMain {
+    gap: 2rem;
+  }
+  .eventsList::before {
+    inset: -1.5rem 0 auto;
+  }
+  .featuredCardWrapper {
+    grid-template-columns: 1fr;
+  }
+  .noEvents {
+    padding: 1.5rem;
+  }
+}
+.sectionEyebrow {
+  font-size: 0.75rem;
+  letter-spacing: 0.22em;
+  text-transform: uppercase;
+  opacity: 0.68;
 }

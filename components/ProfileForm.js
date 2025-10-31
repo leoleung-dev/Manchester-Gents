@@ -258,6 +258,7 @@ export default function ProfileForm({ user }) {
           gap: 1.5rem;
           padding: 2rem;
           border-radius: 20px;
+          width: 100%;
         }
         .form-head {
           display: flex;
@@ -308,6 +309,7 @@ export default function ProfileForm({ user }) {
         .terms-grid {
           display: grid;
           gap: 1rem;
+          grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
         }
         .term-card {
           text-align: left;
@@ -339,6 +341,7 @@ export default function ProfileForm({ user }) {
         .photo-grid {
           display: grid;
           gap: 1rem;
+          grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
         }
         .photo-card {
           border-radius: 16px;
@@ -384,6 +387,32 @@ export default function ProfileForm({ user }) {
         .primary-btn:disabled {
           opacity: 0.6;
           cursor: not-allowed;
+        }
+        @media (max-width: 720px) {
+          .profile-form {
+            padding: 1.4rem;
+            gap: 1.25rem;
+          }
+          .form-section {
+            padding: 1rem;
+            gap: 0.85rem;
+          }
+          .form-head {
+            gap: 0.25rem;
+          }
+          .radio-group {
+            gap: 0.5rem;
+          }
+          .term-card,
+          .photo-card {
+            padding: 0.9rem 1rem;
+          }
+          .form-footer {
+            justify-content: center;
+          }
+          .primary-btn {
+            width: 100%;
+          }
         }
       `}</style>
     </form>

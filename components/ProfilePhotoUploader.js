@@ -1,6 +1,7 @@
 'use client';
 
 import { useState, useEffect, useCallback } from 'react';
+import { createPortal } from 'react-dom';
 import Cropper from 'react-easy-crop';
 import 'react-easy-crop/react-easy-crop.css';
 import { getCroppedImage } from '@/lib/cropImage';
@@ -18,6 +19,7 @@ export default function ProfilePhotoUploader({ value, onChange, disabled = false
   const [cropSource, setCropSource] = useState(null);
   const [cropSourceIsObjectUrl, setCropSourceIsObjectUrl] = useState(false);
   const [showCropper, setShowCropper] = useState(false);
+  const [isPortalReady, setIsPortalReady] = useState(false);
 
   useEffect(() => () => {
     if (cropSource && cropSourceIsObjectUrl) {
@@ -62,6 +64,34 @@ export default function ProfilePhotoUploader({ value, onChange, disabled = false
   const onCropComplete = useCallback((_, croppedPixels) => {
     setCroppedAreaPixels(croppedPixels);
   }, []);
+
+  useEffect(() => {
+    setIsPortalReady(true);
+  }, []);
+
+  useEffect(() => {
+    if (!isPortalReady || !showCropper) {
+      return undefined;
+    }
+
+    const originalBodyOverflow = document.body.style.overflow;
+    const originalHtmlOverflow = document.documentElement.style.overflow;
+    const originalBodyPadding = document.body.style.paddingRight;
+
+    const scrollbarWidth = window.innerWidth - document.documentElement.clientWidth;
+    if (scrollbarWidth > 0) {
+      document.body.style.paddingRight = `${scrollbarWidth}px`;
+    }
+
+    document.body.style.overflow = 'hidden';
+    document.documentElement.style.overflow = 'hidden';
+
+    return () => {
+      document.body.style.overflow = originalBodyOverflow;
+      document.documentElement.style.overflow = originalHtmlOverflow;
+      document.body.style.paddingRight = originalBodyPadding;
+    };
+  }, [showCropper, isPortalReady]);
 
   const handleCropConfirm = async () => {
     if (!cropSource || !croppedAreaPixels) {
@@ -142,44 +172,22 @@ export default function ProfilePhotoUploader({ value, onChange, disabled = false
 
       </div>
       {showCropper && cropSource && (
-        <div className="cropper-overlay">
-          <div className="cropper-container" role="dialog" aria-modal="true">
-            <div className="cropper-frame">
-              <Cropper
+        isPortalReady
+          ? createPortal(
+              <CropperModal
                 image={cropSource}
                 crop={crop}
                 zoom={zoom}
-                aspect={1}
-                cropShape="round"
-                showGrid={false}
                 onCropChange={setCrop}
                 onZoomChange={setZoom}
                 onCropComplete={onCropComplete}
-              />
-            </div>
-            <div className="cropper-controls">
-              <label>
-                Zoom
-                <input
-                  type="range"
-                  min="1"
-                  max="3"
-                  step="0.1"
-                  value={zoom}
-                  onChange={(event) => setZoom(Number(event.target.value))}
-                />
-              </label>
-              <div className="cropper-buttons">
-                <button type="button" onClick={() => setShowCropper(false)} disabled={isCroppedUploading}>
-                  Cancel
-                </button>
-                <button type="button" onClick={handleCropConfirm} disabled={isCroppedUploading}>
-                  Save crop
-                </button>
-              </div>
-            </div>
-          </div>
-        </div>
+                onCancel={() => setShowCropper(false)}
+                onConfirm={handleCropConfirm}
+                isSaving={isCroppedUploading}
+              />,
+              document.body
+            )
+          : null
       )}
       <style jsx>{`
         .uploader {
@@ -241,82 +249,6 @@ export default function ProfilePhotoUploader({ value, onChange, disabled = false
           text-transform: uppercase;
           color: var(--color-gold);
         }
-        .cropper-overlay {
-          position: fixed;
-          inset: 0;
-          background: rgba(14, 24, 38, 0.92);
-          display: flex;
-          align-items: center;
-          justify-content: center;
-          z-index: 1000;
-          padding: 2rem;
-        }
-        .cropper-container {
-          position: relative;
-          width: min(480px, 90vw);
-          max-height: calc(100vh - 4rem);
-          background: rgba(11, 21, 35, 0.9);
-          border-radius: 20px;
-          border: 1px solid rgba(255, 255, 255, 0.08);
-          padding: 1.75rem;
-          display: flex;
-          flex-direction: column;
-          gap: 1.25rem;
-          box-shadow: 0 30px 60px rgba(6, 12, 20, 0.45);
-        }
-        .cropper-frame {
-          position: relative;
-          width: 100%;
-          height: min(360px, 60vh);
-          border-radius: 18px;
-          overflow: hidden;
-          background: rgba(6, 12, 20, 0.9);
-        }
-        .cropper-frame :global(.reactEasyCrop_Container) {
-          position: absolute !important;
-          inset: 0;
-        }
-        .cropper-frame :global(.reactEasyCrop_CropArea) {
-          border-radius: 50% !important;
-        }
-        .cropper-controls {
-          display: flex;
-          flex-direction: column;
-          gap: 0.75rem;
-          padding-top: 0.25rem;
-        }
-        .cropper-controls label {
-          display: flex;
-          align-items: center;
-          justify-content: space-between;
-          gap: 1rem;
-          font-size: 0.8rem;
-          text-transform: uppercase;
-          letter-spacing: 0.12em;
-        }
-        .cropper-controls input[type='range'] {
-          width: 100%;
-        }
-        .cropper-buttons {
-          display: flex;
-          justify-content: flex-end;
-          gap: 0.75rem;
-        }
-        .cropper-buttons button {
-          padding: 0.65rem 1rem;
-          border-radius: 999px;
-          border: 1px solid rgba(255, 255, 255, 0.18);
-          background: transparent;
-          color: var(--color-gold);
-          letter-spacing: 0.12em;
-          text-transform: uppercase;
-          font-size: 0.75rem;
-        }
-        .cropper-buttons button:last-child {
-          background: linear-gradient(120deg, var(--color-gold), var(--color-amber));
-          color: #0f1727;
-          border: none;
-        }
       `}</style>
     </>
   );
@@ -338,4 +270,191 @@ async function uploadToCloudinary(file, variant) {
   }
 
   return response.json();
+}
+
+function CropperModal({
+  image,
+  crop,
+  zoom,
+  onCropChange,
+  onZoomChange,
+  onCropComplete,
+  onCancel,
+  onConfirm,
+  isSaving
+}) {
+  return (
+    <div className="cropper-overlay" role="dialog" aria-modal="true">
+      <div className="cropper-container">
+        <button
+          type="button"
+          className="close-button"
+          onClick={onCancel}
+          disabled={isSaving}
+          aria-label="Close photo cropper"
+        >
+          ✕
+        </button>
+        <div className="cropper-frame">
+          <Cropper
+            image={image}
+            crop={crop}
+            zoom={zoom}
+            aspect={1}
+            cropShape="round"
+            showGrid={false}
+            onCropChange={onCropChange}
+            onZoomChange={onZoomChange}
+            onCropComplete={onCropComplete}
+          />
+        </div>
+        <div className="cropper-controls">
+          <label>
+            Zoom
+            <input
+              type="range"
+              min="1"
+              max="3"
+              step="0.1"
+              value={zoom}
+              onChange={(event) => onZoomChange(Number(event.target.value))}
+            />
+          </label>
+          <div className="cropper-buttons">
+            <button type="button" onClick={onCancel} disabled={isSaving}>
+              Cancel
+            </button>
+            <button type="button" onClick={onConfirm} disabled={isSaving}>
+              {isSaving ? 'Saving…' : 'Save crop'}
+            </button>
+          </div>
+        </div>
+      </div>
+      <style jsx>{`
+        .cropper-overlay {
+          position: fixed;
+          inset: 0;
+          background: rgba(10, 18, 30, 0.95);
+          display: flex;
+          z-index: 1000;
+          padding: clamp(1rem, 4vw, 2.5rem);
+          box-sizing: border-box;
+          overscroll-behavior: contain;
+        }
+        .cropper-container {
+          position: relative;
+          flex: 1;
+          display: flex;
+          flex-direction: column;
+          gap: clamp(1rem, 2.5vw, 1.75rem);
+          background: rgba(11, 21, 35, 0.92);
+          border-radius: clamp(12px, 2vw, 22px);
+          border: 1px solid rgba(255, 255, 255, 0.08);
+          box-shadow: 0 40px 80px rgba(4, 8, 16, 0.6);
+          padding: clamp(1rem, 3vw, 2rem);
+          overflow: hidden;
+          box-sizing: border-box;
+        }
+        .close-button {
+          position: absolute;
+          top: clamp(0.5rem, 2vw, 1rem);
+          right: clamp(0.5rem, 2vw, 1rem);
+          background: rgba(15, 23, 39, 0.75);
+          border: 1px solid rgba(255, 255, 255, 0.15);
+          border-radius: 999px;
+          width: 36px;
+          height: 36px;
+          display: flex;
+          align-items: center;
+          justify-content: center;
+          font-size: 1rem;
+          color: var(--color-gold);
+          cursor: pointer;
+        }
+        .close-button:disabled {
+          opacity: 0.6;
+          cursor: not-allowed;
+        }
+        .cropper-frame {
+          position: relative;
+          flex: 1;
+          min-height: 0;
+          border-radius: clamp(12px, 2vw, 22px);
+          overflow: hidden;
+          background: rgba(6, 12, 20, 0.9);
+          touch-action: none;
+        }
+        .cropper-frame :global(.reactEasyCrop_Container) {
+          position: absolute !important;
+          inset: 0;
+        }
+        .cropper-frame :global(.reactEasyCrop_CropArea) {
+          border-radius: 50% !important;
+        }
+        .cropper-controls {
+          display: flex;
+          flex-direction: column;
+          gap: 0.85rem;
+          padding: clamp(0.75rem, 2vw, 1.25rem);
+          border-radius: clamp(12px, 2vw, 18px);
+          background: rgba(8, 16, 28, 0.85);
+          backdrop-filter: blur(12px);
+        }
+        .cropper-controls label {
+          display: flex;
+          align-items: center;
+          justify-content: space-between;
+          gap: 1rem;
+          font-size: 0.8rem;
+          text-transform: uppercase;
+          letter-spacing: 0.12em;
+        }
+        .cropper-controls input[type='range'] {
+          width: 100%;
+        }
+        .cropper-buttons {
+          display: flex;
+          justify-content: flex-end;
+          gap: 0.75rem;
+          flex-wrap: wrap;
+        }
+        .cropper-buttons button {
+          padding: 0.65rem 1rem;
+          border-radius: 999px;
+          border: 1px solid rgba(255, 255, 255, 0.18);
+          background: transparent;
+          color: var(--color-gold);
+          letter-spacing: 0.12em;
+          text-transform: uppercase;
+          font-size: 0.75rem;
+        }
+        .cropper-buttons button:last-child {
+          background: linear-gradient(120deg, var(--color-gold), var(--color-amber));
+          color: #0f1727;
+          border: none;
+        }
+        .cropper-buttons button:disabled {
+          opacity: 0.6;
+          cursor: not-allowed;
+        }
+        @media (max-width: 720px) {
+          .cropper-overlay {
+            padding: 0.5rem;
+          }
+          .cropper-container {
+            border-radius: 0;
+            padding: 1rem;
+          }
+          .close-button {
+            width: 32px;
+            height: 32px;
+            font-size: 0.9rem;
+          }
+          .cropper-controls {
+            padding: 0.75rem;
+          }
+        }
+      `}</style>
+    </div>
+  );
 }

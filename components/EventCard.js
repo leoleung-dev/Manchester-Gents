@@ -9,6 +9,7 @@ export default function EventCard({ event, variant = 'list' }) {
     return null;
   }
 
+  const isCondensed = variant === 'condensed';
   const startDate = event.startTime ? new Date(event.startTime) : null;
   const endDate = event.endTime ? new Date(event.endTime) : null;
 
@@ -19,7 +20,10 @@ export default function EventCard({ event, variant = 'list' }) {
     : 'Date TBA';
 
   return (
-    <Link href={`/events/${event.slug}`} className={clsx('event-card', `event-card-${variant}`)}>
+    <Link
+      href={`/events/${event.slug}`}
+      className={clsx('event-card', `event-card-${variant}`, isCondensed && 'event-card-condensed')}
+    >
       <div
         className="event-card-meta"
         style={{
@@ -34,7 +38,9 @@ export default function EventCard({ event, variant = 'list' }) {
         <h3>{event.title}</h3>
         {event.subtitle && <p className="event-subtitle">{event.subtitle}</p>}
         {event.description && (
-          <p className="event-description">{event.description.slice(0, 140)}...</p>
+          <p className="event-description">
+            {event.description.length > 140 ? `${event.description.slice(0, 140)}…` : event.description}
+          </p>
         )}
         <div className="event-footer">
           <span className="event-location">{event.location || 'Location TBA'}</span>
@@ -45,7 +51,7 @@ export default function EventCard({ event, variant = 'list' }) {
         .event-card {
           display: block;
           border-radius: 24px;
-          padding: 1.25rem;
+          padding: 1.65rem;
           background: rgba(19, 30, 48, 0.85);
           border: 1px solid rgba(255, 255, 255, 0.08);
           transition: transform 0.2s ease, border 0.2s ease, box-shadow 0.2s ease;
@@ -54,6 +60,21 @@ export default function EventCard({ event, variant = 'list' }) {
           transform: translateY(-6px);
           border-color: rgba(255, 212, 96, 0.5);
           box-shadow: 0 20px 40px rgba(10, 18, 31, 0.45);
+        }
+        .event-card-condensed {
+          padding: 1.25rem;
+        }
+        .event-card-condensed .event-status {
+          font-size: 0.72rem;
+        }
+        .event-card-condensed h3 {
+          font-size: 1.2rem;
+        }
+        .event-card-condensed .event-description {
+          margin-top: 0.25rem;
+        }
+        .event-card-condensed .event-footer {
+          margin-top: 0.85rem;
         }
         .event-card-meta {
           display: flex;

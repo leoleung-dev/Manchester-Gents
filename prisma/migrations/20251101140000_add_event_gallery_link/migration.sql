@@ -1,0 +1,6 @@
+-- AlterTable
+ALTER TABLE "Event"
+ADD COLUMN IF NOT EXISTS "galleryurl" TEXT;
+
+ALTER TABLE "User"
+ADD COLUMN IF NOT EXISTS "isPlaceholder" BOOLEAN NOT NULL DEFAULT false;

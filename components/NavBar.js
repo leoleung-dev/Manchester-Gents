@@ -139,7 +139,7 @@ export default function NavBar() {
         .nav-inner {
           max-width: 1200px;
           margin: 0 auto;
-          padding: 0.85rem 1.75rem;
+          padding: clamp(0.65rem, 3vw, 0.85rem) clamp(1rem, 5vw, 1.75rem);
           display: flex;
           flex-direction: column;
           gap: 1rem;
@@ -171,6 +171,11 @@ export default function NavBar() {
           background: rgba(17, 27, 45, 0.6);
           color: inherit;
           transition: background 0.2s ease, border-color 0.2s ease;
+        }
+        @media (max-width: 720px) {
+          .brand-image {
+            height: 42px;
+          }
         }
         .menu-toggle:focus-visible {
           outline: 2px solid var(--color-gold);

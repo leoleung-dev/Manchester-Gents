@@ -4,6 +4,7 @@ import HeroBanner from '@/components/HeroBanner';
 import EventCard from '@/components/EventCard';
 import prisma from '@/lib/prisma';
 import Link from 'next/link';
+import clsx from 'clsx';
 import styles from './page.module.css';
 
 async function getHomeData() {
@@ -33,11 +34,12 @@ export default async function HomePage() {
     <div className={styles.page}>
       <NavBar />
       <main className={styles.homeMain}>
-        <section className={styles.heroSection}>
+        <section className={clsx(styles.heroSection, styles.homeSection)}>
           <HeroBanner event={nextEvent} />
         </section>
-        <section className={styles.eventsSection}>
-          <div className={styles.eventsHeader}>
+        <section className={clsx(styles.eventsSection, styles.homeSection, 'glass-panel')}>
+          <div className={clsx(styles.sectionHeader, styles.eventsHeader)}>
+            <span className={styles.sectionEyebrow}>The calendar</span>
             <h2>Upcoming socials</h2>
             <p>
               Reserve your spot for our easy-going evenings at The Lodge — suited gents, great
@@ -59,9 +61,10 @@ export default async function HomePage() {
             ))}
           </div>
         </section>
-        <section className={`${styles.communitySection} glass-panel`}>
+        <section className={clsx(styles.communitySection, styles.homeSection, 'glass-panel')}>
           <div className={styles.communityGrid}>
             <div>
+              <span className={styles.sectionEyebrow}>Inside Manchester Gents</span>
               <h2>Inside the club</h2>
               <p>
                 We keep it simple: meet at The Lodge in Manchester, dress sharp, grab a drink, and
