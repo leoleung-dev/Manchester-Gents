@@ -21,6 +21,8 @@ export default function ProfilePhotoUploader({ value, onChange, disabled = false
   const [cropSourceIsObjectUrl, setCropSourceIsObjectUrl] = useState(false);
   const [showCropper, setShowCropper] = useState(false);
   const [isPortalReady, setIsPortalReady] = useState(false);
+  const [selectedFile, setSelectedFile] = useState(null);
+  const [originalUpload, setOriginalUpload] = useState(null);
 
   useEffect(() => () => {
     if (cropSource && cropSourceIsObjectUrl) {
@@ -43,23 +45,15 @@ export default function ProfilePhotoUploader({ value, onChange, disabled = false
     }
 
     setError(null);
-    setIsOriginalUploading(true);
-    try {
-      const blobUrl = URL.createObjectURL(file);
-      setCropSource(blobUrl);
-      setCropSourceIsObjectUrl(true);
-      setShowCropper(true);
-
-      const originalUpload = await uploadToCloudinary(file, 'original');
-      onChange({
-        originalUrl: originalUpload.url,
-        croppedUrl: value?.croppedUrl || ''
-      });
-    } catch (uploadError) {
-      setError(uploadError.message);
-    } finally {
-      setIsOriginalUploading(false);
+    if (cropSource && cropSourceIsObjectUrl) {
+      URL.revokeObjectURL(cropSource);
     }
+    setSelectedFile(file);
+    setOriginalUpload(null);
+    setCropSourceIsObjectUrl(true);
+    const blobUrl = URL.createObjectURL(file);
+    setCropSource(blobUrl);
+    setShowCropper(true);
   };
 
   const onCropComplete = useCallback((_, croppedPixels) => {
@@ -102,6 +96,14 @@ export default function ProfilePhotoUploader({ value, onChange, disabled = false
     setError(null);
     setIsCroppedUploading(true);
     try {
+      let originalUrl = value?.originalUrl || originalUpload?.url || null;
+      if (selectedFile) {
+        setIsOriginalUploading(true);
+        const uploadedOriginal = await uploadToCloudinary(selectedFile, 'original');
+        originalUrl = uploadedOriginal.url;
+        setOriginalUpload(uploadedOriginal);
+        setSelectedFile(null);
+      }
       const blob = await getCroppedImage(cropSource, croppedAreaPixels, {
         circle: true,
         width: 400,
@@ -110,33 +112,62 @@ export default function ProfilePhotoUploader({ value, onChange, disabled = false
       const file = new File([blob], 'profile-cropped.png', { type: 'image/png' });
       const croppedUpload = await uploadToCloudinary(file, 'cropped');
       onChange({
-        originalUrl: value?.originalUrl || '',
+        originalUrl: originalUrl || value?.originalUrl || '',
         croppedUrl: croppedUpload.url
       });
+      if (cropSource && cropSourceIsObjectUrl) {
+        URL.revokeObjectURL(cropSource);
+      }
+      setCropSource(null);
+      setCropSourceIsObjectUrl(false);
       setShowCropper(false);
     } catch (cropError) {
       setError(cropError.message || 'Unable to crop image.');
     } finally {
       setIsCroppedUploading(false);
+      setIsOriginalUploading(false);
     }
   };
 
   const handleRemovePhoto = () => {
     onChange({ originalUrl: '', croppedUrl: '' });
+    if (cropSource && cropSourceIsObjectUrl) {
+      URL.revokeObjectURL(cropSource);
+    }
     setCropSource(null);
     setCropSourceIsObjectUrl(false);
+    setSelectedFile(null);
+    setOriginalUpload(null);
     setShowCropper(false);
     setError(null);
   };
 
   const handleReCrop = () => {
     if (value?.originalUrl) {
+      if (cropSource && cropSourceIsObjectUrl) {
+        URL.revokeObjectURL(cropSource);
+      }
       setCropSource(value.originalUrl);
       setCropSourceIsObjectUrl(false);
       setZoom(1);
       setCrop({ x: 0, y: 0 });
+      setSelectedFile(null);
       setShowCropper(true);
     }
+  };
+
+  const handleCropCancel = () => {
+    if (cropSource && cropSourceIsObjectUrl) {
+      URL.revokeObjectURL(cropSource);
+    }
+    setCropSource(null);
+    setCropSourceIsObjectUrl(false);
+    setSelectedFile(null);
+    setOriginalUpload(null);
+    setShowCropper(false);
+    setIsOriginalUploading(false);
+    setIsCroppedUploading(false);
+    setError(null);
   };
 
   return (
@@ -188,7 +219,7 @@ export default function ProfilePhotoUploader({ value, onChange, disabled = false
                 onCropChange={setCrop}
                 onZoomChange={setZoom}
                 onCropComplete={onCropComplete}
-                onCancel={() => setShowCropper(false)}
+                onCancel={handleCropCancel}
                 onConfirm={handleCropConfirm}
                 isSaving={isCroppedUploading}
               />,
