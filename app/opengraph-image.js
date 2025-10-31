@@ -1,4 +1,4 @@
-import { ImageResponse } from 'next/server';
+import { ImageResponse } from 'next/og';
 import { getOgLogoDataUrl } from '@/lib/og';
 
 export const runtime = 'nodejs';
@@ -24,7 +24,15 @@ export default function GET() {
           padding: '80px'
         }}
       >
-        <img src={logo} alt="Manchester Gents" style={{ width: 320, height: 'auto' }} />
+        <div
+          style={{
+            width: 320,
+            height: 120,
+            position: 'relative'
+          }}
+        >
+          <Logo dataUrl={logo} />
+        </div>
         <div
           style={{
             display: 'flex',
@@ -49,3 +57,19 @@ export default function GET() {
     }
   );
 }
+
+function Logo({ dataUrl }) {
+  return (
+    <div
+      style={{
+        width: '100%',
+        height: '100%',
+        backgroundImage: `url(${dataUrl})`,
+        backgroundSize: 'contain',
+        backgroundRepeat: 'no-repeat',
+        backgroundPosition: 'center'
+      }}
+    />
+  );
+}
+export const revalidate = 3600;

@@ -1,4 +1,4 @@
-import { ImageResponse } from 'next/server';
+import { ImageResponse } from 'next/og';
 import prisma from '@/lib/prisma';
 import { format } from 'date-fns';
 import { getOgLogoDataUrl } from '@/lib/og';
@@ -6,6 +6,7 @@ import { getOgLogoDataUrl } from '@/lib/og';
 export const runtime = 'nodejs';
 export const size = { width: 1200, height: 630 };
 export const contentType = 'image/png';
+export const revalidate = 3600;
 
 export default async function GET(request, { params }) {
   const { slug } = params;
@@ -42,7 +43,15 @@ export default async function GET(request, { params }) {
           gap: 40
         }}
       >
-        <img src={logo} alt="Manchester Gents" style={{ width: 260, height: 'auto' }} />
+        <div
+          style={{
+            width: 260,
+            height: 96,
+            position: 'relative'
+          }}
+        >
+          <Logo dataUrl={logo} />
+        </div>
         <div style={{ display: 'flex', flexDirection: 'column', gap: 20, maxWidth: 760 }}>
           <span style={{ fontSize: 26, letterSpacing: 8, textTransform: 'uppercase', opacity: 0.7 }}>
             Manchester Gents Presents
@@ -57,5 +66,20 @@ export default async function GET(request, { params }) {
       width: size.width,
       height: size.height
     }
+  );
+}
+
+function Logo({ dataUrl }) {
+  return (
+    <div
+      style={{
+        width: '100%',
+        height: '100%',
+        backgroundImage: `url(${dataUrl})`,
+        backgroundSize: 'contain',
+        backgroundRepeat: 'no-repeat',
+        backgroundPosition: 'center'
+      }}
+    />
   );
 }
