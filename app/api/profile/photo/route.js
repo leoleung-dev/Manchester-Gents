@@ -65,6 +65,10 @@ export async function POST(request) {
     );
   } catch (error) {
     console.error('Profile photo upload error:', error);
-    return NextResponse.json({ error: 'Unable to upload image.' }, { status: 500 });
+    const message =
+      typeof error === 'object' && error !== null && 'message' in error
+        ? String(error.message)
+        : 'Unable to upload image.';
+    return NextResponse.json({ error: message }, { status: 500 });
   }
 }
