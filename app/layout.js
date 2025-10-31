@@ -3,6 +3,8 @@ import Providers from '@/components/Providers';
 import localFont from 'next/font/local';
 import { Inter } from 'next/font/google';
 
+const APP_URL = process.env.NEXT_PUBLIC_APP_URL || 'https://mg-new.vercel.app';
+
 const headingFont = localFont({
   src: '../public/fonts/Thelorin.otf',
   variable: '--font-heading',
@@ -16,9 +18,34 @@ const bodyFont = Inter({
 });
 
 export const metadata = {
+  metadataBase: new URL(APP_URL),
   title: 'Manchester Gents',
   description:
     'Relaxed socials for suited gents at The Lodge in Manchester — drinks, conversation, and effortless style.',
+  openGraph: {
+    title: 'Manchester Gents',
+    description:
+      'Relaxed socials for suited gents at The Lodge in Manchester — drinks, conversation, and effortless style.',
+    url: APP_URL,
+    siteName: 'Manchester Gents',
+    type: 'website',
+    locale: 'en_GB',
+    images: [
+      {
+        url: '/opengraph-image',
+        width: 1200,
+        height: 630,
+        alt: 'Manchester Gents'
+      }
+    ]
+  },
+  twitter: {
+    card: 'summary_large_image',
+    title: 'Manchester Gents',
+    description:
+      'Relaxed socials for suited gents at The Lodge in Manchester — drinks, conversation, and effortless style.',
+    images: ['/opengraph-image']
+  },
   icons: {
     icon: [
       { url: '/icons/favicon.ico', type: 'image/x-icon' }

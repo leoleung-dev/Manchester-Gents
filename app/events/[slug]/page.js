@@ -39,9 +39,22 @@ export async function generateMetadata({ params }) {
   if (!event) {
     return { title: 'Event not found | Manchester Gents' };
   }
+  const description =
+    event.description || 'Relaxed socials for suited gents at The Lodge in Manchester.';
   return {
     title: `${event.title} | Manchester Gents`,
-    description: event.description
+    description,
+    openGraph: {
+      title: `${event.title} | Manchester Gents`,
+      description,
+      images: [`/events/${params.slug}/opengraph-image`]
+    },
+    twitter: {
+      card: 'summary_large_image',
+      title: `${event.title} | Manchester Gents`,
+      description,
+      images: [`/events/${params.slug}/opengraph-image`]
+    }
   };
 }
 
