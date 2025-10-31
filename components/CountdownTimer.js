@@ -1,6 +1,6 @@
 'use client';
 
-import { useEffect, useState } from 'react';
+import { useEffect, useMemo, useState } from 'react';
 import { format } from 'date-fns';
 
 function calculateTimeLeft(targetDate) {
@@ -23,18 +23,21 @@ function calculateTimeLeft(targetDate) {
 }
 
 export default function CountdownTimer({ startTime }) {
-  const targetDate = new Date(startTime);
-  const [timeLeft, setTimeLeft] = useState(() => calculateTimeLeft(targetDate));
+  const targetDate = useMemo(() => new Date(startTime), [startTime]);
+  const [timeLeft, setTimeLeft] = useState(null);
 
   useEffect(() => {
+    setTimeLeft(calculateTimeLeft(targetDate));
+
     const interval = setInterval(() => {
       setTimeLeft(calculateTimeLeft(targetDate));
     }, 1000);
 
     return () => clearInterval(interval);
-  }, [startTime]);
+  }, [targetDate]);
 
   const eventDateFormatted = format(targetDate, 'MMMM d, yyyy - h:mmaaa');
+  const displayTime = timeLeft || { days: 0, hours: 0, minutes: 0, seconds: 0 };
 
   return (
     <div className="countdown glass-panel">
@@ -43,10 +46,10 @@ export default function CountdownTimer({ startTime }) {
         <p>{eventDateFormatted}</p>
       </div>
       <div className="timer-grid">
-        <CountdownCard label="Days" value={timeLeft.days} />
-        <CountdownCard label="Hours" value={timeLeft.hours} />
-        <CountdownCard label="Minutes" value={timeLeft.minutes} />
-        <CountdownCard label="Seconds" value={timeLeft.seconds} />
+        <CountdownCard label="Days" value={displayTime.days} />
+        <CountdownCard label="Hours" value={displayTime.hours} />
+        <CountdownCard label="Minutes" value={displayTime.minutes} />
+        <CountdownCard label="Seconds" value={displayTime.seconds} />
       </div>
       <style jsx>{`
         .countdown {

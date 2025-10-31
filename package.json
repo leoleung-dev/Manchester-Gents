@@ -18,7 +18,7 @@
     "bcryptjs": "^2.4.3",
     "clsx": "^2.1.0",
     "date-fns": "^3.2.0",
-    "next": "14.1.0",
+    "next": "14.2.5",
     "next-auth": "^4.24.7",
     "next-themes": "^0.2.1",
     "react": "18.2.0",
@@ -28,7 +28,7 @@
   },
   "devDependencies": {
     "eslint": "8.56.0",
-    "eslint-config-next": "14.1.0",
+    "eslint-config-next": "14.2.5",
     "prisma": "^5.7.0"
   }
 }
