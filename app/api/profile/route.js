@@ -4,6 +4,9 @@ import prisma from '@/lib/prisma';
 import { profileUpdateSchema } from '@/lib/validators';
 import { getDisplayName } from '@/lib/displayName';
 
+export const dynamic = 'force-dynamic';
+export const runtime = 'nodejs';
+
 export async function PATCH(request) {
   const session = await getServerSession(authOptions);
   if (!session?.user?.id) {

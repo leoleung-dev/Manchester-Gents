@@ -1,6 +1,9 @@
 import { NextResponse } from 'next/server';
 import cloudinary from '@/lib/cloudinary';
 
+export const dynamic = 'force-dynamic';
+export const runtime = 'nodejs';
+
 const MAX_SIZE = 5 * 1024 * 1024; // 5MB
 const ALLOWED_TYPES = ['image/jpeg', 'image/png', 'image/webp'];
 

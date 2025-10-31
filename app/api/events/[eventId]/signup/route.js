@@ -3,6 +3,9 @@ import { getServerSession } from 'next-auth';
 import { authOptions } from '@/lib/auth';
 import { eventSignupSchema } from '@/lib/validators';
 
+export const dynamic = 'force-dynamic';
+export const runtime = 'nodejs';
+
 export async function POST(request, { params }) {
   const session = await getServerSession(authOptions);
   if (!session?.user?.id) {

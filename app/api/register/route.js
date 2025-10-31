@@ -3,6 +3,9 @@ import { hashPassword } from '@/lib/password';
 import { registerSchema } from '@/lib/validators';
 import { getDisplayName } from '@/lib/displayName';
 
+export const dynamic = 'force-dynamic';
+export const runtime = 'nodejs';
+
 export async function POST(request) {
   try {
     const body = await request.json();
