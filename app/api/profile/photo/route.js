@@ -35,7 +35,7 @@ export async function POST(request) {
     const file = formData.get('file');
     const variant = formData.get('variant') || 'original';
 
-    if (!(file instanceof File)) {
+    if (!file || typeof file.arrayBuffer !== 'function') {
       return NextResponse.json({ error: 'No image provided.' }, { status: 400 });
     }
 
