@@ -28,7 +28,9 @@ export default function GET() {
           style={{
             width: 320,
             height: 120,
-            position: 'relative'
+          display: 'flex',
+          justifyContent: 'center',
+          alignItems: 'center'
           }}
         >
           <Logo dataUrl={logo} />

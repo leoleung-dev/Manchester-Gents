@@ -47,7 +47,9 @@ export default async function GET(request, { params }) {
           style={{
             width: 260,
             height: 96,
-            position: 'relative'
+          display: 'flex',
+          justifyContent: 'center',
+          alignItems: 'center'
           }}
         >
           <Logo dataUrl={logo} />
