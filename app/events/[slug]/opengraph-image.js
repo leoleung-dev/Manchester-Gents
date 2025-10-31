@@ -1,32 +1,52 @@
+/* eslint-disable @next/next/no-img-element */
 import { ImageResponse } from 'next/og';
 import prisma from '@/lib/prisma';
 import { format } from 'date-fns';
 import { getOgLogoDataUrl } from '@/lib/og';
 
 export const runtime = 'nodejs';
+export const dynamic = 'force-dynamic';
+export const revalidate = 3600;
 export const size = { width: 1200, height: 630 };
 export const contentType = 'image/png';
-export const revalidate = 3600;
 
-export default async function GET(request, { params }) {
-  const { slug } = params;
-  const event = await prisma.event.findUnique({
-    where: { slug },
-    select: {
-      title: true,
-      subtitle: true,
-      startTime: true,
-      location: true
-    }
-  });
-
+export default async function Image({ params } = {}) {
   const logo = getOgLogoDataUrl();
-  const title = event?.title || 'Manchester Gents Event';
-  const subtitle = event?.subtitle || 'Club socials for well-dressed gents';
-  const detail = event?.startTime
-    ? `${format(new Date(event.startTime), 'EEEE d MMM yyyy')} • ${event.location || 'The Lodge, Manchester'}`
-    : event?.location || 'Manchester, United Kingdom';
+  try {
+    const slug = params?.slug;
+    if (!slug) {
+      throw new Error('Missing slug');
+    }
 
+    const event = await prisma.event.findUnique({
+      where: { slug },
+      select: {
+        title: true,
+        subtitle: true,
+        startTime: true,
+        location: true
+      }
+    });
+
+    const title = event?.title || 'Manchester Gents Event';
+    const subtitle = event?.subtitle || 'Club socials for well-dressed gents';
+    const detail = event?.startTime
+      ? `${format(new Date(event.startTime), 'EEEE d MMM yyyy')} • ${event.location || 'The Lodge, Manchester'}`
+      : event?.location || 'Manchester, United Kingdom';
+
+    return renderOgCard({ logo, title, subtitle, detail });
+  } catch (error) {
+    console.error('Event OpenGraph image error:', error);
+    return renderOgCard({
+      logo,
+      title: 'Manchester Gents',
+      subtitle: 'Club socials for well-dressed gents',
+      detail: 'Manchester, United Kingdom'
+    });
+  }
+}
+
+function renderOgCard({ logo, title, subtitle, detail }) {
   return new ImageResponse(
     (
       <div
@@ -43,17 +63,13 @@ export default async function GET(request, { params }) {
           gap: 40
         }}
       >
-        <div
-          style={{
-            width: 260,
-            height: 96,
-          display: 'flex',
-          justifyContent: 'center',
-          alignItems: 'center'
-          }}
-        >
-          <Logo dataUrl={logo} />
-        </div>
+        <img
+          src={logo}
+          alt="Manchester Gents"
+          width={360}
+          height={140}
+          style={{ objectFit: 'contain' }}
+        />
         <div style={{ display: 'flex', flexDirection: 'column', gap: 20, maxWidth: 760 }}>
           <span style={{ fontSize: 26, letterSpacing: 8, textTransform: 'uppercase', opacity: 0.7 }}>
             Manchester Gents Presents
@@ -68,20 +84,5 @@ export default async function GET(request, { params }) {
       width: size.width,
       height: size.height
     }
-  );
-}
-
-function Logo({ dataUrl }) {
-  return (
-    <div
-      style={{
-        width: '100%',
-        height: '100%',
-        backgroundImage: `url(${dataUrl})`,
-        backgroundSize: 'contain',
-        backgroundRepeat: 'no-repeat',
-        backgroundPosition: 'center'
-      }}
-    />
   );
 }

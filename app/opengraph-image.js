@@ -1,11 +1,14 @@
+/* eslint-disable @next/next/no-img-element */
 import { ImageResponse } from 'next/og';
 import { getOgLogoDataUrl } from '@/lib/og';
 
 export const runtime = 'nodejs';
+export const dynamic = 'force-dynamic';
+export const revalidate = 3600;
 export const size = { width: 1200, height: 630 };
 export const contentType = 'image/png';
 
-export default function GET() {
+export default function Image() {
   const logo = getOgLogoDataUrl();
   return new ImageResponse(
     (
@@ -24,30 +27,27 @@ export default function GET() {
           padding: '80px'
         }}
       >
-        <div
-          style={{
-            width: 320,
-            height: 120,
-          display: 'flex',
-          justifyContent: 'center',
-          alignItems: 'center'
-          }}
-        >
-          <Logo dataUrl={logo} />
-        </div>
+        <img
+          src={logo}
+          alt="Manchester Gents"
+          width={420}
+          height={160}
+          style={{ objectFit: 'contain', marginBottom: '8px' }}
+        />
         <div
           style={{
             display: 'flex',
             flexDirection: 'column',
-            gap: 16,
-            maxWidth: 760
+            gap: 20,
+            maxWidth: 760,
+            alignItems: 'center'
           }}
         >
-          <span style={{ fontSize: 28, letterSpacing: 8, textTransform: 'uppercase', opacity: 0.7 }}>
+          <span style={{ fontSize: 28, letterSpacing: 8, textTransform: 'uppercase', opacity: 0.7, textAlign: 'center' }}>
             Relaxed socials for suited gents
           </span>
-          <h1 style={{ fontSize: 72, margin: 0, lineHeight: 1.1 }}>Manchester Gents</h1>
-          <p style={{ fontSize: 28, margin: 0, opacity: 0.8 }}>
+          <h1 style={{ fontSize: 72, margin: 0, lineHeight: 1.1, textAlign: 'center' }}>Manchester Gents</h1>
+          <p style={{ fontSize: 28, margin: 0, opacity: 0.8, textAlign: 'center' }}>
             Tailored evenings at The Lodge • Drinks, conversation, effortless style
           </p>
         </div>
@@ -59,19 +59,3 @@ export default function GET() {
     }
   );
 }
-
-function Logo({ dataUrl }) {
-  return (
-    <div
-      style={{
-        width: '100%',
-        height: '100%',
-        backgroundImage: `url(${dataUrl})`,
-        backgroundSize: 'contain',
-        backgroundRepeat: 'no-repeat',
-        backgroundPosition: 'center'
-      }}
-    />
-  );
-}
-export const revalidate = 3600;
