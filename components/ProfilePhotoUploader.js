@@ -5,6 +5,7 @@ import { createPortal } from 'react-dom';
 import Cropper from 'react-easy-crop';
 import 'react-easy-crop/react-easy-crop.css';
 import { getCroppedImage } from '@/lib/cropImage';
+import Image from 'next/image';
 
 const MAX_FILE_SIZE = 5 * 1024 * 1024;
 const ACCEPTED_TYPES = ['image/jpeg', 'image/png', 'image/webp'];
@@ -158,7 +159,13 @@ export default function ProfilePhotoUploader({ value, onChange, disabled = false
       {error && <p className="upload-error">{error}</p>}
       {value?.croppedUrl ? (
         <div className="preview">
-          <img src={value.croppedUrl} alt="Profile reference" />
+          <Image
+            src={value.croppedUrl}
+            alt="Profile reference"
+            width={96}
+            height={96}
+            className="preview-image"
+          />
           <div className="preview-actions">
             <button type="button" onClick={handleReCrop} disabled={disabled}>
               Re-crop
@@ -228,7 +235,7 @@ export default function ProfilePhotoUploader({ value, onChange, disabled = false
           gap: 0.4rem;
           width: fit-content;
         }
-        .preview img {
+        .preview-image {
           width: 96px;
           height: 96px;
           border-radius: 999px;

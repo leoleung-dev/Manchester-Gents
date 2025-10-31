@@ -50,13 +50,15 @@ export default function AdminAddToEventForm({ events = [], users = [] }) {
   const [success, setSuccess] = useState(null);
 
   useEffect(() => {
-    if (!sortedEvents.length) {
-      setFormState((prev) => ({ ...prev, eventId: '' }));
-      return;
-    }
-    if (!sortedEvents.some((event) => event.id === formState.eventId)) {
-      setFormState((prev) => ({ ...prev, eventId: sortedEvents[0].id }));
-    }
+    setFormState((prev) => {
+      if (!sortedEvents.length) {
+        return { ...prev, eventId: '' };
+      }
+      if (sortedEvents.some((event) => event.id === prev.eventId)) {
+        return prev;
+      }
+      return { ...prev, eventId: sortedEvents[0].id };
+    });
   }, [sortedEvents]);
 
   const handleChange = (field) => (event) => {
