@@ -2,7 +2,7 @@
 
 ## Global Elements
 - **Navigation (`components/NavBar.js`):** Uses the horizontal Manchester Gents logo SVG (includes lettering) as the home link; links to Home, Events, Dashboard, Profile, Admin (if role=ADMIN). Logged-in members see their display name (respecting preferred-name privacy) on the Profile CTA.
-- **Admin mode toggle:** Admins see a pill switch in the navbar (`ToggleAdminModeButton`) that stores preference in `localStorage` and hides admin-only affordances (e.g., “Manage event” links) when switched off for quick “member view” previews.
+- **Admin mode toggle:** Admins see a pill switch in the navbar (`ToggleAdminModeButton`) that stores preference in `localStorage`. Disabling it hides admin-only affordances (e.g., “Manage event” links, attendee thumbnails in consent views) for quick “member view” previews.
 - **Footer (`components/Footer.js`):** Contact links, Instagram, privacy policy, copyright.
 - **Brand Styling:** Headings use custom Thelorin font (loaded via `next/font/local` from `public/fonts/Thelorin.otf`) with contextual ligatures enabled so script connections remain intact; body text uses Inter (`next/font/google`). Palette defined in CSS variables (`app/globals.css`).
 
