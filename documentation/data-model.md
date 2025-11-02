@@ -20,10 +20,10 @@ Stores member identity, authentication, and consent preferences.
 | `phoneNumber` | `String?` | Optional contact number. |
 | `profilePhotoUrl` | `String?` | Cropped Cloudinary avatar (400×400 PNG) used in admin/member UI. |
 | `profilePhotoOriginalUrl` | `String?` | Full-resolution Cloudinary upload kept private for the admin team when editing imagery. |
-| `generalPhotoConsent` | `Boolean` | Consent for any media capture. |
-| `groupFaceConsent` | `Boolean` | Consent for including face in group shots. |
-| `otherFaceConsent` | `Boolean` | Consent for close-ups / individual shots. |
-| `taggingConsent` | `Boolean` | OK to tag on social posts. |
+| `generalPhotoConsent` | `Boolean?` | Consent for any media capture (may be `null` for placeholders or when not set). |
+| `groupFaceConsent` | `Boolean?` | Consent for including face in group shots (nullable for placeholders). |
+| `otherFaceConsent` | `Boolean?` | Consent for close-ups / individual shots (nullable). |
+| `taggingConsent` | `Boolean?` | OK to tag on social posts (nullable). |
 | `isPlaceholder` | `Boolean` | Marks lightweight records created for historical attendees. |
 | `termsConsentCulture`, `termsSafeSpace`, `termsNoHate`, `termsPrivacy`, `termsGuidelines` | `Boolean` | Individual agreements to key guidelines. |
 | `termsAgreed` | `Boolean` | Derived flag indicating all terms are acknowledged. |

@@ -244,6 +244,22 @@ export default function AdminPlaceholderForm() {
           display: flex;
           justify-content: flex-end;
         }
+        .primary-btn {
+          padding: 0.6rem 1.6rem;
+          border-radius: 999px;
+          border: none;
+          background: linear-gradient(120deg, var(--color-gold), var(--color-amber));
+          color: #0f1727;
+          font-weight: 700;
+          letter-spacing: 0.12em;
+          text-transform: uppercase;
+          box-shadow: 0 12px 24px rgba(255, 212, 96, 0.25);
+        }
+        .primary-btn:disabled {
+          opacity: 0.55;
+          cursor: not-allowed;
+          box-shadow: none;
+        }
         @media (max-width: 720px) {
           .row {
             grid-template-columns: 1fr;

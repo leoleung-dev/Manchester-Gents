@@ -1,4 +1,3 @@
-import Link from 'next/link';
 import NavBar from '@/components/NavBar';
 import Footer from '@/components/Footer';
 import EventThemeSection from '@/components/EventThemeSection';
@@ -9,6 +8,8 @@ import { getServerSession } from 'next-auth';
 import { notFound } from 'next/navigation';
 import { format } from 'date-fns';
 import { getDisplayName } from '@/lib/displayName';
+import Link from 'next/link';
+import ClientAdminControls from './client-admin-controls';
 import styles from './page.module.css';
 
 async function getEvent(slug) {
@@ -179,6 +180,7 @@ export default async function EventDetailPage({ params }) {
               <p className={styles.eventSchedule}>{schedule}</p>
               {event.location && <p className={styles.eventLocation}>{event.location}</p>}
               {event.description && <p className={styles.eventBody}>{event.description}</p>}
+              <ClientAdminControls isAdmin={session?.user?.role === 'ADMIN'} slug={event.slug} />
               <EventSignupButton
                 eventId={event.id}
                 deadline={event.signupDeadline}
@@ -215,11 +217,17 @@ export default async function EventDetailPage({ params }) {
                       ...signup.user,
                       instagramHandle: signup.user.instagramHandle
                     });
-                    const handleLabel = `@${signup.user.instagramHandle}`;
+                    const normalisedHandle = signup.user.instagramHandle || '';
+                    const showHandle = normalisedHandle && !normalisedHandle.startsWith('noinsta_');
+                    const handleLabel = showHandle ? `@${normalisedHandle}` : '';
                     const showName = Boolean(session?.user);
                     return (
                       <li key={signup.id}>
-                        {showName && displayName ? `${displayName} · ${handleLabel}` : handleLabel}
+                        {showName && displayName
+                          ? handleLabel
+                            ? `${displayName} · ${handleLabel}`
+                            : displayName
+                          : handleLabel || displayName || 'Member'}
                       </li>
                     );
                   })}

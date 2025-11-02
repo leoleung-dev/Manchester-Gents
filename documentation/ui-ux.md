@@ -2,6 +2,7 @@
 
 ## Global Elements
 - **Navigation (`components/NavBar.js`):** Uses the horizontal Manchester Gents logo SVG (includes lettering) as the home link; links to Home, Events, Dashboard, Profile, Admin (if role=ADMIN). Logged-in members see their display name (respecting preferred-name privacy) on the Profile CTA.
+- **Admin mode toggle:** Admins see a pill switch in the navbar (`ToggleAdminModeButton`) that stores preference in `localStorage` and hides admin-only affordances (e.g., “Manage event” links) when switched off for quick “member view” previews.
 - **Footer (`components/Footer.js`):** Contact links, Instagram, privacy policy, copyright.
 - **Brand Styling:** Headings use custom Thelorin font (loaded via `next/font/local` from `public/fonts/Thelorin.otf`) with contextual ligatures enabled so script connections remain intact; body text uses Inter (`next/font/google`). Palette defined in CSS variables (`app/globals.css`).
 
@@ -17,14 +18,14 @@
 - Empty state glass panel if no events.
 
 ### Event Detail (`app/events/[slug]/page.js`)
-- Event metadata and description.
-- Palette preview cards using event colour scheme.
-- Guest list preview (first 10 attendees).
+- Event metadata, description, and palette preview cards.
+- Guest list preview sorted with admins first, followed by members ordered by attendance history.
 - RSVP CTA:
   - If not signed in → prompts login.
   - If already registered → shows confirmation + cancel button.
-  - If not registered → “Reserve my spot” button with optional “Add special request”.
+  - If not registered → “Reserve my spot” button with optional special request.
   - Locked when signup deadline has passed.
+- Admins see a “Manage event →” link above the RSVP block that opens the dedicated event workspace.
 
 ### Dashboard (`app/dashboard/page.js`)
 - Greeting with Instagram handle.
@@ -47,14 +48,27 @@
 - **Register (`app/register/page.js`):** Extended form capturing first/last name, optional preferred name, private suited photo upload (with circular cropper), plus consent toggles. Mirrors profile form components for consistency.
 
 ### Admin (`app/admin/page.js`)
-- Event creation form (title, slug, schedule, palette).
-- Listing of existing events with collapsible forms to edit palettes/details.
-- Quick link to the member directory for reviewing attendees.
-- Only accessible to admin-role users (checked via NextAuth session).
+- Hero panel with quick access to the member directory and a “Create a new event” CTA.
+- Responsive grid of event cards (status, schedule, description) each exposing a single “Manage event →” button that links to the event workspace.
+- Admin-only, enforced via NextAuth session guard.
+
+### Create Event (`app/admin/create-event/page.js`)
+- Dedicated glass-panel page for spinning up new experiences using `AdminEventForm` without scrolling past existing events.
+
+### Event Admin Workspace (`app/events/[slug]/admin/page.js`)
+- Admin-only dashboard per event.
+- Left column: full `AdminEventForm` for updating copy, schedule, palette.
+- Right column: guest-list controls (`AdminAddToEventForm` plus `EventAttendeeManager` with removal actions and placeholder table paste support).
 
 ### Member directory (`app/admin/members/page.js`)
-- Table of all registered gents with private reference photo preview, contact details, and consent summary.
-- Designed for admin review; photos remain private even though URLs are Cloudinary-hosted.
+- Table collapses to cards on mobile; each row links to the member detail view.
+- Name column bundles handle, sharing preference, and placeholder badge.
+- Consent column displays four gold-icon pills with white “Yes/No” labels for readability.
+- Photos remain private to admins even though stored in Cloudinary.
+
+### Member detail (`app/admin/members/[handle]/page.js`)
+- Accessible by Instagram handle or user ID (fallback for members without Instagram).
+- Desktop layout pins profile info while the right column shows consent history and the inline `AdminMemberEditor` (update contact, sharing prefs, placeholder status, consents, or remove member).
 
 ## Components of Interest
 - **`EventSignupButton`:** Client component managing reservation state, special requests, cancellation confirmations, and error messaging.

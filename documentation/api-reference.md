@@ -63,6 +63,15 @@ All endpoints live under `app/api`. Requests/Responses use JSON. Errors return `
 - **Auth:** Admin only.
 - **Response:** `200 { success: true }`.
 
+### `DELETE /api/admin/events/{eventId}/attendees/{userId}`
+- **Auth:** Admin only.
+- **Behaviour:** Removes a specific attendee from an event (used by the event admin workspace).
+- **Responses:**
+  - `200 { success: true }`.
+  - `404 { error }` if the RSVP does not exist.
+  - `400` when ids are missing.
+  - `500` on unexpected failure.
+
 ## Event Signup
 
 ### `POST /api/events/{eventId}/signup`
@@ -91,6 +100,18 @@ All endpoints live under `app/api`. Requests/Responses use JSON. Errors return `
 ### `lib/auth.js`
 - Exports `authOptions` for NextAuth.
 - `requireAuth(role?)` helper returns session or JSON error response.
+
+## Admin Members
+
+### `PATCH /api/admin/members/{userId}`
+- **Auth:** Admin only.
+- **Payload:** Partial member update (names, contact info, placeholder flag, photo consents).
+- **Responses:** `200 { member }`, `400` validation error, `500` server error.
+
+### `DELETE /api/admin/members/{userId}`
+- **Auth:** Admin only.
+- **Behaviour:** Permanently removes the member record (and cascading RSVPs).
+- **Response:** `200 { success: true }` or `500` when the delete fails.
 
 ## Error Handling Conventions
 - All handlers return JSON responses.

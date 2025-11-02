@@ -1,7 +1,5 @@
 import NavBar from '@/components/NavBar';
 import Footer from '@/components/Footer';
-import AdminEventForm from '@/components/AdminEventForm';
-import AdminAddToEventForm from '@/components/AdminAddToEventForm';
 import prisma from '@/lib/prisma';
 import { authOptions } from '@/lib/auth';
 import { getServerSession } from 'next-auth';
@@ -10,24 +8,10 @@ import { format } from 'date-fns';
 import styles from './page.module.css';
 
 async function getAdminData() {
-  const [events, users] = await Promise.all([
-    prisma.event.findMany({
-      orderBy: { startTime: 'asc' }
-    }),
-    prisma.user.findMany({
-      orderBy: [{ isPlaceholder: 'asc' }, { instagramHandle: 'asc' }],
-      select: {
-        id: true,
-        instagramHandle: true,
-        firstName: true,
-        lastName: true,
-        preferredName: true,
-        shareFirstName: true,
-        isPlaceholder: true
-      }
-    })
-  ]);
-  return { events, users };
+  const events = await prisma.event.findMany({
+    orderBy: { startTime: 'asc' }
+  });
+  return { events };
 }
 
 export const metadata = {
@@ -40,7 +24,7 @@ export default async function AdminPage() {
     redirect('/');
   }
 
-  const { events, users } = await getAdminData();
+  const { events } = await getAdminData();
 
   return (
     <div className={styles.page}>
@@ -48,20 +32,14 @@ export default async function AdminPage() {
       <main className={styles.adminMain}>
         <header className={styles.adminHeader}>
           <h1>Admin control room</h1>
-          <p>Manage the calendar, color palettes, and guest list access.</p>
+          <p>Manage the calendar and jump into event workspaces for attendee updates.</p>
           <a href="/admin/members" className={styles.membersLink}>
             View member directory →
           </a>
+          <a href="/admin/create-event" className={styles.createLink}>
+            Create a new event
+          </a>
         </header>
-        <section className={styles.adminGrid}>
-          <div className={styles.formCard}>
-            <span className="heading-font">Create or update an experience</span>
-            <AdminEventForm />
-          </div>
-          <div className={styles.formCard}>
-            <AdminAddToEventForm events={events} users={users} />
-          </div>
-        </section>
         <section className={styles.adminSection}>
           <span className="heading-font">Existing events</span>
           <div className={styles.adminList}>
@@ -71,30 +49,38 @@ export default async function AdminPage() {
                 ? format(startTime, 'd MMM yyyy • h:mmaaa')
                 : 'Schedule TBA';
               return (
-              <article key={event.id} className={`${styles.adminEvent} glass-panel`}>
-                <div className={styles.adminEventTop}>
-                  <div>
-                    <h3>{event.title}</h3>
-                    <p className={styles.adminEventSlug}>/{event.slug}</p>
+                <article key={event.id} className={`${styles.adminEvent} glass-panel`}>
+                  <div className={styles.adminEventTop}>
+                    <div>
+                      <h3>{event.title}</h3>
+                      <p className={styles.adminEventSlug}>/{event.slug}</p>
+                    </div>
+                    <span className={styles.adminEventStatus}>
+                      {event.published ? 'Published' : 'Draft'}
+                    </span>
                   </div>
-                  <span className={styles.adminEventStatus}>
-                    {event.published ? 'Published' : 'Draft'}
-                  </span>
-                </div>
-                <p className={styles.adminEventMeta}>{schedule}{event.location ? ` · ${event.location}` : ''}</p>
-                <p className={styles.adminEventDescription}>
-                  {event.description || 'No description provided yet.'}
-                </p>
-                <details className={styles.details}>
-                  <summary className={styles.summary}>Edit palette</summary>
-                  <AdminEventForm existingEvent={event} />
-                </details>
-              </article>
-            );})}
+                  <p className={styles.adminEventMeta}>
+                    {schedule}
+                    {event.location ? ` · ${event.location}` : ''}
+                  </p>
+                  <p className={styles.adminEventDescription}>
+                    {event.description || 'No description provided yet.'}
+                  </p>
+                  <div className={styles.adminEventActions}>
+                    <a
+                      href={`/events/${event.slug}/admin`}
+                      className={styles.manageBtn}
+                    >
+                      Manage event →
+                    </a>
+                  </div>
+                </article>
+              );
+            })}
             {events.length === 0 && (
               <div className={`${styles.adminEmpty} glass-panel`}>
                 <h3>No events created yet</h3>
-                <p>Use the form above to create the first Manchester Gents experience.</p>
+                <p>Use “Create a new event” above to kick things off.</p>
               </div>
             )}
           </div>

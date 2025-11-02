@@ -8,6 +8,8 @@ import { signOut } from "next-auth/react";
 import { useSession } from "next-auth/react";
 import clsx from "clsx";
 import { getDisplayName } from "@/lib/displayName";
+import ToggleAdminModeButton from "@/components/ToggleAdminModeButton";
+import { useAdminMode } from "@/components/AdminModeProvider";
 
 const navLinks = [
   { href: "/", label: "Home" },
@@ -21,6 +23,7 @@ export default function NavBar() {
   const displayName = getDisplayName(session?.user);
   const avatarUrl = session?.user?.profilePhotoUrl || null;
   const [menuOpen, setMenuOpen] = useState(false);
+  const { adminMode } = useAdminMode();
 
   // Close the mobile menu when navigating to a new route.
   useEffect(() => {
@@ -81,6 +84,7 @@ export default function NavBar() {
             )}
           </nav>
           <div className="nav-actions">
+            {userRole === "ADMIN" && <ToggleAdminModeButton />}
             {status === "loading" ? null : session ? (
               <>
                 <Link href="/dashboard" className="nav-secondary">

@@ -1,6 +1,9 @@
 import Image from 'next/image';
+import Link from 'next/link';
 import { getServerSession } from 'next-auth';
 import { redirect } from 'next/navigation';
+import { FaCamera } from 'react-icons/fa';
+import { FaPeopleGroup, FaPerson, FaUserTag } from 'react-icons/fa6';
 import prisma from '@/lib/prisma';
 import { authOptions } from '@/lib/auth';
 import NavBar from '@/components/NavBar';
@@ -44,6 +47,12 @@ export default async function AdminMembersPage() {
   }
 
   const members = await getMembers();
+  const consentColumns = [
+    { key: 'generalPhotoConsent', Icon: FaCamera, label: 'General' },
+    { key: 'groupFaceConsent', Icon: FaPeopleGroup, label: 'Group' },
+    { key: 'otherFaceConsent', Icon: FaPerson, label: 'Other' },
+    { key: 'taggingConsent', Icon: FaUserTag, label: 'Tagging' }
+  ];
 
   return (
     <div className={styles.page}>
@@ -61,8 +70,7 @@ export default async function AdminMembersPage() {
             <thead>
               <tr>
                 <th>Profile</th>
-                <th>Name</th>
-                <th>Instagram</th>
+                <th>Member</th>
                 <th>Contact</th>
                 <th>Photo consent</th>
                 <th>Joined</th>
@@ -77,9 +85,10 @@ export default async function AdminMembersPage() {
                   shareFirstName: member.shareFirstName,
                   instagramHandle: member.instagramHandle
                 });
+                const slug = member.instagramHandle || member.id;
                 return (
                   <tr key={member.id}>
-                    <td className={styles.avatarCell}>
+                    <td className={styles.avatarCell} data-label="Profile">
                       {member.profilePhotoUrl ? (
                         <Image
                           src={member.profilePhotoUrl}
@@ -92,39 +101,45 @@ export default async function AdminMembersPage() {
                         <div className={styles.avatarPlaceholder}>{displayName.charAt(0) || '?'}</div>
                       )}
                     </td>
-                    <td>
-                      <div className={styles.nameBlock}>
+                    <td className={styles.nameCell} data-label="Member">
+                      <Link href={`/admin/members/${slug}`} className={styles.nameLink}>
                         <span className={styles.name}>{displayName}</span>
-                        <div className={styles.metaRow}>
-                          <span className={styles.subtle}>
-                            {member.shareFirstName ? 'Sharing first name' : 'Prefers alias'}
-                          </span>
-                          {member.isPlaceholder && (
-                            <span className={styles.placeholderBadge}>Placeholder</span>
-                          )}
-                        </div>
-                      </div>
+                        <span className={styles.handle}>
+                          @{member.instagramHandle || 'no-instagram'}
+                        </span>
+                        <span className={styles.subtle}>
+                          {member.shareFirstName ? 'Shares first name' : 'Prefers alias'}
+                        </span>
+                        {member.isPlaceholder && (
+                          <span className={styles.placeholderBadge}>Placeholder</span>
+                        )}
+                      </Link>
                     </td>
-                    <td>
-                      <div className={styles.handleBlock}>
-                        <span>@{member.instagramHandle}</span>
-                      </div>
-                    </td>
-                    <td>
+                    <td data-label="Contact">
                       <div className={styles.contactBlock}>
                         <span>{member.email}</span>
                         {member.phoneNumber && <span className={styles.subtle}>{member.phoneNumber}</span>}
                       </div>
                     </td>
-                    <td>
-                      <ul className={styles.consentList}>
-                        <li>General photos: {member.generalPhotoConsent ? 'Yes' : 'No'}</li>
-                        <li>Group face: {member.groupFaceConsent ? 'Yes' : 'No'}</li>
-                        <li>Other face: {member.otherFaceConsent ? 'Yes' : 'No'}</li>
-                        <li>Tagging: {member.taggingConsent ? 'Yes' : 'No'}</li>
-                      </ul>
+                    <td data-label="Photo consent">
+                      <div className={styles.consentRow}>
+                        {consentColumns.map(({ key, Icon, label }) => {
+                          const value = member[key];
+                          return (
+                            <span
+                              key={key}
+                              className={`${styles.consentPill} ${value ? styles.consentYes : styles.consentNo}`}
+                              title={`${label}: ${value ? 'Yes' : 'No'}`}
+                            >
+                              <Icon aria-hidden className={styles.consentIcon} />
+                              <span>{value ? 'Yes' : 'No'}</span>
+                              <span className={styles.srOnly}>{`${label}: ${value ? 'Yes' : 'No'}`}</span>
+                            </span>
+                          );
+                        })}
+                      </div>
                     </td>
-                    <td>{new Date(member.createdAt).toLocaleDateString('en-GB')}</td>
+                    <td data-label="Joined">{new Date(member.createdAt).toLocaleDateString('en-GB')}</td>
                   </tr>
                 );
               })}
