@@ -38,6 +38,7 @@ export async function PATCH(request) {
         fullName,
         shareFirstName: data.shareFirstName,
         phoneNumber: data.phoneNumber ?? null,
+        preferredContactMethod: data.preferredContactMethod ?? null,
         profilePhotoUrl: data.profilePhotoUrl ?? null,
         profilePhotoOriginalUrl: data.profilePhotoOriginalUrl ?? null,
         termsConsentCulture: data.termsConsentCulture,

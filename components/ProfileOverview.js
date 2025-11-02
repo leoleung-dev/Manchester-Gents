@@ -18,6 +18,13 @@ export default function ProfileOverview({ user }) {
     return first || last ? `${first} ${last}`.trim() : "Not provided";
   }, [user.firstName, user.lastName]);
   const preferredName = user.preferredName?.trim() || "Not set";
+  const hasInstagram = Boolean(
+    user.instagramHandle && !user.instagramHandle.startsWith("noinsta_")
+  );
+  const instagramValue = hasInstagram
+    ? `@${user.instagramHandle}`
+    : "Not provided";
+  const preferredContact = user.preferredContactMethod?.trim() || "Not provided";
   const lastUpdated = useMemo(() => {
     if (!user.consentUpdatedAt) {
       return "Not recorded yet";
@@ -87,13 +94,17 @@ export default function ProfileOverview({ user }) {
             </div>
             <div className="contact-item">
               <span className="contact-label">Instagram</span>
-              <span className="contact-value">@{user.instagramHandle}</span>
+              <span className="contact-value">{instagramValue}</span>
             </div>
             <div className="contact-item">
               <span className="contact-label">Phone</span>
               <span className="contact-value">
                 {user.phoneNumber?.trim() || "Not provided"}
               </span>
+            </div>
+            <div className="contact-item">
+              <span className="contact-label">Preferred contact</span>
+              <span className="contact-value">{preferredContact}</span>
             </div>
           </div>
         </article>

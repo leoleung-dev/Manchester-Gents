@@ -19,12 +19,14 @@ export function RegisterForm() {
   const [formState, setFormState] = useState({
     email: '',
     instagramHandle: '',
+    hasInstagram: true,
     password: '',
     firstName: '',
     lastName: '',
     preferredName: '',
     shareFirstName: true,
     phoneNumber: '',
+    preferredContactMethod: '',
     profilePhotoUrl: '',
     profilePhotoOriginalUrl: '',
     termsConsentCulture: false,
@@ -44,6 +46,14 @@ export function RegisterForm() {
     setFormState((prev) => ({ ...prev, [field]: event.target.value }));
   };
 
+  const handleNoInstagramToggle = (event) => {
+    const noInstagram = event.target.checked;
+    setFormState((prev) => ({
+      ...prev,
+      hasInstagram: !noInstagram
+    }));
+  };
+
   const handleToggleTerm = (field) => () => {
     setFormState((prev) => ({ ...prev, [field]: !prev[field] }));
   };
@@ -61,6 +71,11 @@ export function RegisterForm() {
       return;
     }
 
+    if (!formState.hasInstagram && !formState.preferredContactMethod.trim()) {
+      setError('Please share how we can reach you.');
+      return;
+    }
+
     const incompletePhoto = photoConsentQuestions.find((question) => formState[question.key] === null);
     if (incompletePhoto) {
       setError('Please choose your preference for each photo consent question.');
@@ -75,7 +90,9 @@ export function RegisterForm() {
 
     const payload = {
       email: formState.email.trim(),
-      instagramHandle: formState.instagramHandle.trim(),
+      instagramHandle: formState.hasInstagram ? formState.instagramHandle.trim() : null,
+      hasInstagram: formState.hasInstagram,
+      preferredContactMethod: formState.preferredContactMethod.trim(),
       password: formState.password,
       firstName: formState.firstName.trim(),
       lastName: formState.lastName.trim(),
@@ -162,21 +179,53 @@ export function RegisterForm() {
             />
           </div>
         </div>
-        <FormField
-          label="Preferred name (optional)"
-          type="text"
-          value={formState.preferredName}
-          onChange={handleChange('preferredName')}
-          placeholder="How should we address you?"
-        />
-        <FormField
-          label="Instagram username"
-          type="text"
-          value={formState.instagramHandle}
-          onChange={handleChange('instagramHandle')}
-          required
-          prefix="@"
-        />
+        {!formState.shareFirstName && (
+          <FormField
+            label="Preferred name"
+            type="text"
+            value={formState.preferredName}
+            onChange={handleChange('preferredName')}
+            placeholder="How should we address you?"
+            required
+          />
+        )}
+        {formState.shareFirstName && (
+          <FormField
+            label="Preferred name (optional)"
+            type="text"
+            value={formState.preferredName}
+            onChange={handleChange('preferredName')}
+            placeholder="How should we address you?"
+          />
+        )}
+        {formState.hasInstagram && (
+          <FormField
+            label="Instagram username"
+            type="text"
+            value={formState.instagramHandle}
+            onChange={handleChange('instagramHandle')}
+            required
+            prefix="@"
+          />
+        )}
+        <label className="checkbox-field">
+          <input
+            type="checkbox"
+            checked={!formState.hasInstagram}
+            onChange={handleNoInstagramToggle}
+          />
+          <span>I don&rsquo;t have Instagram</span>
+        </label>
+        {!formState.hasInstagram && (
+          <FormField
+            label="Preferred contact method"
+            type="text"
+            value={formState.preferredContactMethod}
+            onChange={handleChange('preferredContactMethod')}
+            placeholder="Share a phone, email, or other channel"
+            required
+          />
+        )}
         <FormField
           label="Phone number (optional)"
           type="tel"
@@ -312,6 +361,20 @@ export function RegisterForm() {
           flex-wrap: wrap;
           gap: 0.65rem;
         }
+        .checkbox-field {
+          display: inline-flex;
+          align-items: center;
+          gap: 0.6rem;
+          font-size: 0.78rem;
+          letter-spacing: 0.1em;
+          text-transform: uppercase;
+          opacity: 0.75;
+        }
+        .checkbox-field input {
+          width: 18px;
+          height: 18px;
+          accent-color: var(--color-gold);
+        }
         .terms-grid {
           display: grid;
           gap: 1rem;
@@ -394,6 +457,9 @@ export function RegisterForm() {
           }
           .radio-group {
             gap: 0.5rem;
+          }
+          .checkbox-field {
+            font-size: 0.72rem;
           }
           .auth-submit {
             width: 100%;

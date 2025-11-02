@@ -1,3 +1,4 @@
+import { randomUUID } from 'crypto';
 import prisma from '@/lib/prisma';
 import { hashPassword } from '@/lib/password';
 import { registerSchema } from '@/lib/validators';
@@ -6,13 +7,43 @@ import { getDisplayName } from '@/lib/displayName';
 export const dynamic = 'force-dynamic';
 export const runtime = 'nodejs';
 
+function normaliseHandle(handle) {
+  return handle?.trim().replace(/^@/, '').toLowerCase() || '';
+}
+
+function buildFallbackHandle(firstName, lastName) {
+  const safeName = [firstName, lastName]
+    .filter(Boolean)
+    .map((part) => part.toLowerCase().replace(/[^a-z0-9]/g, ''))
+    .find((part) => part.length > 0);
+  const suffix = randomUUID().replace(/-/g, '').slice(0, 6);
+  const base = safeName ? safeName.slice(0, 10) : 'member';
+  return `noinsta_${base}${suffix}`;
+}
+
+async function generateFallbackHandle(firstName, lastName) {
+  for (let attempt = 0; attempt < 10; attempt += 1) {
+    const candidate = buildFallbackHandle(firstName, lastName);
+    const existing = await prisma.user.findUnique({ where: { instagramHandle: candidate } });
+    if (!existing) {
+      return candidate;
+    }
+  }
+  throw new Error('Unable to generate fallback handle');
+}
+
 export async function POST(request) {
   try {
     const body = await request.json();
     const data = registerSchema.parse(body);
 
     const email = data.email.toLowerCase();
-    const handle = data.instagramHandle.replace(/^@/, '').toLowerCase();
+    const hasInstagram = data.hasInstagram !== false;
+    let handle = normaliseHandle(data.instagramHandle || '');
+    if (!hasInstagram) {
+      handle = await generateFallbackHandle(data.firstName, data.lastName);
+    }
+    const preferredContactMethod = data.preferredContactMethod?.trim() || null;
 
     const existingHandleUser = await prisma.user.findUnique({
       where: { instagramHandle: handle }
@@ -59,6 +90,7 @@ export async function POST(request) {
       fullName,
       shareFirstName: data.shareFirstName,
       phoneNumber: data.phoneNumber ?? null,
+      preferredContactMethod,
       profilePhotoUrl: data.profilePhotoUrl ?? null,
       profilePhotoOriginalUrl: data.profilePhotoOriginalUrl ?? null,
       generalPhotoConsent: data.generalPhotoConsent,

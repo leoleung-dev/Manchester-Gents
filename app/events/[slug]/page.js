@@ -1,3 +1,4 @@
+import Link from 'next/link';
 import NavBar from '@/components/NavBar';
 import Footer from '@/components/Footer';
 import EventThemeSection from '@/components/EventThemeSection';
@@ -22,7 +23,16 @@ async function getEvent(slug) {
               firstName: true,
               lastName: true,
               preferredName: true,
-              shareFirstName: true
+              shareFirstName: true,
+              role: true,
+              eventsSignedUp: {
+                select: {
+                  status: true,
+                  event: {
+                    select: { startTime: true }
+                  }
+                }
+              }
             }
           }
         }
@@ -111,6 +121,51 @@ export default async function EventDetailPage({ params }) {
   };
   const eventHasStarted = event.startTime ? new Date(event.startTime) <= new Date() : false;
 
+  const sortedAttendees = event.attendees
+    .map((signup) => {
+      const user = signup.user;
+      const confirmedAttendances = (user.eventsSignedUp || []).filter(
+        (record) => record.status === 'CONFIRMED'
+      );
+      const attendanceCount = confirmedAttendances.length;
+      const latestAttendance = confirmedAttendances
+        .map((record) => record.event?.startTime)
+        .filter(Boolean)
+        .map((date) => new Date(date).getTime())
+        .sort((a, b) => b - a)[0] || null;
+      const rawSortName = (user.firstName || user.preferredName || user.lastName || '').trim();
+      const sortName = (rawSortName || user.instagramHandle || '').toLowerCase();
+      return {
+        signup,
+        isAdmin: user.role === 'ADMIN',
+        attendanceCount,
+        latestAttendance,
+        sortName
+      };
+    })
+    .sort((a, b) => {
+      if (a.isAdmin && !b.isAdmin) {
+        return -1;
+      }
+      if (!a.isAdmin && b.isAdmin) {
+        return 1;
+      }
+      if (b.attendanceCount !== a.attendanceCount) {
+        return b.attendanceCount - a.attendanceCount;
+      }
+      if (a.latestAttendance && b.latestAttendance) {
+        if (b.latestAttendance !== a.latestAttendance) {
+          return b.latestAttendance - a.latestAttendance;
+        }
+      } else if (a.latestAttendance) {
+        return -1;
+      } else if (b.latestAttendance) {
+        return 1;
+      }
+      return a.sortName.localeCompare(b.sortName);
+    })
+    .map((entry) => entry.signup);
+
   return (
     <div className={styles.page}>
       <NavBar />
@@ -151,8 +206,11 @@ export default async function EventDetailPage({ params }) {
               )}
               <div className={styles.sidebarSection}>
                 <span className="heading-font">Guest list</span>
+                <Link href={`/events/${event.slug}/consent`} className={styles.consentLink}>
+                  Review other attendees&apos; photo consent
+                </Link>
                 <ul className={styles.guestList}>
-                  {event.attendees.slice(0, 10).map((signup) => {
+                  {sortedAttendees.map((signup) => {
                     const displayName = getDisplayName({
                       ...signup.user,
                       instagramHandle: signup.user.instagramHandle

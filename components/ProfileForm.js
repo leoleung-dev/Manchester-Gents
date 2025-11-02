@@ -17,6 +17,7 @@ export default function ProfileForm({ user }) {
     preferredName: user.preferredName || '',
     shareFirstName: typeof user.shareFirstName === 'boolean' ? user.shareFirstName : true,
     phoneNumber: user.phoneNumber || '',
+    preferredContactMethod: user.preferredContactMethod || '',
     profilePhotoUrl: user.profilePhotoUrl || '',
     profilePhotoOriginalUrl: user.profilePhotoOriginalUrl || '',
     termsConsentCulture: user.termsConsentCulture,
@@ -90,6 +91,7 @@ export default function ProfileForm({ user }) {
       preferredName: formState.preferredName.trim() || null,
       shareFirstName: formState.shareFirstName,
       phoneNumber: formState.phoneNumber.trim(),
+      preferredContactMethod: formState.preferredContactMethod.trim(),
       profilePhotoUrl: formState.profilePhotoUrl || null,
       profilePhotoOriginalUrl: formState.profilePhotoOriginalUrl || null,
       termsConsentCulture: formState.termsConsentCulture,
@@ -166,18 +168,27 @@ export default function ProfileForm({ user }) {
             />
           </div>
         </div>
-        <InputField
-          label="Preferred name (optional)"
-          value={formState.preferredName}
-          onChange={handleChange('preferredName')}
-          placeholder="How should we address you?"
-        />
+        {formState.shareFirstName === false && (
+          <InputField
+            label="Preferred name"
+            value={formState.preferredName}
+            onChange={handleChange('preferredName')}
+            placeholder="How should we address you?"
+            required
+          />
+        )}
         <InputField
           label="Phone number (optional)"
           type="tel"
           value={formState.phoneNumber}
           onChange={handleChange('phoneNumber')}
           placeholder="Update this if your contact number changes"
+        />
+        <InputField
+          label="Preferred contact method (optional)"
+          value={formState.preferredContactMethod}
+          onChange={handleChange('preferredContactMethod')}
+          placeholder="Share a phone, email, or other channel"
         />
         <ProfilePhotoUploader
           value={{

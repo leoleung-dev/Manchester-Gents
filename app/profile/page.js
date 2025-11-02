@@ -27,6 +27,7 @@ export default async function ProfilePage() {
       preferredName: true,
       shareFirstName: true,
       phoneNumber: true,
+      preferredContactMethod: true,
       profilePhotoUrl: true,
       profilePhotoOriginalUrl: true,
       termsConsentCulture: true,

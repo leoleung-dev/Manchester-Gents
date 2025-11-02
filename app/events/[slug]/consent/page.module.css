@@ -1,0 +1,372 @@
+.page {
+  min-height: 100vh;
+  display: flex;
+  flex-direction: column;
+}
+
+.main {
+  flex: 1;
+  padding: clamp(2.5rem, 6vw, 3.5rem) clamp(1rem, 6vw, 2rem) clamp(4rem, 9vw, 5.5rem);
+  max-width: 1160px;
+  margin: 0 auto;
+  width: 100%;
+  display: flex;
+  flex-direction: column;
+  gap: 2.25rem;
+}
+
+.header {
+  display: flex;
+  flex-direction: column;
+  gap: 0.75rem;
+}
+
+.breadcrumb {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.5rem;
+  font-size: 0.78rem;
+  letter-spacing: 0.16em;
+  text-transform: uppercase;
+  opacity: 0.7;
+}
+
+.breadcrumb a {
+  color: inherit;
+  text-decoration: none;
+}
+
+.summary {
+  margin: 0;
+  opacity: 0.75;
+  max-width: 720px;
+  line-height: 1.6;
+}
+
+.tableCard {
+  padding: clamp(1.5rem, 3.5vw, 2.25rem);
+  border-radius: 22px;
+  background: rgba(10, 18, 30, 0.82);
+  border: 1px solid rgba(255, 255, 255, 0.08);
+  display: flex;
+  flex-direction: column;
+  gap: 1.4rem;
+}
+
+.tableWrap {
+  overflow: visible;
+  width: 100%;
+}
+
+.desktopTableWrap {
+  display: none;
+}
+
+.mobileCards {
+  display: block;
+}
+
+.consentTable {
+  width: 100%;
+  border-collapse: collapse;
+  min-width: 680px;
+}
+
+.consentTable thead th {
+  text-align: left;
+  font-size: 0.72rem;
+  letter-spacing: 0.16em;
+  text-transform: uppercase;
+  opacity: 0.65;
+  padding-bottom: 0.6rem;
+}
+
+
+.consentTable tbody tr {
+  border-bottom: 1px solid rgba(255, 255, 255, 0.04);
+  transition: background-color 0.2s ease;
+}
+
+.consentTable tbody tr:last-child {
+  border-bottom: none;
+}
+
+.consentTable td {
+  padding: 0.65rem 0;
+  font-size: 0.88rem;
+}
+
+.consentTable tbody tr:hover {
+  background: rgba(255, 255, 255, 0.02);
+}
+
+.consentTable th,
+.consentTable td {
+  vertical-align: middle;
+}
+
+.tableHeaderIcon {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  margin-right: 0.45rem;
+  color: var(--color-gold, #ffd460);
+}
+
+.photoHeader {
+  width: 70px;
+}
+
+.tableAvatar {
+  width: 46px;
+  height: 46px;
+  border-radius: 12px;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  background: rgba(255, 255, 255, 0.08);
+  border: none;
+  padding: 0;
+  cursor: zoom-in;
+  overflow: hidden;
+  font-size: 0.75rem;
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+}
+
+.tableAvatarImage {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  border-radius: 12px;
+}
+
+.tableAvatarFallback {
+  color: var(--color-gold);
+  font-weight: 600;
+}
+
+.tableIdentity {
+  display: flex;
+  flex-direction: column;
+  gap: 0.18rem;
+}
+
+.tableStatus {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.45rem;
+  padding: 0.3rem 0.85rem;
+  border-radius: 999px;
+  font-size: 0.78rem;
+  letter-spacing: 0.14em;
+  text-transform: uppercase;
+  color: rgba(255, 255, 255, 0.95);
+}
+
+.tableStatusIcon {
+  font-size: 0.95rem;
+  color: var(--color-gold, #ffd460);
+}
+
+.tableStatus.inlineConsentYes {
+  background: rgba(154, 255, 199, 0.22);
+}
+
+.tableStatus.inlineConsentNo {
+  background: rgba(255, 159, 159, 0.28);
+}
+
+.tableStatus.inlineConsentUnset {
+  background: rgba(255, 255, 255, 0.12);
+}
+
+.legendGrid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(140px, 1fr));
+  gap: 0.85rem;
+}
+
+.legendItem {
+  display: flex;
+  align-items: center;
+  gap: 0.65rem;
+  padding: 0.65rem 0.85rem;
+  border-radius: 12px;
+  background: rgba(15, 26, 40, 0.6);
+  border: 1px solid rgba(255, 255, 255, 0.08);
+  font-size: 0.85rem;
+}
+
+.legendIcon {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 36px;
+  height: 36px;
+  border-radius: 10px;
+  background: rgba(255, 255, 255, 0.08);
+  color: var(--color-gold, #ffd460);
+  font-size: 1.1rem;
+}
+
+.legendIcon svg {
+  font-size: 1.1rem;
+}
+
+.consentList {
+  display: grid;
+  gap: 1.2rem;
+  grid-template-columns: minmax(0, 1fr);
+  width: 100%;
+}
+
+.consentCard {
+  display: flex;
+  flex-direction: column;
+  gap: 1rem;
+  padding: 1.1rem 1.25rem;
+  border-radius: 18px;
+  background: rgba(15, 26, 40, 0.65);
+  border: 1px solid rgba(255, 255, 255, 0.08);
+}
+
+.cardHeader {
+  display: flex;
+  align-items: center;
+  gap: 0.9rem;
+}
+
+.cardAvatar {
+  width: 52px;
+  height: 52px;
+  border-radius: 14px;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  background: rgba(255, 255, 255, 0.08);
+  border: none;
+  padding: 0;
+  cursor: zoom-in;
+  overflow: hidden;
+  font-size: 0.78rem;
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+}
+
+.cardAvatarImage {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  border-radius: 14px;
+}
+
+.cardAvatarFallback {
+  color: var(--color-gold);
+  font-weight: 600;
+}
+
+.cardIdentity {
+  display: flex;
+  flex-direction: column;
+  gap: 0.18rem;
+}
+
+.cardName {
+  font-size: 0.95rem;
+  font-weight: 600;
+}
+
+.cardHandle {
+  font-size: 0.78rem;
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+  opacity: 0.6;
+}
+
+.cardConsentsInline {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.35rem;
+  width: 100%;
+}
+
+.inlineConsent {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0;
+  padding: 0.12rem 0.35rem;
+  border-radius: 999px;
+  flex: 1 1 calc(25% - 0.35rem);
+  min-width: 0;
+}
+
+.inlineIcon {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 22px;
+  height: 22px;
+  border-radius: 999px;
+  color: var(--color-gold, #ffd460);
+}
+
+.inlineIcon svg {
+  font-size: 0.85rem;
+}
+
+.inlineConsentYes {
+  background: rgba(154, 255, 199, 0.22);
+  color: rgba(255, 255, 255, 0.95);
+}
+
+.inlineConsentNo {
+  background: rgba(255, 159, 159, 0.28);
+  color: rgba(255, 255, 255, 0.95);
+}
+
+.inlineConsentUnset {
+  background: rgba(255, 255, 255, 0.12);
+  color: rgba(255, 255, 255, 0.85);
+}
+
+
+.srOnly {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  padding: 0;
+  margin: -1px;
+  overflow: hidden;
+  clip: rect(0, 0, 0, 0);
+  white-space: nowrap;
+  border: 0;
+}
+
+.emptyState {
+  margin: 0;
+  font-size: 0.9rem;
+  opacity: 0.7;
+}
+
+@media (max-width: 720px) {
+  .main {
+    padding: 2rem 1.25rem 3.5rem;
+  }
+  .tableCard {
+    border-radius: 18px;
+  }
+  .legendGrid {
+    grid-template-columns: repeat(auto-fit, minmax(140px, 1fr));
+  }
+}
+
+@media (min-width: 960px) {
+  .desktopTableWrap {
+    display: block;
+  }
+  .mobileCards {
+    display: none;
+  }
+}

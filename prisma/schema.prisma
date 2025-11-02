@@ -30,12 +30,13 @@ model User {
   fullName        String?
   shareFirstName  Boolean       @default(false)
   phoneNumber     String?
+  preferredContactMethod String?
   profilePhotoUrl String?
   profilePhotoOriginalUrl String?
-  generalPhotoConsent Boolean   @default(false)
-  groupFaceConsent   Boolean    @default(false)
-  otherFaceConsent   Boolean    @default(false)
-  taggingConsent     Boolean    @default(false)
+  generalPhotoConsent Boolean?   @default(false)
+  groupFaceConsent   Boolean?    @default(false)
+  otherFaceConsent   Boolean?    @default(false)
+  taggingConsent     Boolean?    @default(false)
   isPlaceholder      Boolean    @default(false)
   termsConsentCulture Boolean   @default(false)
   termsSafeSpace      Boolean   @default(false)

@@ -32,13 +32,18 @@ export default function AdminAddToEventForm({ events = [], users = [] }) {
     });
   }, [events]);
 
+  const [userList, setUserList] = useState(users);
+  useEffect(() => {
+    setUserList(users);
+  }, [users]);
+
   const sortedUsers = useMemo(() => {
-    return [...users].sort((a, b) => {
+    return [...userList].sort((a, b) => {
       const nameA = getUserLabel(a).toLowerCase();
       const nameB = getUserLabel(b).toLowerCase();
       return nameA.localeCompare(nameB);
     });
-  }, [users]);
+  }, [userList]);
 
   const [formState, setFormState] = useState({
     eventId: sortedEvents[0]?.id || '',
@@ -48,6 +53,10 @@ export default function AdminAddToEventForm({ events = [], users = [] }) {
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [error, setError] = useState(null);
   const [success, setSuccess] = useState(null);
+  const [bulkInput, setBulkInput] = useState('');
+  const [bulkIsSubmitting, setBulkIsSubmitting] = useState(false);
+  const [bulkError, setBulkError] = useState(null);
+  const [bulkSuccess, setBulkSuccess] = useState(null);
 
   useEffect(() => {
     setFormState((prev) => {
@@ -65,6 +74,8 @@ export default function AdminAddToEventForm({ events = [], users = [] }) {
     setFormState((prev) => ({ ...prev, [field]: event.target.value }));
     setError(null);
     setSuccess(null);
+    setBulkError(null);
+    setBulkSuccess(null);
   };
 
   const hasEvents = sortedEvents.length > 0;
@@ -95,10 +106,97 @@ export default function AdminAddToEventForm({ events = [], users = [] }) {
     setSelectedUserIds([]);
   }, [formState.eventId]);
 
+  const handleBulkInputChange = (event) => {
+    setBulkInput(event.target.value);
+    setBulkError(null);
+    setBulkSuccess(null);
+  };
+
+  const upsertUsers = (incoming = []) => {
+    if (!incoming.length) {
+      return;
+    }
+    setUserList((prev) => {
+      const map = new Map(prev.map((user) => [user.id, user]));
+      for (const user of incoming) {
+        if (user?.id) {
+          map.set(user.id, user);
+        }
+      }
+      return Array.from(map.values());
+    });
+  };
+
+  const handleBulkSubmit = async () => {
+    setBulkError(null);
+    setBulkSuccess(null);
+
+    if (!formState.eventId) {
+      setBulkError('Select an event before processing the table.');
+      return;
+    }
+    if (!bulkInput.trim()) {
+      setBulkError('Paste at least one row before processing.');
+      return;
+    }
+
+    setBulkIsSubmitting(true);
+    try {
+      const response = await fetch(`/api/admin/events/${formState.eventId}/attendees`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ placeholderTable: bulkInput })
+      });
+      const data = await response.json().catch(() => ({}));
+      if (!response.ok) {
+        throw new Error(data?.error || 'Unable to process the table for this event.');
+      }
+
+      const stats = data?.stats || {};
+      upsertUsers([
+        ...(stats.createdPlaceholders || []),
+        ...(stats.updatedPlaceholders || []),
+        ...(stats.matchedPlaceholders || []),
+        ...(stats.matchedMembers || [])
+      ]);
+
+      const addedCount = stats.added?.length || 0;
+      const alreadyCount = stats.already?.length || 0;
+      const createdCount = stats.createdPlaceholders?.length || 0;
+      const updatedCount = stats.updatedPlaceholders?.length || 0;
+      const skippedCount = stats.skipped?.length || 0;
+
+      const messageParts = [];
+      if (addedCount) {
+        messageParts.push(`${addedCount} added to the guest list`);
+      }
+      if (alreadyCount) {
+        messageParts.push(`${alreadyCount} already listed`);
+      }
+      if (createdCount) {
+        messageParts.push(`${createdCount} placeholders created`);
+      }
+      if (updatedCount) {
+        messageParts.push(`${updatedCount} updated`);
+      }
+      if (skippedCount) {
+        messageParts.push(`${skippedCount} skipped`);
+      }
+      setBulkSuccess(messageParts.join('. ') || 'Table processed successfully.');
+      setBulkInput('');
+    } catch (err) {
+      setBulkError(err.message);
+    } finally {
+      setBulkIsSubmitting(false);
+    }
+  };
+
   const handleSubmit = async (event) => {
     event.preventDefault();
     setError(null);
     setSuccess(null);
+    setBulkError(null);
+    setBulkSuccess(null);
 
     if (!formState.eventId || selectedUserIds.length === 0) {
       setError('Please select an event and at least one member.');
@@ -196,6 +294,34 @@ export default function AdminAddToEventForm({ events = [], users = [] }) {
         {hasUsers && filteredUsers.length === 0 && (
           <p className="no-results">No members match that search.</p>
         )}
+      </div>
+      <div className="bulk-import">
+        <div className="bulk-head">
+          <span className="heading-font">Paste placeholder table</span>
+          <p>
+            Paste a spreadsheet export with columns for name, Instagram handle, and consent flags to
+            create or update placeholders before adding them to this event.
+          </p>
+        </div>
+        <textarea
+          value={bulkInput}
+          onChange={handleBulkInputChange}
+          placeholder="Name	@handle	Yes	No	No	Yes"
+          rows={6}
+          disabled={!hasEvents || bulkIsSubmitting}
+        />
+        <div className="bulk-actions">
+          <button
+            type="button"
+            className="secondary-btn"
+            onClick={handleBulkSubmit}
+            disabled={bulkIsSubmitting || !hasEvents}
+          >
+            {bulkIsSubmitting ? 'Processing…' : 'Process table'}
+          </button>
+        </div>
+        {bulkError && <p className="status status-error">{bulkError}</p>}
+        {bulkSuccess && <p className="status status-success">{bulkSuccess}</p>}
       </div>
       {error && <p className="status status-error">{error}</p>}
       {success && <p className="status status-success">{success}</p>}
@@ -313,6 +439,70 @@ export default function AdminAddToEventForm({ events = [], users = [] }) {
           margin: 0;
           opacity: 0.6;
         }
+        .bulk-import {
+          display: flex;
+          flex-direction: column;
+          gap: 0.8rem;
+          padding: 1rem;
+          border-radius: 18px;
+          background: rgba(15, 26, 40, 0.35);
+          border: 1px solid rgba(255, 255, 255, 0.08);
+        }
+        .bulk-head {
+          display: flex;
+          flex-direction: column;
+          gap: 0.45rem;
+        }
+        .bulk-head p {
+          margin: 0;
+          font-size: 0.85rem;
+          opacity: 0.7;
+          line-height: 1.5;
+        }
+        textarea {
+          width: 100%;
+          border-radius: 12px;
+          padding: 0.75rem 1rem;
+          background: rgba(15, 26, 40, 0.7);
+          border: 1px solid rgba(255, 255, 255, 0.12);
+          color: inherit;
+          font-family: inherit;
+          font-size: 0.95rem;
+          resize: vertical;
+          min-height: 160px;
+        }
+        textarea:focus {
+          outline: none;
+          border-color: var(--color-gold);
+        }
+        textarea:disabled {
+          opacity: 0.5;
+          cursor: not-allowed;
+        }
+        .bulk-actions {
+          display: flex;
+          justify-content: flex-end;
+        }
+        .secondary-btn {
+          padding: 0.55rem 1.4rem;
+          border-radius: 999px;
+          border: 1px solid rgba(255, 255, 255, 0.3);
+          background: rgba(15, 27, 44, 0.4);
+          color: inherit;
+          letter-spacing: 0.08em;
+          font-size: 0.82rem;
+          text-transform: uppercase;
+        }
+        .secondary-btn:hover:not(:disabled) {
+          border-color: rgba(255, 212, 96, 0.4);
+        }
+        .secondary-btn:disabled {
+          opacity: 0.5;
+          cursor: not-allowed;
+        }
+        .bulk-actions .secondary-btn {
+          padding-inline: 1.6rem;
+        }
         .status {
           margin: 0;
           font-size: 0.82rem;
@@ -332,6 +522,13 @@ export default function AdminAddToEventForm({ events = [], users = [] }) {
             justify-content: center;
           }
           .primary-btn {
+            width: 100%;
+            text-align: center;
+          }
+          .bulk-actions {
+            justify-content: center;
+          }
+          .bulk-actions .secondary-btn {
             width: 100%;
             text-align: center;
           }
