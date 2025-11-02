@@ -6,9 +6,8 @@ import Footer from '@/components/Footer';
 import prisma from '@/lib/prisma';
 import { authOptions } from '@/lib/auth';
 import { getDisplayName } from '@/lib/displayName';
-import ConsentList from './ConsentListClient';
-import ConsentTable from './ConsentTableClient';
 import consentItems from './consentItems';
+import ClientConsentDisplay from './ClientConsentDisplay';
 import styles from './page.module.css';
 
 export const dynamic = "force-dynamic";
@@ -168,14 +167,7 @@ export default async function EventConsentPage({ params }) {
             ))}
           </div>
           {rows.length > 0 ? (
-            <>
-              <div className={`${styles.tableWrap} ${styles.desktopTableWrap}`}>
-                <ConsentTable rows={rows} showPhotos={isAdmin} />
-              </div>
-              <div className={`${styles.tableWrap} ${styles.mobileCards}`}>
-                <ConsentList rows={rows} showPhotos={isAdmin} />
-              </div>
-            </>
+            <ClientConsentDisplay isAdmin={isAdmin} rows={rows} />
           ) : (
             <p className={styles.emptyState}>
               No attendees have been added to this guest list yet. Once members RSVP, their consent
