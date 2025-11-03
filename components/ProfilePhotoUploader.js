@@ -10,7 +10,7 @@ import Image from 'next/image';
 const MAX_FILE_SIZE = 5 * 1024 * 1024;
 const ACCEPTED_TYPES = ['image/jpeg', 'image/png', 'image/webp'];
 
-export default function ProfilePhotoUploader({ value, onChange, disabled = false }) {
+export default function ProfilePhotoUploader({ value, onChange, disabled = false, required = false }) {
   const [isOriginalUploading, setIsOriginalUploading] = useState(false);
   const [isCroppedUploading, setIsCroppedUploading] = useState(false);
   const [error, setError] = useState(null);
@@ -174,40 +174,43 @@ export default function ProfilePhotoUploader({ value, onChange, disabled = false
     <>
       <div className="uploader">
         <label className="upload-label">
-          <span>Private reference photo</span>
+          <span>
+            Private reference photo
+            {required ? ' (required)' : ''}
+          </span>
           <input
             type="file"
             accept="image/png,image/jpeg,image/webp"
-          onChange={handleFileSelection}
-          disabled={disabled || isOriginalUploading || isCroppedUploading}
-        />
-      </label>
-      <p className="upload-note">
-        Upload a suited photo so the admin team can recognise you when editing event imagery. We keep
-        the original private — only the team can access it.
-      </p>
-      {(isOriginalUploading || isCroppedUploading) && <p className="upload-status">Uploading…</p>}
-      {error && <p className="upload-error">{error}</p>}
-      {value?.croppedUrl ? (
-        <div className="preview">
-          <Image
-            src={value.croppedUrl}
-            alt="Profile reference"
-            width={96}
-            height={96}
-            className="preview-image"
+            onChange={handleFileSelection}
+            disabled={disabled || isOriginalUploading || isCroppedUploading}
+            aria-required={required}
           />
-          <div className="preview-actions">
-            <button type="button" onClick={handleReCrop} disabled={disabled}>
-              Re-crop
-            </button>
-            <button type="button" onClick={handleRemovePhoto} disabled={disabled}>
-              Remove
-            </button>
+        </label>
+        <p className="upload-note">
+          Upload a suited photo so the admin team can recognise you when editing event imagery. We keep
+          the original private — only the team can access it.
+        </p>
+        {(isOriginalUploading || isCroppedUploading) && <p className="upload-status">Uploading…</p>}
+        {error && <p className="upload-error">{error}</p>}
+        {value?.croppedUrl ? (
+          <div className="preview">
+            <Image
+              src={value.croppedUrl}
+              alt="Profile reference"
+              width={96}
+              height={96}
+              className="preview-image"
+            />
+            <div className="preview-actions">
+              <button type="button" onClick={handleReCrop} disabled={disabled}>
+                Re-crop
+              </button>
+              <button type="button" onClick={handleRemovePhoto} disabled={disabled}>
+                Remove
+              </button>
+            </div>
           </div>
-        </div>
-      ) : null}
-
+        ) : null}
       </div>
       {showCropper && cropSource && (
         isPortalReady

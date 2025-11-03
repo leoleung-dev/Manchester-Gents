@@ -113,7 +113,10 @@ export async function POST(request) {
     if (existingHandleUser?.isPlaceholder) {
       user = await prisma.user.update({
         where: { id: existingHandleUser.id },
-        data: baseUserData,
+        data: {
+          ...baseUserData,
+          createdAt: consentTimestamp
+        },
         select: {
           id: true,
           email: true,

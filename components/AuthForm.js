@@ -76,6 +76,11 @@ export function RegisterForm() {
       return;
     }
 
+    if (!formState.profilePhotoUrl || !formState.profilePhotoOriginalUrl) {
+      setError('Please upload a private reference photo before continuing.');
+      return;
+    }
+
     const incompletePhoto = photoConsentQuestions.find((question) => formState[question.key] === null);
     if (incompletePhoto) {
       setError('Please choose your preference for each photo consent question.');
@@ -99,8 +104,8 @@ export function RegisterForm() {
       preferredName: formState.preferredName.trim() || null,
       shareFirstName: formState.shareFirstName,
       phoneNumber: formState.phoneNumber.trim(),
-      profilePhotoUrl: formState.profilePhotoUrl || null,
-      profilePhotoOriginalUrl: formState.profilePhotoOriginalUrl || null,
+      profilePhotoUrl: formState.profilePhotoUrl,
+      profilePhotoOriginalUrl: formState.profilePhotoOriginalUrl,
       termsConsentCulture: formState.termsConsentCulture,
       termsSafeSpace: formState.termsSafeSpace,
       termsNoHate: formState.termsNoHate,
@@ -248,6 +253,7 @@ export function RegisterForm() {
           required
         />
         <ProfilePhotoUploader
+          required
           value={{
             originalUrl: formState.profilePhotoOriginalUrl,
             croppedUrl: formState.profilePhotoUrl

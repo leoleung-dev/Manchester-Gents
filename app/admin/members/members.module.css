@@ -25,6 +25,53 @@
   width: 100%;
 }
 
+.controls {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 0.75rem;
+}
+
+.sortLabel {
+  font-size: 0.72rem;
+  letter-spacing: 0.14em;
+  text-transform: uppercase;
+  opacity: 0.7;
+}
+
+.sortButton {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.4rem;
+  padding: 0.4rem 1rem;
+  border-radius: 999px;
+  background: rgba(15, 26, 40, 0.65);
+  border: 1px solid rgba(255, 255, 255, 0.12);
+  font-size: 0.7rem;
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+  color: inherit;
+}
+
+.sortButtonActive {
+  border-color: rgba(255, 212, 96, 0.6);
+  color: var(--color-gold);
+}
+
+.sortDirectionButton {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.4rem;
+  padding: 0.4rem 1rem;
+  border-radius: 999px;
+  background: rgba(255, 255, 255, 0.08);
+  border: 1px solid rgba(255, 255, 255, 0.18);
+  font-size: 0.7rem;
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+  color: inherit;
+}
+
 .tableWrapper {
   overflow-x: auto;
 }
@@ -162,6 +209,38 @@
   color: rgba(255, 255, 255, 0.95);
 }
 
+.groupSection {
+  display: flex;
+  flex-direction: column;
+  gap: 0.9rem;
+}
+
+.groupHeader {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: baseline;
+  gap: 0.6rem;
+}
+
+.groupHeader h2 {
+  margin: 0;
+  font-size: 1.2rem;
+  letter-spacing: 0.08em;
+}
+
+.groupMeta {
+  font-size: 0.75rem;
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+  opacity: 0.65;
+}
+
+.emptyNotice {
+  margin: 0;
+  font-size: 0.85rem;
+  opacity: 0.7;
+}
+
 .srOnly {
   position: absolute;
   width: 1px;
@@ -219,6 +298,16 @@
   }
   .consentPill {
     flex: 1 1 45%;
+    justify-content: center;
+  }
+  .controls {
+    flex-direction: column;
+    align-items: stretch;
+  }
+  .sortButton {
+    justify-content: center;
+  }
+  .sortDirectionButton {
     justify-content: center;
   }
 }

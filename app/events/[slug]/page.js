@@ -7,7 +7,6 @@ import { authOptions } from '@/lib/auth';
 import { getServerSession } from 'next-auth';
 import { notFound } from 'next/navigation';
 import { format } from 'date-fns';
-import { getDisplayName } from '@/lib/displayName';
 import Link from 'next/link';
 import ClientAdminControls from './client-admin-controls';
 import styles from './page.module.css';
@@ -40,6 +39,16 @@ async function getEvent(slug) {
       }
     }
   });
+}
+
+function getGuestDisplayName(user) {
+  const preferred = user.preferredName?.trim();
+  const first = user.firstName?.trim();
+  const handle = user.instagramHandle?.trim();
+  if (user.shareFirstName === false) {
+    return preferred || (handle ? `@${handle}` : 'Member');
+  }
+  return preferred || first || (handle ? `@${handle}` : 'Member');
 }
 
 export async function generateMetadata({ params }) {
@@ -125,6 +134,7 @@ export default async function EventDetailPage({ params }) {
   const sortedAttendees = event.attendees
     .map((signup) => {
       const user = signup.user;
+      const displayName = getGuestDisplayName(user);
       const confirmedAttendances = (user.eventsSignedUp || []).filter(
         (record) => record.status === 'CONFIRMED'
       );
@@ -134,10 +144,13 @@ export default async function EventDetailPage({ params }) {
         .filter(Boolean)
         .map((date) => new Date(date).getTime())
         .sort((a, b) => b - a)[0] || null;
-      const rawSortName = (user.firstName || user.preferredName || user.lastName || '').trim();
-      const sortName = (rawSortName || user.instagramHandle || '').toLowerCase();
+      const normalisedHandle = user.instagramHandle || '';
+      const rawSortName = displayName.replace(/^@/, '').trim();
+      const sortName = (rawSortName || normalisedHandle).toLowerCase();
       return {
         signup,
+        displayName,
+        handle: normalisedHandle,
         isAdmin: user.role === 'ADMIN',
         attendanceCount,
         latestAttendance,
@@ -164,8 +177,7 @@ export default async function EventDetailPage({ params }) {
         return 1;
       }
       return a.sortName.localeCompare(b.sortName);
-    })
-    .map((entry) => entry.signup);
+    });
 
   return (
     <div className={styles.page}>
@@ -212,22 +224,26 @@ export default async function EventDetailPage({ params }) {
                   Review other attendees&apos; photo consent
                 </Link>
                 <ul className={styles.guestList}>
-                  {sortedAttendees.map((signup) => {
-                    const displayName = getDisplayName({
-                      ...signup.user,
-                      instagramHandle: signup.user.instagramHandle
-                    });
-                    const normalisedHandle = signup.user.instagramHandle || '';
-                    const showHandle = normalisedHandle && !normalisedHandle.startsWith('noinsta_');
-                    const handleLabel = showHandle ? `@${normalisedHandle}` : '';
+                  {sortedAttendees.map(({ signup, displayName, handle }) => {
+                    const showHandle = handle && !handle.startsWith('noinsta_');
+                    const handleLabel = showHandle ? `@${handle}` : '';
                     const showName = Boolean(session?.user);
+                    const isFallbackName =
+                      !displayName || displayName === 'Member' || displayName.startsWith('@');
+                    const shouldCombine =
+                      showName &&
+                      !isFallbackName &&
+                      handleLabel &&
+                      displayName !== handleLabel;
+                    const listLabel = (() => {
+                      if (showName && !isFallbackName) {
+                        return shouldCombine ? `${displayName} · ${handleLabel}` : displayName;
+                      }
+                      return handleLabel || displayName || 'Member';
+                    })();
                     return (
                       <li key={signup.id}>
-                        {showName && displayName
-                          ? handleLabel
-                            ? `${displayName} · ${handleLabel}`
-                            : displayName
-                          : handleLabel || displayName || 'Member'}
+                        {listLabel}
                       </li>
                     );
                   })}

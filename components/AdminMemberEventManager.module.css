@@ -1,0 +1,63 @@
+.form {
+  display: flex;
+  flex-direction: column;
+  gap: 0.75rem;
+}
+
+.label {
+  display: flex;
+  flex-direction: column;
+  gap: 0.4rem;
+  font-size: 0.78rem;
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+  opacity: 0.8;
+}
+
+.select {
+  padding: 0.55rem 0.75rem;
+  border-radius: 12px;
+  border: 1px solid rgba(255, 255, 255, 0.18);
+  background: rgba(10, 20, 32, 0.8);
+  color: inherit;
+  font-size: 0.9rem;
+}
+
+.select option {
+  color: #0b1420;
+}
+
+.note {
+  margin: 0;
+  font-size: 0.82rem;
+  opacity: 0.7;
+}
+
+.error {
+  margin: 0;
+  font-size: 0.82rem;
+  color: #ff9090;
+}
+
+.success {
+  margin: 0;
+  font-size: 0.82rem;
+  color: #8bf0c1;
+}
+
+.submit {
+  align-self: flex-start;
+  padding: 0.55rem 1.4rem;
+  border-radius: 999px;
+  border: 1px solid rgba(255, 212, 96, 0.5);
+  background: rgba(255, 212, 96, 0.18);
+  color: inherit;
+  font-size: 0.82rem;
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+}
+
+.submit:disabled {
+  opacity: 0.55;
+  cursor: not-allowed;
+}
