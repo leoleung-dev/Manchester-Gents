@@ -57,8 +57,10 @@
 
 ### Event Admin Workspace (`app/events/[slug]/admin/page.js`)
 - Admin-only dashboard per event.
-- Left column: full `AdminEventForm` for updating copy, schedule, palette.
-- Right column: guest-list controls (`AdminAddToEventForm` plus `EventAttendeeManager` with removal actions and placeholder table paste support).
+- Tabbed workspace keeps things desktop-friendly: “Event details”, “Guest list”, and “Community chat”.
+- Event tab houses `AdminEventForm` for tuning copy, palette, timings, and capacity.
+- Guest tab stacks `AdminAddToEventForm` (member/placeholder additions or table paste) with `EventAttendeeManager` (search + removal).
+- Community tab surfaces `CommunityChatChecklist`, highlighting first-timers so admins can add them to the standing Instagram DM after each meetup.
 
 ### Member directory (`app/admin/members/page.js`)
 - Table collapses to cards on mobile; each row links to the member detail view.
@@ -72,6 +74,8 @@
 
 ## Components of Interest
 - **`EventSignupButton`:** Client component managing reservation state, special requests, cancellation confirmations, and error messaging.
+- **`EventAdminWorkspace`:** Tabbed wrapper that switches between event settings, guest list tools, and the community chat checklist.
+- **`CommunityChatChecklist`:** Admin-only helper that filters/sorts attendees, highlights first-timers, and offers quick copy buttons for Instagram handles when inviting members to the community chat.
 - **`AuthForm`:** Two exports (RegisterForm, LoginForm) using shared `FormField`.
 - **`ProfileOverview`:** Read-first experience summarising member data/consents and toggling the editor.
 - **`ProfileForm`:** Mirrors registration layout but focuses on editing name privacy, private reference photo, and consent data.

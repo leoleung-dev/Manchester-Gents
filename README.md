@@ -9,6 +9,7 @@ A modern members-only experience built with Next.js for the Manchester Gents soc
 - Member dashboard showing reservations and recommended events.
 - Members capture terms & photo consents during signup and can revisit them any time from their profile.
 - Members can reserve or cancel event spots directly from the event page.
+- Post-event community chat checklist that spotlights first-time attendees so admins can invite them into the shared Instagram DM quickly.
 - Private suited reference photo upload (kept off-member-facing surfaces) to help the team identify attendees in post-production.
 - Admin member directory with consent summaries and reference photos.
 - Serverless API routes backed by Prisma and PostgreSQL.

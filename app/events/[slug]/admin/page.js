@@ -3,9 +3,7 @@ import { redirect, notFound } from 'next/navigation';
 import { getServerSession } from 'next-auth';
 import NavBar from '@/components/NavBar';
 import Footer from '@/components/Footer';
-import AdminEventForm from '@/components/AdminEventForm';
-import AdminAddToEventForm from '@/components/AdminAddToEventForm';
-import EventAttendeeManager from '@/components/EventAttendeeManager';
+import EventAdminWorkspace from '@/components/EventAdminWorkspace';
 import prisma from '@/lib/prisma';
 import { authOptions } from '@/lib/auth';
 import styles from './page.module.css';
@@ -26,7 +24,21 @@ async function getEventWithRelations(slug) {
               lastName: true,
               preferredName: true,
               shareFirstName: true,
-              isPlaceholder: true
+              isPlaceholder: true,
+              eventsSignedUp: {
+                where: { status: 'CONFIRMED' },
+                select: {
+                  status: true,
+                  event: {
+                    select: {
+                      id: true,
+                      slug: true,
+                      title: true,
+                      startTime: true
+                    }
+                  }
+                }
+              }
             }
           }
         },
@@ -87,21 +99,12 @@ export default async function EventAdminPage({ params }) {
           </div>
           <p>Adjust event details and control the guest list from this control room.</p>
         </header>
-        <section className={styles.sectionGrid}>
-          <div className={styles.card}>
-            <h2>Event details</h2>
-            <p className={styles.cardIntro}>Update schedule, copy, and palette for this experience.</p>
-            <AdminEventForm existingEvent={event} />
-          </div>
-          <div className={styles.card}>
-            <h2>Guest list</h2>
-            <p className={styles.cardIntro}>
-              Add members or placeholders to this event, or remove attendees as needed.
-            </p>
-            <AdminAddToEventForm events={[event]} users={users} />
-            <EventAttendeeManager eventId={event.id} attendees={attendees} />
-          </div>
-        </section>
+        <EventAdminWorkspace
+          event={event}
+          users={users}
+          attendees={attendees}
+          eventAttendees={event.attendees}
+        />
       </main>
       <Footer />
     </div>

@@ -1,0 +1,104 @@
+.workspace {
+  display: flex;
+  flex-direction: column;
+  gap: 1.5rem;
+}
+
+.tabBar {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.75rem;
+  background: rgba(10, 18, 30, 0.8);
+  border: 1px solid rgba(255, 255, 255, 0.08);
+  border-radius: 999px;
+  padding: 0.35rem;
+}
+
+.tabButton {
+  border: none;
+  border-radius: 999px;
+  padding: 0.6rem 1.4rem;
+  background: transparent;
+  color: inherit;
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+  font-size: 0.78rem;
+  opacity: 0.65;
+  transition: all 0.2s ease;
+}
+
+.tabButtonActive {
+  background: rgba(255, 212, 96, 0.18);
+  border: 1px solid rgba(255, 212, 96, 0.45);
+  color: var(--color-gold);
+  opacity: 1;
+}
+
+.tabPanels {
+  position: relative;
+}
+
+.panel {
+  border-radius: 28px;
+  border: 1px solid rgba(255, 255, 255, 0.08);
+  background: rgba(12, 22, 35, 0.85);
+  padding: clamp(1.75rem, 3vw, 2.5rem);
+  display: none;
+  flex-direction: column;
+  gap: 1.25rem;
+}
+
+.panelActive {
+  display: flex;
+}
+
+.panelHidden {
+  display: none;
+}
+
+.panelIntro {
+  display: flex;
+  flex-direction: column;
+  gap: 0.4rem;
+}
+
+.panelIntro h2 {
+  margin: 0;
+}
+
+.panelIntro p {
+  margin: 0;
+  opacity: 0.7;
+  max-width: 640px;
+  line-height: 1.5;
+}
+
+.panelBody {
+  display: flex;
+  flex-direction: column;
+  gap: 1.5rem;
+}
+
+.guestGrid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(320px, 1fr));
+  gap: 1.25rem;
+}
+
+.guestCard {
+  border-radius: 20px;
+  border: 1px solid rgba(255, 255, 255, 0.08);
+  background: rgba(9, 15, 24, 0.8);
+  padding: 1.2rem;
+}
+
+@media (max-width: 720px) {
+  .tabBar {
+    border-radius: 20px;
+    padding: 0.5rem;
+  }
+  .tabButton {
+    flex: 1 1 calc(50% - 0.5rem);
+    text-align: center;
+  }
+}
