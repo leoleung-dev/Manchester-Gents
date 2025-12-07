@@ -1,8 +1,13 @@
+const allowedOriginsEnv = process.env.NEXTAUTH_URL
+  ? process.env.NEXTAUTH_URL.split(',').map((url) => url.trim()).filter(Boolean)
+  : ['http://localhost:3000'];
+
 /** @type {import('next').NextConfig} */
 const nextConfig = {
   experimental: {
     serverActions: {
-      allowedOrigins: [process.env.NEXTAUTH_URL || 'http://localhost:3000']
+      // Support multiple domains for NextAuth/Server Actions (comma-separated)
+      allowedOrigins: allowedOriginsEnv
     }
   },
   images: {

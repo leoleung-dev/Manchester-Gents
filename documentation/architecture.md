@@ -38,7 +38,7 @@
 ## Environment & Config
 - **`next.config.js`:** CommonJS export with image remote patterns and server action origins.
 - **`package.json`:** `"type"` intentionally omitted to stay in CommonJS (NextAuth compatibility).
-- **`.env` / `.env.local`:** Must include `DATABASE_URL`, `NEXTAUTH_SECRET`, `NEXTAUTH_URL`, Cloudinary credentials (`CLOUDINARY_CLOUD_NAME`, `CLOUDINARY_API_KEY`, `CLOUDINARY_API_SECRET`), and optional `SEED_ADMIN_*`.
+- **`.env` / `.env.local`:** Must include `DATABASE_URL`, `NEXTAUTH_SECRET`, `NEXTAUTH_URL`, Cloudinary credentials (`CLOUDINARY_CLOUD_NAME`, `CLOUDINARY_API_KEY`, `CLOUDINARY_API_SECRET`), and optional `SEED_ADMIN_*`. `NEXTAUTH_URL` supports comma-separated domains for multi-host setups.
 - **Prisma commands:** Provided via npm scripts (`prisma:generate`, `prisma:migrate`, `prisma:seed`).
 
 ## Build & Deployment Notes

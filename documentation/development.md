@@ -15,7 +15,7 @@ cp .env.example .env        # or .env.local if preferred
 Populate environment variables:
 - `DATABASE_URL` – Postgres connection string (include `sslmode=require` for hosted DBs).
 - `NEXTAUTH_SECRET` – Run `openssl rand -base64 32` to generate.
-- `NEXTAUTH_URL` – `http://localhost:3000` during development.
+- `NEXTAUTH_URL` – `http://localhost:3000` during development. In production, comma-separate multiple allowed domains (e.g. `https://manchestergents.com,https://www.manchestergents.com,https://mcr.gents`).
 - Optional seed overrides: `SEED_ADMIN_EMAIL`, `SEED_ADMIN_PASSWORD`, `SEED_ADMIN_HANDLE`.
 - Cloudinary uploads: `CLOUDINARY_CLOUD_NAME`, `CLOUDINARY_API_KEY`, `CLOUDINARY_API_SECRET` (required for private profile photos).
 - Uploaded photos are stored in Cloudinary under the `manchester-gents/profiles/*` folders. The `original` variant keeps the full-resolution suited reference; the `cropped` variant is a 400×400 PNG served to the app for fast avatar rendering.

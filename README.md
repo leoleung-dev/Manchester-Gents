@@ -37,7 +37,7 @@ cp .env.example .env.local
 
 - `DATABASE_URL` — PostgreSQL connection string (Recommended: Neon, Supabase, Vercel Postgres, or Railway).
 - `NEXTAUTH_SECRET` — A 32+ character string (generate with `openssl rand -base64 32`).
-- `NEXTAUTH_URL` — `http://localhost:3000` for local development, or your Vercel URL in production.
+- `NEXTAUTH_URL` — `http://localhost:3000` for local development. In production, you can supply a comma-separated list to support multiple domains (e.g. `https://manchestergents.com,https://www.manchestergents.com,https://mcr.gents`).
 - `CLOUDINARY_CLOUD_NAME`, `CLOUDINARY_API_KEY`, `CLOUDINARY_API_SECRET` — credentials for storing private member reference photos.
 - Optional seed helpers (`SEED_ADMIN_*`) customise the seeded admin account.
 
