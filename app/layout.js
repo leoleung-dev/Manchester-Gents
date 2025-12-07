@@ -3,7 +3,47 @@ import Providers from '@/components/Providers';
 import localFont from 'next/font/local';
 import { Inter } from 'next/font/google';
 
-const APP_URL = process.env.NEXT_PUBLIC_APP_URL || 'https://mg-new.vercel.app';
+const DEFAULT_PRIMARY_URL = 'https://manchestergents.com';
+const LOCAL_FALLBACK_URL = 'http://localhost:3000';
+
+function parseAppUrlList(raw) {
+  const entries = (raw || '')
+    .split(',')
+    .map((url) => url.trim())
+    .filter(Boolean);
+  if (entries.length === 0) return [LOCAL_FALLBACK_URL];
+
+  const validOrigins = [];
+  for (const entry of entries) {
+    try {
+      validOrigins.push(new URL(entry).origin);
+    } catch (err) {
+      console.warn(`Ignoring invalid NEXT_PUBLIC_APP_URL entry: ${entry}`, err);
+    }
+  }
+  return validOrigins.length ? validOrigins : [LOCAL_FALLBACK_URL];
+}
+
+function pickPrimaryAppUrl(urls) {
+  const preferred = urls.find((url) => {
+    try {
+      const host = new URL(url).hostname.replace(/^www\./, '');
+      return host === 'manchestergents.com';
+    } catch {
+      return false;
+    }
+  });
+  const candidate = preferred || urls[0] || DEFAULT_PRIMARY_URL;
+  try {
+    return new URL(candidate).origin;
+  } catch (err) {
+    console.warn('Invalid primary NEXT_PUBLIC_APP_URL, falling back to default.', err);
+    return DEFAULT_PRIMARY_URL;
+  }
+}
+
+const appUrlList = parseAppUrlList(process.env.NEXT_PUBLIC_APP_URL);
+const APP_URL = pickPrimaryAppUrl(appUrlList);
 
 const headingFont = localFont({
   src: '../public/fonts/Thelorin.otf',
