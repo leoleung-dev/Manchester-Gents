@@ -14,7 +14,13 @@ const loginSchema = z.object({
   password: z.string().min(6)
 });
 
-export function RegisterForm() {
+function resetAdminMode() {
+  if (typeof window !== 'undefined') {
+    window.localStorage.setItem('adminMode', 'false');
+  }
+}
+
+export function RegisterForm({ redirectTo = '/' }) {
   const router = useRouter();
   const [formState, setFormState] = useState({
     email: '',
@@ -140,7 +146,8 @@ export function RegisterForm() {
         identifier: parsed.data.email,
         password: parsed.data.password
       });
-      router.push('/dashboard');
+      resetAdminMode();
+      router.push(redirectTo || '/');
       router.refresh();
     } catch (err) {
       setError(err.message);
@@ -477,7 +484,7 @@ export function RegisterForm() {
   );
 }
 
-export function LoginForm() {
+export function LoginForm({ redirectTo = '/' }) {
   const router = useRouter();
   const [formState, setFormState] = useState({ identifier: '', password: '' });
   const [error, setError] = useState(null);
@@ -505,7 +512,8 @@ export function LoginForm() {
       if (result?.error) {
         throw new Error(result.error);
       }
-      router.push('/dashboard');
+      resetAdminMode();
+      router.push(redirectTo || '/');
       router.refresh();
     } catch (err) {
       setError(err.message);

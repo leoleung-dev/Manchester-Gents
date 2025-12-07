@@ -2,8 +2,8 @@
 
 import Link from "next/link";
 import Image from "next/image";
-import { useEffect, useState } from "react";
-import { usePathname } from "next/navigation";
+import { useEffect, useMemo, useState } from "react";
+import { usePathname, useSearchParams } from "next/navigation";
 import { signOut } from "next-auth/react";
 import { useSession } from "next-auth/react";
 import clsx from "clsx";
@@ -18,12 +18,25 @@ const navLinks = [
 
 export default function NavBar() {
   const pathname = usePathname();
+  const searchParams = useSearchParams();
   const { data: session, status } = useSession();
   const userRole = session?.user?.role;
   const displayName = getDisplayName(session?.user);
   const avatarUrl = session?.user?.profilePhotoUrl || null;
   const [menuOpen, setMenuOpen] = useState(false);
   const { adminMode } = useAdminMode();
+
+  const redirectPath = useMemo(() => {
+    const basePath = pathname || "/";
+    if (basePath.startsWith("/login") || basePath.startsWith("/register")) {
+      return "/";
+    }
+    const query = searchParams?.toString();
+    return query ? `${basePath}?${query}` : basePath;
+  }, [pathname, searchParams]);
+
+  const loginHref = `/login${redirectPath === "/" ? "" : `?redirect=${encodeURIComponent(redirectPath)}`}`;
+  const registerHref = `/register${redirectPath === "/" ? "" : `?redirect=${encodeURIComponent(redirectPath)}`}`;
 
   // Close the mobile menu when navigating to a new route.
   useEffect(() => {
@@ -112,10 +125,10 @@ export default function NavBar() {
               </>
             ) : (
               <>
-                <Link href="/login" className="nav-secondary">
+                <Link href={loginHref} className="nav-secondary">
                   Log in
                 </Link>
-                <Link href="/register" className="nav-cta">
+                <Link href={registerHref} className="nav-cta">
                   Join the Club
                 </Link>
               </>

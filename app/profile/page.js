@@ -14,7 +14,7 @@ export const metadata = {
 export default async function ProfilePage() {
   const session = await getServerSession(authOptions);
   if (!session?.user?.id) {
-    redirect('/login');
+    redirect(`/login?redirect=${encodeURIComponent('/profile')}`);
   }
 
   const user = await prisma.user.findUnique({

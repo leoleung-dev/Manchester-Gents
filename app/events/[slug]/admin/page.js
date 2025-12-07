@@ -68,7 +68,7 @@ async function getSelectableUsers() {
 export default async function EventAdminPage({ params }) {
   const session = await getServerSession(authOptions);
   if (!session?.user || session.user.role !== 'ADMIN') {
-    redirect('/login');
+    redirect(`/login?redirect=${encodeURIComponent(`/events/${params.slug}/admin`)}`);
   }
 
   const [event, users] = await Promise.all([

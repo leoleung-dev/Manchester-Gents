@@ -10,11 +10,26 @@ export const metadata = {
   title: 'Log in | Manchester Gents'
 };
 
-export default async function LoginPage() {
+function getRedirectTarget(searchParams) {
+  const candidate =
+    (typeof searchParams?.redirect === 'string' && searchParams.redirect) ||
+    (typeof searchParams?.from === 'string' && searchParams.from) ||
+    (typeof searchParams?.callbackUrl === 'string' && searchParams.callbackUrl) ||
+    '/';
+  if (!candidate.startsWith('/')) {
+    return '/';
+  }
+  return candidate;
+}
+
+export default async function LoginPage({ searchParams }) {
+  const redirectTo = getRedirectTarget(searchParams);
   const session = await getServerSession(authOptions);
   if (session) {
-    redirect('/dashboard');
+    redirect(redirectTo);
   }
+
+  const redirectQuery = redirectTo && redirectTo !== '/' ? `?redirect=${encodeURIComponent(redirectTo)}` : '';
 
   return (
     <div className={styles.page}>
@@ -27,12 +42,12 @@ export default async function LoginPage() {
             <p>
               Use your Instagram username or email to confirm your spot at upcoming Lodge socials.
             </p>
-            <LoginForm />
+            <LoginForm redirectTo={redirectTo} />
           </div>
           <div className={styles.authSide}>
             <span className="heading-font">Not a member yet?</span>
             <p>Request your invitation and join our relaxed suit-and-drink evenings in Manchester.</p>
-            <a href="/register" className={styles.authLink}>
+            <a href={`/register${redirectQuery}`} className={styles.authLink}>
               Create account →
             </a>
           </div>

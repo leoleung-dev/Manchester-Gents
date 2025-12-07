@@ -57,6 +57,7 @@ npm run prisma:seed
 - Seed script creates an admin account using the credentials above.
 - Log in with that account, visit `/admin`, and create/update events and their palettes.
 - Events are published by default; toggle the colour scheme for each event directly in the admin panel.
+- Control the coming-soon gate from the admin dashboard: toggle it on/off and set an auto-disable time (saved in the new `ComingSoonConfig` table). Environment variables still act as a fallback if no record exists.
 
 ## Deployment on Vercel
 1. Push the repository to GitHub/GitLab/Bitbucket.

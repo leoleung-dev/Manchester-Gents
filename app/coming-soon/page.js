@@ -1,4 +1,6 @@
 import Link from "next/link";
+import { redirect } from "next/navigation";
+import { getComingSoonConfig } from "@/lib/comingSoonConfig";
 import styles from "./page.module.css";
 
 export const metadata = {
@@ -7,8 +9,17 @@ export const metadata = {
     "The new Manchester Gents site is nearly ready. Watch Instagram for the announcement.",
 };
 
-export default function ComingSoonPage({ searchParams }) {
+export default async function ComingSoonPage({ searchParams }) {
   const showAdminAccess = searchParams?.admin !== undefined;
+  const config = await getComingSoonConfig();
+
+  const disableAtMs = config?.disableAt ? new Date(config.disableAt).getTime() : null;
+  const hasExpired = disableAtMs !== null && !Number.isNaN(disableAtMs) && Date.now() >= disableAtMs;
+  const gateActive = (config?.enabled ?? true) && !hasExpired;
+
+  if (!gateActive) {
+    redirect("/");
+  }
 
   return (
     <main className={styles.page}>

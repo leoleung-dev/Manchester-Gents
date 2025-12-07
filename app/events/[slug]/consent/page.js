@@ -6,6 +6,7 @@ import Footer from '@/components/Footer';
 import prisma from '@/lib/prisma';
 import { authOptions } from '@/lib/auth';
 import { getDisplayName } from '@/lib/displayName';
+import { format } from 'date-fns';
 import consentItems from './consentItems';
 import ClientConsentDisplay from './ClientConsentDisplay';
 import styles from './page.module.css';
@@ -75,7 +76,7 @@ export async function generateMetadata({ params }) {
 export default async function EventConsentPage({ params }) {
   const session = await getServerSession(authOptions);
   if (!session?.user) {
-    redirect("/login");
+    redirect(`/login?redirect=${encodeURIComponent(`/events/${params.slug}/consent`)}`);
   }
 
   const event = await prisma.event.findUnique({
@@ -84,6 +85,9 @@ export default async function EventConsentPage({ params }) {
       id: true,
       slug: true,
       title: true,
+      subtitle: true,
+      startTime: true,
+      location: true,
       published: true,
       attendees: {
         select: {
@@ -150,6 +154,22 @@ export default async function EventConsentPage({ params }) {
             <span>Photo consent</span>
           </div>
           <h1>Photo consent overview</h1>
+          <div className={styles.eventDetails}>
+            <div>
+              <p className={styles.eventEyebrow}>Event</p>
+              <h2 className={styles.eventTitle}>{event.title}</h2>
+              {event.subtitle && <p className={styles.eventSubtitle}>{event.subtitle}</p>}
+            </div>
+            <div className={styles.eventMeta}>
+              {event.startTime && (
+                <p className={styles.eventMetaItem}>
+                  {format(new Date(event.startTime), 'EEEE d MMM yyyy • h:mmaaa')}
+                </p>
+              )}
+              {event.location && <p className={styles.eventMetaItem}>{event.location}</p>}
+              <p className={styles.eventHint}>Consent for this event is below.</p>
+            </div>
+          </div>
           <p className={styles.summary}>
             Review how fellow attendees prefer to appear in photography and tagging. Blanks indicate
             placeholder records where consent preferences are still to be confirmed.

@@ -1,7 +1,7 @@
 'use client';
 
 import { useEffect, useMemo, useState } from 'react';
-import { useRouter } from 'next/navigation';
+import { usePathname, useRouter, useSearchParams } from 'next/navigation';
 import { useSession } from 'next-auth/react';
 import { termsChecklist, photoConsentQuestions } from '@/lib/consentContent';
 
@@ -15,6 +15,8 @@ export default function EventSignupButton({
   groupChatLink
 }) {
   const router = useRouter();
+  const pathname = usePathname();
+  const searchParams = useSearchParams();
   const { data: session, status } = useSession();
   const [note, setNote] = useState(existingSignup?.specialRequests || '');
   const [isSubmitting, setIsSubmitting] = useState(false);
@@ -79,9 +81,20 @@ export default function EventSignupButton({
     }
   }, [groupChatLink]);
 
+  const redirectTarget = useMemo(() => {
+    const basePath = pathname || '/';
+    const query = searchParams?.toString();
+    return query ? `${basePath}?${query}` : basePath;
+  }, [pathname, searchParams]);
+
+  const loginUrl = useMemo(
+    () => `/login?redirect=${encodeURIComponent(redirectTarget)}`,
+    [redirectTarget]
+  );
+
   const handleNext = () => {
     if (!isLoggedIn) {
-      router.push('/login?from=event');
+      router.push(loginUrl);
       return;
     }
     if (step < TOTAL_STEPS) {
@@ -95,7 +108,7 @@ export default function EventSignupButton({
 
   const handleReserve = async () => {
     if (!isLoggedIn) {
-      router.push('/login?from=event');
+      router.push(loginUrl);
       return;
     }
     if (isClosed || isSubmitting) {
@@ -125,7 +138,7 @@ export default function EventSignupButton({
 
   const handleCancel = async () => {
     if (!isLoggedIn) {
-      router.push('/login?from=event');
+      router.push(loginUrl);
       return;
     }
     if (isCancelling) {

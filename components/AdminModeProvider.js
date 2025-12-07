@@ -2,23 +2,21 @@
 
 import { createContext, useContext, useEffect, useMemo, useState } from 'react';
 
-const AdminModeContext = createContext({ adminMode: true, toggleAdminMode: () => {} });
+const AdminModeContext = createContext({ adminMode: false, toggleAdminMode: () => {} });
 
 export function useAdminMode() {
   return useContext(AdminModeContext);
 }
 
 export default function AdminModeProvider({ children }) {
-  const [adminMode, setAdminMode] = useState(true);
+  const [adminMode, setAdminMode] = useState(false);
 
   useEffect(() => {
     if (typeof window === 'undefined') {
       return;
     }
     const stored = window.localStorage.getItem('adminMode');
-    if (stored === 'false') {
-      setAdminMode(false);
-    }
+    setAdminMode(stored === 'true');
   }, []);
 
   const value = useMemo(

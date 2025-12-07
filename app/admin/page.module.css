@@ -214,6 +214,172 @@
   font-size: 0.8rem;
 }
 
+.gateHeader {
+  display: flex;
+  justify-content: space-between;
+  gap: 1rem;
+  align-items: flex-start;
+}
+
+.gateCard {
+  flex-direction: column;
+  align-items: stretch;
+  justify-content: flex-start;
+}
+
+.gateSubtitle {
+  margin-top: 0.35rem;
+  opacity: 0.7;
+}
+
+.gateStatus {
+  align-self: flex-start;
+  padding: 0.45rem 1rem;
+  border-radius: 12px;
+  font-size: 0.8rem;
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+  border: 1px solid rgba(255, 255, 255, 0.14);
+}
+
+.statusOn {
+  background: rgba(255, 212, 96, 0.12);
+  color: var(--color-gold);
+}
+
+.statusOff {
+  background: rgba(255, 255, 255, 0.08);
+  color: #cdd3df;
+}
+
+.gateForm {
+  display: flex;
+  flex-direction: column;
+  gap: 1.2rem;
+}
+
+.toggleRow {
+  display: flex;
+  gap: 0.9rem;
+  align-items: center;
+}
+
+.toggleRow input[type='checkbox'] {
+  width: 18px;
+  height: 18px;
+  accent-color: var(--color-gold);
+}
+
+.toggleLabel {
+  font-weight: 700;
+}
+
+.toggleHint {
+  margin: 0.2rem 0 0;
+  opacity: 0.7;
+}
+
+.inputRow {
+  display: flex;
+  flex-direction: column;
+  gap: 0.45rem;
+}
+
+.inputLabelRow {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+
+.input {
+  padding: 0.65rem 0.75rem;
+  border-radius: 10px;
+  border: 1px solid rgba(255, 255, 255, 0.16);
+  background: rgba(255, 255, 255, 0.05);
+  color: var(--color-body);
+  font-size: 1rem;
+}
+
+.input:focus {
+  outline: 2px solid rgba(255, 212, 96, 0.5);
+  border-color: rgba(255, 212, 96, 0.6);
+}
+
+.clearButton {
+  background: transparent;
+  border: 1px solid rgba(255, 255, 255, 0.2);
+  color: #cdd3df;
+  border-radius: 999px;
+  padding: 0.3rem 0.9rem;
+  text-transform: uppercase;
+  letter-spacing: 0.12em;
+  font-size: 0.7rem;
+}
+
+.clearButton:hover {
+  border-color: rgba(255, 255, 255, 0.35);
+}
+
+.hint {
+  margin: 0;
+  font-size: 0.85rem;
+  opacity: 0.7;
+}
+
+.gateActions {
+  display: flex;
+  flex-direction: column;
+  gap: 0.5rem;
+  align-items: flex-start;
+}
+
+.gateActions .statusText {
+  text-align: left;
+}
+
+.saveButton {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.4rem;
+  padding: 0.7rem 1.35rem;
+  border-radius: 12px;
+  font-weight: 700;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  background: linear-gradient(135deg, #ffd460, #ffb347);
+  color: #0c0f1a;
+  border: 1px solid rgba(255, 255, 255, 0.15);
+  box-shadow: 0 14px 30px rgba(255, 212, 96, 0.35);
+}
+
+.saveButton:disabled {
+  opacity: 0.7;
+  cursor: not-allowed;
+  box-shadow: none;
+}
+
+.gateSummary {
+  border-top: 1px solid rgba(255, 255, 255, 0.08);
+  padding-top: 1rem;
+  margin-top: 0.5rem;
+  display: flex;
+  flex-direction: column;
+  gap: 0.25rem;
+}
+
+.summaryLabel {
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+  font-size: 0.75rem;
+  opacity: 0.8;
+}
+
+.summaryText,
+.summaryDetail {
+  margin: 0;
+  opacity: 0.8;
+}
+
 @media (max-width: 900px) {
   .adminGrid {
     grid-template-columns: 1fr;

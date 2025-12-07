@@ -10,11 +10,26 @@ export const metadata = {
   title: 'Join Manchester Gents'
 };
 
-export default async function RegisterPage() {
+function getRedirectTarget(searchParams) {
+  const candidate =
+    (typeof searchParams?.redirect === 'string' && searchParams.redirect) ||
+    (typeof searchParams?.from === 'string' && searchParams.from) ||
+    (typeof searchParams?.callbackUrl === 'string' && searchParams.callbackUrl) ||
+    '/';
+  if (!candidate.startsWith('/')) {
+    return '/';
+  }
+  return candidate;
+}
+
+export default async function RegisterPage({ searchParams }) {
+  const redirectTo = getRedirectTarget(searchParams);
   const session = await getServerSession(authOptions);
   if (session) {
-    redirect('/dashboard');
+    redirect(redirectTo);
   }
+
+  const redirectQuery = redirectTo && redirectTo !== '/' ? `?redirect=${encodeURIComponent(redirectTo)}` : '';
 
   return (
     <div className={styles.page}>
@@ -28,12 +43,12 @@ export default async function RegisterPage() {
               Share your Instagram username, suited details, and (optionally) a private reference
               photo so we can welcome you at our relaxed evenings in The Lodge, Manchester.
             </p>
-            <RegisterForm />
+            <RegisterForm redirectTo={redirectTo} />
           </div>
           <div className={styles.authSide}>
             <span className="heading-font">Already inside?</span>
             <p>Sign in to see which socials you’re attending and grab a spot at the next one.</p>
-            <a href="/login" className={styles.authLink}>
+            <a href={`/login${redirectQuery}`} className={styles.authLink}>
               Log in →
             </a>
           </div>

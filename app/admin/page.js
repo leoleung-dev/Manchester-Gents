@@ -6,13 +6,16 @@ import { getServerSession } from 'next-auth';
 import { redirect } from 'next/navigation';
 import { format } from 'date-fns';
 import InvalidateSessionsButton from '@/components/InvalidateSessionsButton';
+import ComingSoonGateCard from '@/components/ComingSoonGateCard';
+import { getComingSoonConfig } from '@/lib/comingSoonConfig';
 import styles from './page.module.css';
 
 async function getAdminData() {
   const events = await prisma.event.findMany({
     orderBy: { startTime: 'asc' }
   });
-  return { events };
+  const comingSoonConfig = await getComingSoonConfig();
+  return { events, comingSoonConfig };
 }
 
 export const metadata = {
@@ -25,7 +28,7 @@ export default async function AdminPage() {
     redirect('/');
   }
 
-  const { events } = await getAdminData();
+  const { events, comingSoonConfig } = await getAdminData();
 
   return (
     <div className={styles.page}>
@@ -58,6 +61,14 @@ export default async function AdminPage() {
               errorClassName={styles.statusError}
             />
           </div>
+          <ComingSoonGateCard
+            initialConfig={{
+              enabled: comingSoonConfig?.enabled ?? true,
+              disableAt: comingSoonConfig?.disableAt
+                ? comingSoonConfig.disableAt.toISOString()
+                : null
+            }}
+          />
         </section>
         <section className={styles.adminSection}>
           <span className="heading-font">Existing events</span>

@@ -1,10 +1,49 @@
 import { NextResponse } from 'next/server';
 import { getToken } from 'next-auth/jwt';
 
-const COMING_SOON_ENABLED = process.env.NEXT_PUBLIC_COMING_SOON !== 'false';
+function parseDateToMs(value) {
+  if (!value) return null;
+  const parsed = Date.parse(value);
+  return Number.isNaN(parsed) ? null : parsed;
+}
+
+const FALLBACK_COMING_SOON_ENABLED = process.env.NEXT_PUBLIC_COMING_SOON !== 'false';
+const FALLBACK_DISABLE_AT_MS = parseDateToMs(process.env.NEXT_PUBLIC_COMING_SOON_DISABLE_AT);
+
+async function getComingSoonState(req) {
+  const fallback = {
+    enabled: FALLBACK_COMING_SOON_ENABLED,
+    disableAtMs: FALLBACK_DISABLE_AT_MS
+  };
+  try {
+    const statusUrl = req.nextUrl.clone();
+    statusUrl.pathname = '/api/coming-soon';
+    statusUrl.search = '';
+    const res = await fetch(statusUrl.toString(), {
+      cache: 'no-store',
+      headers: { 'x-mg-internal': '1' }
+    });
+    if (!res.ok) {
+      return fallback;
+    }
+    const data = await res.json();
+    const disableAtMs = data?.disableAt ? parseDateToMs(data.disableAt) : null;
+    return {
+      enabled: typeof data?.enabled === 'boolean' ? data.enabled : fallback.enabled,
+      disableAtMs: Number.isNaN(disableAtMs) ? fallback.disableAtMs : disableAtMs
+    };
+  } catch (error) {
+    return fallback;
+  }
+}
 
 export async function middleware(req) {
-  if (!COMING_SOON_ENABLED) {
+  const comingSoon = await getComingSoonState(req);
+  const hasExpired =
+    comingSoon.disableAtMs !== null && Date.now() >= comingSoon.disableAtMs;
+  const gateActive = comingSoon.enabled && !hasExpired;
+
+  if (!gateActive) {
     return NextResponse.next();
   }
 
@@ -14,6 +53,7 @@ export async function middleware(req) {
     pathname.startsWith('/coming-soon') ||
     pathname.startsWith('/api/auth') ||
     pathname.startsWith('/api/session-version') ||
+    pathname.startsWith('/api/coming-soon') ||
     pathname.startsWith('/_next') ||
     pathname.startsWith('/icons') ||
     pathname.startsWith('/images') ||

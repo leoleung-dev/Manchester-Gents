@@ -45,7 +45,7 @@ export const metadata = {
 export default async function DashboardPage() {
   const session = await getServerSession(authOptions);
   if (!session?.user?.id) {
-    redirect('/login');
+    redirect(`/login?redirect=${encodeURIComponent('/dashboard')}`);
   }
 
   const { signups, recommended } = await getDashboardData(session.user.id);
