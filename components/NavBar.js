@@ -2,7 +2,7 @@
 
 import Link from "next/link";
 import Image from "next/image";
-import { useEffect, useMemo, useState } from "react";
+import { Suspense, useEffect, useMemo, useState } from "react";
 import { usePathname, useSearchParams } from "next/navigation";
 import { signOut } from "next-auth/react";
 import { useSession } from "next-auth/react";
@@ -16,7 +16,7 @@ const navLinks = [
   { href: "/events", label: "Events" },
 ];
 
-export default function NavBar() {
+function NavBarContent() {
   const pathname = usePathname();
   const searchParams = useSearchParams();
   const { data: session, status } = useSession();
@@ -385,5 +385,32 @@ export default function NavBar() {
         }
       `}</style>
     </header>
+  );
+}
+
+export default function NavBar() {
+  return (
+    <Suspense
+      fallback={
+        <header className="navbar">
+          <div className="nav-inner">
+            <div className="brand-row">
+              <Link href="/" className="brand" aria-label="Manchester Gents home">
+                <Image
+                  src="/images/Horizontal Logo.svg"
+                  alt="Manchester Gents"
+                  width={190}
+                  height={52}
+                  priority
+                  className="brand-image"
+                />
+              </Link>
+            </div>
+          </div>
+        </header>
+      }
+    >
+      <NavBarContent />
+    </Suspense>
   );
 }
