@@ -4,23 +4,31 @@ import EventCard from '@/components/EventCard';
 import prisma from '@/lib/prisma';
 import styles from './page.module.css';
 
+export const dynamic = 'force-dynamic';
+export const revalidate = 0;
+
 async function getEventsByGrouping() {
-  const now = new Date();
-  const upcoming = await prisma.event.findMany({
-    where: {
-      published: true,
-      startTime: { gte: now }
-    },
-    orderBy: { startTime: 'asc' }
-  });
-  const past = await prisma.event.findMany({
-    where: {
-      published: true,
-      startTime: { lt: now }
-    },
-    orderBy: { startTime: 'desc' }
-  });
-  return { upcoming, past };
+  try {
+    const now = new Date();
+    const upcoming = await prisma.event.findMany({
+      where: {
+        published: true,
+        startTime: { gte: now }
+      },
+      orderBy: { startTime: 'asc' }
+    });
+    const past = await prisma.event.findMany({
+      where: {
+        published: true,
+        startTime: { lt: now }
+      },
+      orderBy: { startTime: 'desc' }
+    });
+    return { upcoming, past };
+  } catch (error) {
+    console.error('Failed to load events for events page, rendering fallback state.', error);
+    return { upcoming: [], past: [] };
+  }
 }
 
 export const metadata = {

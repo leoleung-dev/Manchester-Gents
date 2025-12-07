@@ -7,24 +7,32 @@ import Link from 'next/link';
 import clsx from 'clsx';
 import styles from './page.module.css';
 
+export const dynamic = 'force-dynamic';
+export const revalidate = 0;
+
 async function getHomeData() {
-  const now = new Date();
-  const events = await prisma.event.findMany({
-    where: {
-      published: true,
-      startTime: {
-        gte: new Date(now.getTime() - 1000 * 60 * 60 * 24)
-      }
-    },
-    orderBy: {
-      startTime: 'asc'
-    },
-    take: 5
-  });
-  return {
-    nextEvent: events[0] || null,
-    otherEvents: events.slice(1)
-  };
+  try {
+    const now = new Date();
+    const events = await prisma.event.findMany({
+      where: {
+        published: true,
+        startTime: {
+          gte: new Date(now.getTime() - 1000 * 60 * 60 * 24)
+        }
+      },
+      orderBy: {
+        startTime: 'asc'
+      },
+      take: 5
+    });
+    return {
+      nextEvent: events[0] || null,
+      otherEvents: events.slice(1)
+    };
+  } catch (error) {
+    console.error('Failed to load events for home page, rendering fallback state.', error);
+    return { nextEvent: null, otherEvents: [] };
+  }
 }
 
 export default async function HomePage() {
