@@ -5,6 +5,7 @@ import { authOptions } from '@/lib/auth';
 import { getServerSession } from 'next-auth';
 import { redirect } from 'next/navigation';
 import { format } from 'date-fns';
+import InvalidateSessionsButton from '@/components/InvalidateSessionsButton';
 import styles from './page.module.css';
 
 async function getAdminData() {
@@ -40,6 +41,24 @@ export default async function AdminPage() {
             Create a new event
           </a>
         </header>
+        <section className={styles.securitySection}>
+          <div className={`${styles.securityCard} glass-panel`}>
+            <div className={styles.securityCopy}>
+              <span className={styles.securityEyebrow}>Sessions</span>
+              <h2>Sign everyone out</h2>
+              <p>
+                Force every member and admin to log back in. Use if a device is lost or credentials
+                are at risk.
+              </p>
+            </div>
+            <InvalidateSessionsButton
+              buttonClassName={styles.dangerButton}
+              statusClassName={styles.statusText}
+              successClassName={styles.statusSuccess}
+              errorClassName={styles.statusError}
+            />
+          </div>
+        </section>
         <section className={styles.adminSection}>
           <span className="heading-font">Existing events</span>
           <div className={styles.adminList}>

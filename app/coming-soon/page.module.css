@@ -1,0 +1,127 @@
+.page {
+  min-height: 100vh;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  padding: clamp(1.5rem, 5vw, 3rem);
+  gap: 1.5rem;
+  background: radial-gradient(circle at 20% 20%, rgba(255, 212, 96, 0.12), transparent 35%),
+    radial-gradient(circle at 80% 10%, rgba(255, 212, 96, 0.06), transparent 30%),
+    linear-gradient(180deg, rgba(12, 17, 28, 0.92) 0%, rgba(12, 17, 28, 0.98) 100%);
+}
+
+.card {
+  max-width: 640px;
+  width: min(100%, 640px);
+  background: rgba(11, 19, 33, 0.9);
+  border: 1px solid rgba(255, 255, 255, 0.08);
+  border-radius: 24px;
+  padding: clamp(1.75rem, 5vw, 2.75rem);
+  box-shadow: 0 32px 80px rgba(0, 0, 0, 0.35);
+  text-align: center;
+}
+
+.eyebrow {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.4rem;
+  padding: 0.4rem 0.9rem;
+  border-radius: 999px;
+  background: rgba(255, 212, 96, 0.12);
+  color: var(--color-gold);
+  font-weight: 600;
+  letter-spacing: 0.04em;
+  text-transform: uppercase;
+  font-size: 0.85rem;
+  margin: 0 0 0.75rem;
+}
+
+.card h1 {
+  margin: 0 0 0.75rem;
+  font-size: clamp(2rem, 5vw, 2.75rem);
+  color: var(--color-gold);
+}
+
+.body {
+  margin: 0;
+  font-size: 1.05rem;
+  line-height: 1.7;
+  color: rgba(247, 244, 237, 0.9);
+}
+
+.actions {
+  margin-top: 1.5rem;
+  display: flex;
+  justify-content: center;
+}
+
+.cta {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0.5rem;
+  padding: 0.85rem 1.4rem;
+  border-radius: 14px;
+  background: linear-gradient(135deg, #ffd460, #ffc12d);
+  color: #0c111c;
+  font-weight: 700;
+  transition: transform 0.15s ease, box-shadow 0.15s ease, filter 0.15s ease;
+  box-shadow: 0 16px 40px rgba(255, 212, 96, 0.25);
+}
+
+.cta:hover {
+  transform: translateY(-1px);
+  filter: saturate(1.05);
+  box-shadow: 0 20px 50px rgba(255, 212, 96, 0.28);
+}
+
+.adminPanel {
+  width: min(100%, 640px);
+  padding: 1rem 1.25rem;
+  border-radius: 14px;
+  border: 1px dashed rgba(255, 255, 255, 0.24);
+  background: rgba(12, 22, 35, 0.7);
+  box-shadow: 0 14px 36px rgba(0, 0, 0, 0.3);
+}
+
+.adminLabel {
+  margin: 0 0 0.4rem;
+  color: rgba(255, 244, 223, 0.86);
+  font-weight: 700;
+  letter-spacing: 0.02em;
+}
+
+.adminHelp {
+  margin: 0 0 0.8rem;
+  color: rgba(255, 255, 255, 0.76);
+  line-height: 1.5;
+}
+
+.adminLink {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.4rem;
+  color: var(--color-gold);
+  font-weight: 700;
+}
+
+.adminLink::after {
+  content: "→";
+  display: inline-block;
+  transform: translateY(1px);
+}
+
+@media (max-width: 540px) {
+  .card {
+    padding: 1.5rem 1.25rem;
+  }
+
+  .actions {
+    width: 100%;
+  }
+
+  .cta {
+    width: 100%;
+  }
+}

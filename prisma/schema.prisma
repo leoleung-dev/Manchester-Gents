@@ -87,5 +87,13 @@ model EventSignup {
   status    SignupStatus @default(CONFIRMED)
   note      String?
   specialRequests      String?
+  chatValidationCode String? @unique
   createdAt DateTime     @default(now())
+}
+
+model GlobalSetting {
+  key       String   @id
+  value     String?
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
 }
