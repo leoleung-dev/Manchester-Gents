@@ -1,7 +1,7 @@
 import { NextResponse } from 'next/server';
 import prisma from '@/lib/prisma';
 import { getDisplayName } from '@/lib/displayName';
-import { sendEventSignupCompletedNotification } from '@/lib/discordWebhook';
+import { sendMakeWebhook, buildEventSignupPayload } from '@/lib/makeWebhook';
 
 export const dynamic = 'force-dynamic';
 export const runtime = 'nodejs';
@@ -19,6 +19,7 @@ export async function GET(request, { params }) {
       select: {
         id: true,
         actionRequiredMessageId: true,
+        specialRequests: true,
         event: {
           select: {
             slug: true,
@@ -42,36 +43,20 @@ export async function GET(request, { params }) {
 
     const memberName = getDisplayName(updated.user);
 
-    await sendEventSignupCompletedNotification({
-      id: updated.id,
-      groupChatUrl: updated.event?.groupChatLink || '',
-      event: {
-        name: updated.event?.title,
-        slug: updated.event?.slug
-      },
-      member: {
-        id: updated.user?.id,
-        name: memberName,
-        slug: updated.user?.instagramHandle || updated.user?.id,
-        instagram: updated.user?.instagramHandle || null
-      }
+    const makePayload = buildEventSignupPayload({
+      action: 'groupChatAdded',
+      memberId: updated.user?.id,
+      memberSlug: updated.user?.instagramHandle || updated.user?.id,
+      memberName,
+      instagramHandle: updated.user?.instagramHandle || null,
+      eventSignupId: updated.id,
+      eventSlug: updated.event?.slug,
+      eventName: updated.event?.title,
+      groupChatLink: updated.event?.groupChatLink || null,
+      specialRequests: updated.specialRequests || null,
+      actionRequiredMessageId: updated.actionRequiredMessageId || null
     });
-
-    const actionWebhook =
-      process.env.DISCORD_EVENT_ACTION_WEBHOOK_URL ||
-      process.env.DISCORD_EVENT_WEBHOOK_URL;
-    if (actionWebhook && updated.actionRequiredMessageId) {
-      const webhookBase = actionWebhook.split('?')[0];
-      const deleteUrl = `${webhookBase}/messages/${updated.actionRequiredMessageId}`;
-      try {
-        const deleteResponse = await fetch(deleteUrl, { method: 'DELETE' });
-        if (!deleteResponse.ok) {
-          console.error('Failed to delete action-required message', deleteResponse.status);
-        }
-      } catch (deleteError) {
-        console.error('Error deleting action-required message', deleteError);
-      }
-    }
+    await sendMakeWebhook(makePayload);
 
     const redirectUrl = new URL(`/admin/events/signups/${signupId}?done=1`, request.url);
     return NextResponse.redirect(redirectUrl);
