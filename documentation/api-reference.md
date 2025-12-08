@@ -19,6 +19,23 @@ All endpoints live under `app/api`. Requests/Responses use JSON. Errors return `
 - Accepts `identifier` and `password` in body (NextAuth request).
 - Returns session/JWT cookies on success.
 
+### `POST /api/auth/forgot-password`
+- **Purpose:** Issue a password reset link for a member account.
+- **Payload:** `{ identifier: string }` (email or Instagram handle) validated with `passwordResetRequestSchema`.
+- **Responses:** Always returns `200 { success: true }` when the payload is valid; `400` on validation error; `500` on unexpected failure.
+- **Notes:** Does not disclose whether the account exists; skips placeholder users; emails the reset link when SMTP is configured.
+
+### `GET /api/auth/reset-password`
+- **Purpose:** Lightweight validity check for a reset token.
+- **Query:** `token` (string).
+- **Response:** `200 { valid: boolean }` (or `400` when the token is missing).
+
+### `POST /api/auth/reset-password`
+- **Purpose:** Finalise a password reset using a valid token.
+- **Payload:** `{ token, password }` validated with `passwordResetSchema`.
+- **Behaviour:** Verifies that the token is unused/unexpired, updates the user password hash, marks the token as used, clears other tokens, and bumps the session version (signs out existing sessions).
+- **Responses:** `200 { success: true }`, `400` when the token is invalid/expired, `500` on server error.
+
 ## Profile
 
 ### `PATCH /api/profile`

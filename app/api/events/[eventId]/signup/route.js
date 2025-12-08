@@ -2,6 +2,8 @@ import prisma from '@/lib/prisma';
 import { getServerSession } from 'next-auth';
 import { authOptions } from '@/lib/auth';
 import { eventSignupSchema } from '@/lib/validators';
+import { getDisplayName } from '@/lib/displayName';
+import { sendEventSignupNotification } from '@/lib/discordWebhook';
 
 export const dynamic = 'force-dynamic';
 export const runtime = 'nodejs';
@@ -21,7 +23,13 @@ export async function POST(request, { params }) {
     const user = await prisma.user.findUnique({
       where: { id: session.user.id },
       select: {
-        termsAgreed: true
+        termsAgreed: true,
+        instagramHandle: true,
+        firstName: true,
+        lastName: true,
+        preferredName: true,
+        shareFirstName: true,
+        name: true
       }
     });
 
@@ -39,6 +47,9 @@ export async function POST(request, { params }) {
       where: { id: eventId },
       select: {
         id: true,
+        slug: true,
+        title: true,
+        groupChatLink: true,
         signupDeadline: true,
         capacity: true,
         attendees: {
@@ -71,6 +82,41 @@ export async function POST(request, { params }) {
         specialRequests: form.specialRequests ?? null
       }
     });
+
+    const memberName = getDisplayName({
+      firstName: user.firstName,
+      lastName: user.lastName,
+      preferredName: user.preferredName,
+      shareFirstName: user.shareFirstName,
+      instagramHandle: user.instagramHandle,
+      name: user.name
+    });
+
+    const actionMessageId = await sendEventSignupNotification({
+      id: signup.id,
+      groupChatUrl: event.groupChatLink || '',
+      event: {
+        name: event.title,
+        slug: event.slug
+      },
+      member: {
+        id: session.user.id,
+        name: memberName,
+        slug: user.instagramHandle || session.user.id,
+        instagram: user.instagramHandle || null
+      }
+    });
+
+    if (actionMessageId) {
+      try {
+        await prisma.eventSignup.update({
+          where: { id: signup.id },
+          data: { actionRequiredMessageId: actionMessageId }
+        });
+      } catch (updateError) {
+        console.error('Unable to persist Discord message id for signup', updateError);
+      }
+    }
 
     return Response.json({ signup }, { status: 201 });
   } catch (error) {

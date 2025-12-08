@@ -1,10 +1,14 @@
 'use client';
 
-import { useState } from 'react';
+import { useEffect, useState } from 'react';
 import { signIn } from 'next-auth/react';
 import { useRouter } from 'next/navigation';
 import { z } from 'zod';
-import { registerSchema as registerValidation } from '@/lib/validators';
+import {
+  passwordResetRequestSchema,
+  passwordResetSchema,
+  registerSchema as registerValidation
+} from '@/lib/validators';
 import { termsChecklist, photoConsentQuestions } from '@/lib/consentContent';
 import ProfilePhotoUploader from './ProfilePhotoUploader';
 import RadioPill from './RadioPill';
@@ -566,6 +570,294 @@ export function LoginForm({ redirectTo = '/' }) {
           margin: 0;
           color: #ff9f9f;
           font-size: 0.8rem;
+        }
+        @media (max-width: 720px) {
+          .auth-submit {
+            width: 100%;
+            text-align: center;
+          }
+        }
+      `}</style>
+    </form>
+  );
+}
+
+export function ForgotPasswordForm() {
+  const [identifier, setIdentifier] = useState('');
+  const [error, setError] = useState(null);
+  const [success, setSuccess] = useState(null);
+  const [isSubmitting, setIsSubmitting] = useState(false);
+
+  const handleSubmit = async (event) => {
+    event.preventDefault();
+    setError(null);
+    setSuccess(null);
+    const parsed = passwordResetRequestSchema.safeParse({ identifier });
+    if (!parsed.success) {
+      setError(parsed.error.errors?.[0]?.message || 'Please enter your email or Instagram username.');
+      return;
+    }
+    setIsSubmitting(true);
+    try {
+      const res = await fetch('/api/auth/forgot-password', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(parsed.data)
+      });
+      const data = await res.json().catch(() => null);
+      if (!res.ok) {
+        throw new Error(data?.error || 'Unable to send reset link right now.');
+      }
+      setSuccess("If your account exists, we'll email you a reset link shortly.");
+    } catch (err) {
+      setError(err.message);
+    } finally {
+      setIsSubmitting(false);
+    }
+  };
+
+  return (
+    <form onSubmit={handleSubmit} className="auth-form">
+      <FormField
+        label="Email or Instagram username"
+        type="text"
+        value={identifier}
+        onChange={(event) => setIdentifier(event.target.value)}
+        required
+        autoComplete="username"
+      />
+      {error && <p className="auth-error">{error}</p>}
+      {success && <p className="auth-success">{success}</p>}
+      <button type="submit" disabled={isSubmitting} className="auth-submit">
+        {isSubmitting ? 'Sending link…' : 'Send reset link'}
+      </button>
+      <style jsx>{`
+        .auth-form {
+          display: flex;
+          flex-direction: column;
+          gap: 1.1rem;
+        }
+        .auth-submit {
+          padding: 0.85rem 1.5rem;
+          border-radius: 999px;
+          font-weight: 700;
+          letter-spacing: 0.1em;
+          text-transform: uppercase;
+          background: linear-gradient(120deg, var(--color-gold), var(--color-amber));
+          color: #0f1727;
+          box-shadow: 0 20px 32px rgba(255, 212, 96, 0.25);
+        }
+        .auth-submit:disabled {
+          opacity: 0.6;
+          cursor: not-allowed;
+        }
+        .auth-error {
+          margin: 0;
+          color: #ff9f9f;
+          font-size: 0.8rem;
+        }
+        .auth-success {
+          margin: 0;
+          color: #9be5b2;
+          font-size: 0.85rem;
+        }
+        @media (max-width: 720px) {
+          .auth-submit {
+            width: 100%;
+            text-align: center;
+          }
+        }
+      `}</style>
+    </form>
+  );
+}
+
+export function ResetPasswordForm({ token = '' }) {
+  const router = useRouter();
+  const [formState, setFormState] = useState({ token, password: '', confirmPassword: '' });
+  const [error, setError] = useState(null);
+  const [success, setSuccess] = useState(null);
+  const [isSubmitting, setIsSubmitting] = useState(false);
+  const [isCheckingToken, setIsCheckingToken] = useState(Boolean(token));
+  const [tokenValid, setTokenValid] = useState(token ? null : false);
+  const [showTokenField, setShowTokenField] = useState(!token);
+
+  useEffect(() => {
+    let cancelled = false;
+    if (!formState.token) {
+      setTokenValid(false);
+      setIsCheckingToken(false);
+      return () => {};
+    }
+
+    setIsCheckingToken(true);
+    setTokenValid(null);
+
+    const checkToken = async () => {
+      try {
+        const res = await fetch(`/api/auth/reset-password?token=${encodeURIComponent(formState.token)}`);
+        const data = await res.json().catch(() => ({ valid: false }));
+        if (!cancelled) {
+          setTokenValid(Boolean(data.valid));
+        }
+      } catch (err) {
+        if (!cancelled) {
+          setTokenValid(false);
+        }
+      } finally {
+        if (!cancelled) {
+          setIsCheckingToken(false);
+        }
+      }
+    };
+    checkToken();
+
+    return () => {
+      cancelled = true;
+    };
+  }, [formState.token]);
+
+  const handleChange = (field) => (event) => {
+    setFormState((prev) => ({ ...prev, [field]: event.target.value }));
+  };
+
+  const handleSubmit = async (event) => {
+    event.preventDefault();
+    setError(null);
+    setSuccess(null);
+
+    const parsed = passwordResetSchema.safeParse({
+      token: formState.token,
+      password: formState.password
+    });
+    if (!parsed.success) {
+      setError(parsed.error.errors?.[0]?.message || 'Please double-check your details.');
+      return;
+    }
+    if (formState.password !== formState.confirmPassword) {
+      setError('Passwords do not match.');
+      return;
+    }
+    if (tokenValid === false) {
+      setError('This reset link is invalid or has expired.');
+      return;
+    }
+
+    setIsSubmitting(true);
+    try {
+      const res = await fetch('/api/auth/reset-password', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(parsed.data)
+      });
+      const data = await res.json().catch(() => null);
+      if (!res.ok || !data?.success) {
+        throw new Error(data?.error || 'Unable to reset password right now.');
+      }
+      setSuccess('Password updated. You can now sign in.');
+      setFormState((prev) => ({ ...prev, password: '', confirmPassword: '' }));
+      router.prefetch('/login');
+    } catch (err) {
+      setError(err.message);
+    } finally {
+      setIsSubmitting(false);
+    }
+  };
+
+  return (
+    <form onSubmit={handleSubmit} className="auth-form">
+      {!showTokenField && (
+        <>
+          <input type="hidden" value={formState.token} readOnly />
+          <p className="auth-hint">Reset link applied from your email.</p>
+          <button type="button" className="token-toggle" onClick={() => setShowTokenField(true)}>
+            Use a different link
+          </button>
+        </>
+      )}
+      {showTokenField && (
+        <FormField
+          label="Reset token"
+          type="text"
+          value={formState.token}
+          onChange={handleChange('token')}
+          required
+          autoComplete="one-time-code"
+        />
+      )}
+      <FormField
+        label="New password"
+        type="password"
+        value={formState.password}
+        onChange={handleChange('password')}
+        required
+        autoComplete="new-password"
+      />
+      <FormField
+        label="Confirm new password"
+        type="password"
+        value={formState.confirmPassword}
+        onChange={handleChange('confirmPassword')}
+        required
+        autoComplete="new-password"
+      />
+      {isCheckingToken && <p className="auth-hint">Checking your reset link…</p>}
+      {error && <p className="auth-error">{error}</p>}
+      {tokenValid === false && formState.token && !error && (
+        <p className="auth-error">This reset link is invalid or has expired.</p>
+      )}
+      {success && <p className="auth-success">{success}</p>}
+      <button type="submit" disabled={isSubmitting} className="auth-submit">
+        {isSubmitting ? 'Updating…' : 'Update password'}
+      </button>
+      <style jsx>{`
+        .auth-form {
+          display: flex;
+          flex-direction: column;
+          gap: 1.1rem;
+        }
+        .auth-submit {
+          padding: 0.85rem 1.5rem;
+          border-radius: 999px;
+          font-weight: 700;
+          letter-spacing: 0.1em;
+          text-transform: uppercase;
+          background: linear-gradient(120deg, var(--color-gold), var(--color-amber));
+          color: #0f1727;
+          box-shadow: 0 20px 32px rgba(255, 212, 96, 0.25);
+        }
+        .auth-submit:disabled {
+          opacity: 0.6;
+          cursor: not-allowed;
+        }
+        .auth-error {
+          margin: 0;
+          color: #ff9f9f;
+          font-size: 0.8rem;
+        }
+        .auth-success {
+          margin: 0;
+          color: #9be5b2;
+          font-size: 0.85rem;
+        }
+        .auth-hint {
+          margin: 0;
+          color: rgba(255, 255, 255, 0.7);
+          font-size: 0.85rem;
+        }
+        .token-toggle {
+          align-self: flex-start;
+          padding: 0.35rem 0.75rem;
+          border-radius: 999px;
+          border: 1px solid rgba(255, 255, 255, 0.14);
+          background: transparent;
+          color: inherit;
+          font-size: 0.8rem;
+          letter-spacing: 0.05em;
+          text-transform: uppercase;
+        }
+        .token-toggle:hover {
+          border-color: var(--color-gold);
         }
         @media (max-width: 720px) {
           .auth-submit {

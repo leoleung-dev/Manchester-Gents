@@ -58,11 +58,12 @@
 - **Callback behaviour:** `session` callback injects `role`, `instagramHandle`, `id` into session for easy access.
 - **Logout:** Uses `signOut({ callbackUrl: '/' })` returning user to home page.
 
-## Password Resets (Future Work)
-- Not implemented. Adding resets would require:
-  - Password reset tokens table.
-  - Email infrastructure or alternative verification method.
-  - Update to registration/login docs.
+## Password Resets
+- **Request flow:** Members visit `/forgot-password` (form validates `identifier` with `passwordResetRequestSchema`) which POSTs to `/api/auth/forgot-password`. API looks up the user by email/Instagram handle, deletes previous tokens, and creates a new `PasswordResetToken` valid for 60 minutes by default (`PASSWORD_RESET_TOKEN_TTL_MINUTES` override).
+- **Delivery:** `sendPasswordResetEmail` sends the reset link via SMTP (`EMAIL_FROM`, `SMTP_HOST`, `SMTP_PORT`, `SMTP_USER`, `SMTP_PASS`). If SMTP is missing, the link is logged server-side for local testing; it is never returned to the client.
+- **Reset flow:** `/reset-password?token=...` surfaces `ResetPasswordForm`, which verifies the token via `GET /api/auth/reset-password?token=` and submits the new password to `POST /api/auth/reset-password` (`passwordResetSchema`). The token must be unused and unexpired.
+- **Session hygiene:** After a successful reset, the user’s password hash is updated and `bumpSessionVersion()` invalidates all active sessions, forcing re-authentication.
+- **Placeholders:** Placeholder users are ignored for reset requests to avoid emailing throwaway placeholder addresses.
 
 ## LLM Guidance
 - When modifying authentication (e.g., adding OAuth providers), update:

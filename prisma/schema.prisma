@@ -57,6 +57,7 @@ model User {
   bio             String?
   role            Role          @default(MEMBER)
   eventsSignedUp  EventSignup[]
+  passwordResetTokens PasswordResetToken[]
   createdAt       DateTime      @default(now())
   updatedAt       DateTime      @updatedAt
 }
@@ -95,6 +96,8 @@ model EventSignup {
   status    SignupStatus @default(CONFIRMED)
   note      String?
   specialRequests      String?
+  groupChatAdded Boolean @default(false)
+  actionRequiredMessageId String?
   chatValidationCode String? @unique
   createdAt DateTime     @default(now())
 }
@@ -104,4 +107,16 @@ model GlobalSetting {
   value     String?
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
+}
+
+model PasswordResetToken {
+  id         String   @id @default(cuid())
+  tokenHash  String   @unique
+  user       User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  userId     String
+  expiresAt  DateTime
+  usedAt     DateTime?
+  createdAt  DateTime @default(now())
+
+  @@index([userId])
 }

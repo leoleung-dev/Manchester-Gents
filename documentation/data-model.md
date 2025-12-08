@@ -31,6 +31,7 @@ Stores member identity, authentication, and consent preferences.
 | `consentUpdatedAt` | `DateTime?` | Timestamp of last overall consent/profile update. |
 | `role` | `Role` enum (`MEMBER`/`ADMIN`) | Access control. |
 | `eventsSignedUp` | `EventSignup[]` | RSVPs. |
+| `passwordResetTokens` | `PasswordResetToken[]` | Reset token records (cascade delete). |
 | `createdAt`, `updatedAt` | `DateTime` | Automatic timestamps. |
 
 ### Event
@@ -64,6 +65,18 @@ Represents a member’s reservation for a specific event.
 | `note` | `String?` | Future extension placeholder. |
 | `specialRequests` | `String?` | Member-provided note captured per RSVP. |
 | `createdAt` | `DateTime` | Timestamp of reservation. |
+
+### PasswordResetToken
+Tracks password reset links issued to members.
+
+| Field | Type | Notes |
+|-------|------|-------|
+| `id` | `String` | cuid. |
+| `tokenHash` | `String` unique | SHA-256 hash of the reset token. |
+| `userId` | `String` | FK to `User` (cascade delete). |
+| `expiresAt` | `DateTime` | Expiry timestamp (defaults to 60 minutes ahead). |
+| `usedAt` | `DateTime?` | Marked when consumed; prevents reuse. |
+| `createdAt` | `DateTime` | Timestamp when the token was issued. |
 
 ### Enums
 - `Role`: `MEMBER`, `ADMIN`.

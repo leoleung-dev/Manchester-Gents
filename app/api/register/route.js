@@ -3,6 +3,7 @@ import prisma from '@/lib/prisma';
 import { hashPassword } from '@/lib/password';
 import { registerSchema } from '@/lib/validators';
 import { getDisplayName } from '@/lib/displayName';
+import { sendMemberSignupNotification } from '@/lib/discordWebhook';
 
 export const dynamic = 'force-dynamic';
 export const runtime = 'nodejs';
@@ -133,6 +134,13 @@ export async function POST(request) {
         }
       });
     }
+
+    await sendMemberSignupNotification({
+      id: user.id,
+      name: displayName,
+      slug: user.instagramHandle || user.id,
+      instagram: user.instagramHandle || null
+    });
 
     return Response.json({ user }, { status: 201 });
   } catch (error) {

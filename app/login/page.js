@@ -43,6 +43,9 @@ export default async function LoginPage({ searchParams }) {
               Use your Instagram username or email to confirm your spot at upcoming Lodge socials.
             </p>
             <LoginForm redirectTo={redirectTo} />
+            <a href={`/forgot-password${redirectQuery}`} className={styles.authLink}>
+              Forgot your password?
+            </a>
           </div>
           <div className={styles.authSide}>
             <span className="heading-font">Not a member yet?</span>
