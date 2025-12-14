@@ -12,6 +12,7 @@ const emptyForm = {
   description: '',
   location: '',
   groupChatLink: '',
+  threadId: '',
   galleryUrl: '',
   startTime: '',
   endTime: '',
@@ -118,6 +119,12 @@ export default function AdminEventForm({ existingEvent }) {
         type="url"
         placeholder="https://chat.whatsapp.com/..."
       />
+      <FormField
+        label="Instagram thread ID"
+        value={formState.threadId}
+        onChange={handleChange('threadId')}
+        placeholder="Copy from the IG group (e.g. 1234567890123456)"
+      />
       <div className="form-grid">
         <FormField
           label="Start time"
@@ -218,6 +225,7 @@ function mapEvent(event) {
     description: event.description || '',
     location: event.location || '',
     groupChatLink: event.groupChatLink || '',
+    threadId: event.threadId || '',
     galleryUrl: event.galleryUrl || '',
     startTime: event.startTime ? new Date(event.startTime).toISOString().slice(0, 16) : '',
     endTime: event.endTime ? new Date(event.endTime).toISOString().slice(0, 16) : '',

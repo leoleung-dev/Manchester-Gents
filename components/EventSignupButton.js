@@ -25,16 +25,34 @@ export default function EventSignupButton({
   const [error, setError] = useState(null);
   const [step, setStep] = useState(existingSignup ? TOTAL_STEPS + 1 : 1);
 
+  const redirectStep = useMemo(() => {
+    const rawStep = searchParams?.get('rsvpStep');
+    const parsed = rawStep ? Number.parseInt(rawStep, 10) : null;
+    if (!Number.isFinite(parsed)) {
+      return null;
+    }
+    return Math.min(TOTAL_STEPS, Math.max(1, parsed));
+  }, [searchParams]);
+
   useEffect(() => {
     setNote(existingSignup?.specialRequests || '');
     setShowCancelConfirm(false);
     setError(null);
-    setStep(existingSignup ? TOTAL_STEPS + 1 : 1);
-  }, [existingSignup]);
+    if (existingSignup) {
+      setStep(TOTAL_STEPS + 1);
+      return;
+    }
+    if (redirectStep) {
+      setStep(redirectStep);
+      return;
+    }
+    setStep(1);
+  }, [existingSignup, redirectStep]);
 
   const isLoggedIn = Boolean(session);
   const isLoading = status === 'loading';
   const isRegistered = Boolean(existingSignup);
+  const isGroupChatAdded = Boolean(existingSignup?.groupChatAdded);
   const showReservedState = isRegistered || step === TOTAL_STEPS + 1;
 
   const isClosed = useMemo(() => {
@@ -83,8 +101,15 @@ export default function EventSignupButton({
 
   const redirectTarget = useMemo(() => {
     const basePath = pathname || '/';
-    const query = searchParams?.toString();
-    return query ? `${basePath}?${query}` : basePath;
+    const query = new URLSearchParams();
+    if (searchParams) {
+      searchParams.forEach((value, key) => {
+        query.append(key, value);
+      });
+    }
+    query.set('rsvpStep', '2');
+    const queryString = query.toString();
+    return queryString ? `${basePath}?${queryString}` : basePath;
   }, [pathname, searchParams]);
 
   const loginUrl = useMemo(
@@ -169,6 +194,7 @@ export default function EventSignupButton({
   const pendingRequests = existingSignup?.specialRequests || (step === TOTAL_STEPS + 1 ? note.trim() : null);
   const canCancel = isRegistered;
   const showChatLink = Boolean(groupChatLink);
+  const primaryCtaLabel = !isLoggedIn && step === 1 ? 'Create Account & RSVP' : 'Continue';
 
   return (
     <div className="rsvp-container">
@@ -178,15 +204,26 @@ export default function EventSignupButton({
           {pendingRequests && (
             <p className="reserved-note">Special request: {pendingRequests}</p>
           )}
+          <p className="hint hint-success">
+            You have been added to the attendee&apos;s group chat, please cheked your instgram DMs or under the
+            Request tab.
+          </p>
           {showChatLink ? (
-            <a
-              href={groupChatLink}
-              className="chat-link"
-              target="_blank"
-              rel="noopener noreferrer"
-            >
-              Join the attendee chat {chatHostname ? `(${chatHostname})` : ''}
-            </a>
+            <>
+              <p className="hint">
+                If you haven&apos;t been added, please use this link below to add yourseld to the group chat. (If
+                you are visiting from the instagram browswer, you will need to click the 3 dots on the top right
+                to open in an external browswer)
+              </p>
+              <a
+                href={groupChatLink}
+                className="chat-link"
+                target="_blank"
+                rel="noopener noreferrer"
+              >
+                Use this link to add yourself to the group chat{chatHostname ? ` on ${chatHostname}` : ''}
+              </a>
+            </>
           ) : (
             <p className="hint">We will share the attendee chat link soon.</p>
           )}
@@ -313,7 +350,7 @@ export default function EventSignupButton({
             {step === 3 && (
               <>
                 <p className="step-copy">
-                  Ready to reserve your place? We will confirm your RSVP and share the attendee chat so you can say hello ahead of time.
+                  Ready to reserve your place? Once confirmed, we will add you to the attendees’ Instagram group chat. Please check your DMs or the Requests tab. If it doesn’t appear, use the link below — and if you are in the Instagram in-app browser, tap the three dots and open in an external browser.
                 </p>
                 <div className="chat-preview">
                   <span className="section-eyebrow">Attendee chat</span>
@@ -347,7 +384,7 @@ export default function EventSignupButton({
                 onClick={handleNext}
                 disabled={isClosed}
               >
-                {isClosed ? 'Registration closed' : 'Continue'}
+                {isClosed ? 'Registration closed' : primaryCtaLabel}
               </button>
             )}
             {step === TOTAL_STEPS && (
@@ -603,6 +640,10 @@ export default function EventSignupButton({
           margin: 0;
           font-size: 0.8rem;
           opacity: 0.7;
+        }
+        .hint-success {
+          color: #84ffc6;
+          opacity: 1;
         }
         .error {
           margin: 0;

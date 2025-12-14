@@ -4,6 +4,8 @@ import { hashPassword } from '@/lib/password';
 import { registerSchema } from '@/lib/validators';
 import { getDisplayName } from '@/lib/displayName';
 import { sendMakeWebhook, buildMemberSignupPayload } from '@/lib/makeWebhook';
+import { getBaseUrl } from '@/lib/appUrl';
+import { sendInstagramDm } from '@/lib/instagramAutomation';
 
 export const dynamic = 'force-dynamic';
 export const runtime = 'nodejs';
@@ -143,6 +145,31 @@ export async function POST(request) {
         instagramHandle: user.instagramHandle || null
       })
     );
+
+    if (user.instagramHandle) {
+      const eventsLink = `${getBaseUrl()}/events`;
+      const welcomeMessage = [
+        `Hi ${displayName}!`,
+        '',
+        'Thank you for creating an account on the Manchester Gents website!',
+        '',
+        'Please continue RSVPing on the website',
+        eventsLink,
+        '',
+        'If you have any quesionts, please feel free to message @manchestergents'
+      ].join('\n');
+      try {
+        const dmResult = await sendInstagramDm({
+          username: user.instagramHandle,
+          message: welcomeMessage
+        });
+        if (dmResult?.response) {
+          console.log('Welcome DM response:', dmResult.response);
+        }
+      } catch (dmError) {
+        console.error('Welcome DM failed:', dmError?.message || dmError);
+      }
+    }
 
     return Response.json({ user }, { status: 201 });
   } catch (error) {

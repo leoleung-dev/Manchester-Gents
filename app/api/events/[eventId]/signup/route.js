@@ -4,6 +4,7 @@ import { authOptions } from '@/lib/auth';
 import { eventSignupSchema } from '@/lib/validators';
 import { getDisplayName } from '@/lib/displayName';
 import { sendMakeWebhook, buildEventSignupPayload } from '@/lib/makeWebhook';
+import { addUserToInstagramThread, sendInstagramDm } from '@/lib/instagramAutomation';
 
 export const dynamic = 'force-dynamic';
 export const runtime = 'nodejs';
@@ -49,6 +50,7 @@ export async function POST(request, { params }) {
         id: true,
         slug: true,
         title: true,
+        threadId: true,
         groupChatLink: true,
         signupDeadline: true,
         capacity: true,
@@ -106,6 +108,59 @@ export async function POST(request, { params }) {
       actionRequiredMessageId: null
     });
     await sendMakeWebhook(makePayload);
+
+    if (event.threadId && user.instagramHandle) {
+      try {
+        const automationResult = await addUserToInstagramThread({
+          threadId: event.threadId,
+          username: user.instagramHandle
+        });
+        if (automationResult?.addResponse) {
+          console.log('Instagram automation add response:', automationResult.addResponse);
+        }
+        if (automationResult?.added) {
+          await prisma.eventSignup.update({
+            where: { id: signup.id },
+            data: { groupChatAdded: true }
+          });
+        }
+      } catch (automationError) {
+        console.error('Instagram automation add-to-group failed:', automationError?.message || automationError);
+      }
+    }
+
+    if (user.instagramHandle) {
+      const dmLines = [
+        `Hi ${memberName}!`,
+        '',
+        `Thank you for RSVPing for ${event.title}.`,
+        '',
+        'You should have been automatically added to the event group chat, please check your DMs or request tab.'
+      ];
+      if (event.groupChatLink) {
+        dmLines.push(
+          '',
+          'If you are still not added, please add yourself with this link below.',
+          event.groupChatLink
+        );
+      }
+      dmLines.push(
+        '',
+        'If you have any quesionts, please feel free to message @manchestergents'
+      );
+      const dmMessage = dmLines.join('\n');
+      try {
+        const dmResult = await sendInstagramDm({
+          username: user.instagramHandle,
+          message: dmMessage
+        });
+        if (dmResult?.response) {
+          console.log('RSVP DM response:', dmResult.response);
+        }
+      } catch (dmError) {
+        console.error('RSVP DM failed:', dmError?.message || dmError);
+      }
+    }
 
     return Response.json({ signup }, { status: 201 });
   } catch (error) {

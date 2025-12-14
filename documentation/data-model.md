@@ -45,6 +45,7 @@ Represents a social experience members can RSVP for.
 | `location` | `String?` | Venue details. |
 | `startTime`, `endTime` | `DateTime` | Scheduling. |
 | `groupChatLink` | `String?` | Optional URL to the attendee chat for quick access post-RSVP. |
+| `threadId` | `String?` | Instagram DM thread id used by the automation service. |
 | `galleryUrl` | `String?` | Optional URL to the post-event photo gallery. |
 | `primaryColor`, `secondaryColor`, `accentColor`, `backgroundColor`, `textColor` | `String?` | Theme palette values. |
 | `coverImageUrl` | `String?` | Optional hero asset. |
