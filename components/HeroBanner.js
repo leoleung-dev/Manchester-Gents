@@ -1,8 +1,8 @@
-'use client';
+"use client";
 
-import Link from 'next/link';
-import CountdownTimer from './CountdownTimer';
-import EventThemeSection from './EventThemeSection';
+import Link from "next/link";
+import CountdownTimer from "./CountdownTimer";
+import EventThemeSection from "./EventThemeSection";
 
 export default function HeroBanner({ event }) {
   if (!event) {
@@ -11,18 +11,18 @@ export default function HeroBanner({ event }) {
         <div className="hero-empty-content">
           <h1>Manchester Gents</h1>
           <p>
-            A relaxed social for suited gents at The Lodge. No agenda — just sharp tailoring, good
-            drinks, and easy conversation with like-minded company.
+            A relaxed social for suited gents at The Lodge. No agenda — just
+            sharp tailoring, good drinks, and easy conversation with like-minded
+            company.
           </p>
-          <Link href="/register" className="primary-cta">
-            Become a member
+          <Link href="/register" legacyBehavior>
+            <a className="primary-cta">Become a member</a>
           </Link>
         </div>
         <style jsx>{`
           .hero-empty {
             padding: 3.5rem 2.5rem;
             border-radius: 24px;
-            background: linear-gradient(135deg, rgba(255, 212, 96, 0.15), rgba(13, 22, 35, 0.9));
             border: 1px solid rgba(255, 255, 255, 0.1);
           }
           .hero-empty-content {
@@ -38,11 +38,8 @@ export default function HeroBanner({ event }) {
             width: fit-content;
             padding: 0.9rem 2rem;
             border-radius: 999px;
-            font-size: 0.9rem;
             letter-spacing: 0.12em;
             text-transform: uppercase;
-            font-weight: 700;
-            background: linear-gradient(120deg, var(--color-gold), var(--color-amber));
             color: #0f1727;
             box-shadow: 0 20px 32px rgba(255, 212, 96, 0.25);
           }
@@ -57,7 +54,7 @@ export default function HeroBanner({ event }) {
         primaryColor: event.primaryColor,
         accentColor: event.accentColor,
         backgroundColor: event.backgroundColor,
-        textColor: event.textColor
+        textColor: event.textColor,
       }}
     >
       <div className="hero-grid">
@@ -65,9 +62,11 @@ export default function HeroBanner({ event }) {
           <span className="hero-tag heading-font">Next Event</span>
           <h1>{event.title}</h1>
           {event.subtitle && <p className="hero-subtitle">{event.subtitle}</p>}
-          {event.description && <p className="hero-description">{event.description}</p>}
-          <Link href={`/events/${event.slug}`} className="hero-link">
-            Explore the experience →
+          {event.description && (
+            <p className="hero-description">{event.description}</p>
+          )}
+          <Link href={`/events/${event.slug}`} legacyBehavior>
+            <a className="hero-link">RSVP Here! →</a>
           </Link>
         </div>
         <div className="hero-countdown">
@@ -102,11 +101,14 @@ export default function HeroBanner({ event }) {
           line-height: 1.6;
         }
         .hero-link {
-          margin-top: 0.5rem;
+          display: inline-flex;
+          align-items: center;
+          gap: 0.35rem;
           letter-spacing: 0.12em;
           text-transform: uppercase;
-          font-size: 0.8rem;
-          color: var(--event-accent);
+          font-size: 1rem;
+          color: #f7f4ed;
+          font-weight: 600;
         }
         @media (max-width: 900px) {
           .hero-grid {
