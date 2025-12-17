@@ -1,0 +1,251 @@
+.section {
+  display: flex;
+  flex-direction: column;
+  gap: 1.25rem;
+}
+
+.sectionHeader {
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-start;
+  gap: 1rem;
+  flex-wrap: wrap;
+}
+
+.sectionMeta {
+  margin: 0.35rem 0 0;
+  opacity: 0.7;
+}
+
+.tools {
+  display: flex;
+  gap: 0.75rem;
+  align-items: flex-end;
+  flex-wrap: wrap;
+}
+
+.search {
+  display: flex;
+  flex-direction: column;
+  gap: 0.35rem;
+}
+
+.searchLabel {
+  font-size: 0.72rem;
+  letter-spacing: 0.14em;
+  text-transform: uppercase;
+  opacity: 0.7;
+}
+
+.searchInput {
+  padding: 0.65rem 0.75rem;
+  border-radius: 12px;
+  border: 1px solid rgba(255, 255, 255, 0.16);
+  background: rgba(255, 255, 255, 0.05);
+  color: var(--color-body);
+  min-width: min(340px, 80vw);
+}
+
+.searchInput:focus {
+  outline: 2px solid rgba(255, 212, 96, 0.5);
+  border-color: rgba(255, 212, 96, 0.6);
+}
+
+.viewEventLink {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.45rem;
+  padding: 0.55rem 1.25rem;
+  border-radius: 999px;
+  border: 1px solid rgba(255, 255, 255, 0.18);
+  letter-spacing: 0.16em;
+  text-transform: uppercase;
+  font-size: 0.72rem;
+  background: rgba(255, 255, 255, 0.08);
+  height: fit-content;
+}
+
+.viewEventLink:hover {
+  border-color: rgba(255, 255, 255, 0.32);
+}
+
+.templateDetails {
+  border-radius: 18px;
+  border: 1px solid rgba(255, 255, 255, 0.12);
+  background: rgba(12, 22, 35, 0.65);
+  padding: 0.75rem 1rem 1rem;
+}
+
+.templateSummary {
+  cursor: pointer;
+  text-transform: uppercase;
+  letter-spacing: 0.14em;
+  font-size: 0.75rem;
+  opacity: 0.9;
+}
+
+.templateHint {
+  margin: 0.75rem 0 0.5rem;
+  opacity: 0.75;
+}
+
+.templateHint code {
+  background: rgba(255, 255, 255, 0.08);
+  padding: 0.1rem 0.35rem;
+  border-radius: 8px;
+}
+
+.templateTextarea {
+  width: 100%;
+  resize: vertical;
+  padding: 0.75rem;
+  border-radius: 14px;
+  border: 1px solid rgba(255, 255, 255, 0.16);
+  background: rgba(255, 255, 255, 0.05);
+  color: var(--color-body);
+  line-height: 1.5;
+  font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, 'Liberation Mono', 'Courier New',
+    monospace;
+}
+
+.templateTextarea:focus {
+  outline: 2px solid rgba(255, 212, 96, 0.5);
+  border-color: rgba(255, 212, 96, 0.6);
+}
+
+.tableWrapper {
+  overflow-x: auto;
+  border-radius: 18px;
+  border: 1px solid rgba(255, 255, 255, 0.08);
+  background: rgba(12, 22, 35, 0.65);
+}
+
+.table {
+  width: 100%;
+  border-collapse: collapse;
+}
+
+.table th,
+.table td {
+  padding: 0.95rem 1rem;
+  text-align: left;
+  border-bottom: 1px solid rgba(255, 255, 255, 0.08);
+  vertical-align: top;
+}
+
+.table th {
+  font-size: 0.72rem;
+  letter-spacing: 0.14em;
+  text-transform: uppercase;
+  opacity: 0.75;
+}
+
+.table tbody tr:hover {
+  background: rgba(255, 255, 255, 0.03);
+}
+
+.memberBlock {
+  display: flex;
+  flex-direction: column;
+  gap: 0.25rem;
+}
+
+.memberName {
+  font-weight: 700;
+}
+
+.memberLink {
+  font-size: 0.8rem;
+  opacity: 0.75;
+  width: fit-content;
+}
+
+.handleText {
+  opacity: 0.8;
+}
+
+.actionCell {
+  white-space: nowrap;
+  text-align: right;
+  width: 1%;
+}
+
+.actionStack {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-end;
+  gap: 0.35rem;
+}
+
+.sendButton {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  padding: 0.6rem 1rem;
+  border-radius: 12px;
+  font-weight: 700;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+  font-size: 0.72rem;
+  background: linear-gradient(135deg, #ffd460, #ffb347);
+  color: #0c0f1a;
+  border: 1px solid rgba(255, 255, 255, 0.15);
+}
+
+.sendButton:hover {
+  filter: brightness(1.03);
+}
+
+.sendButton:disabled {
+  opacity: 0.65;
+  cursor: not-allowed;
+  filter: none;
+}
+
+.sendButtonSent {
+  background: rgba(255, 255, 255, 0.08);
+  color: var(--color-body);
+  border-color: rgba(255, 255, 255, 0.18);
+}
+
+.status {
+  font-size: 0.85rem;
+  opacity: 0.75;
+  text-align: right;
+  max-width: 260px;
+}
+
+.statusSuccess {
+  color: #b5f5d1;
+  opacity: 1;
+}
+
+.statusError {
+  color: #ffb3b3;
+  opacity: 1;
+}
+
+.emptyCard {
+  padding: clamp(1.5rem, 3vw, 2rem);
+  border-radius: 22px;
+}
+
+.emptyNotice {
+  margin: 0;
+  opacity: 0.75;
+}
+
+@media (max-width: 720px) {
+  .actionCell {
+    text-align: left;
+  }
+
+  .actionStack {
+    align-items: flex-start;
+  }
+
+  .status {
+    text-align: left;
+    max-width: none;
+  }
+}

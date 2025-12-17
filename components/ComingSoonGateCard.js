@@ -2,7 +2,7 @@
 
 import { useMemo, useState } from 'react';
 import clsx from 'clsx';
-import styles from '@/app/admin/page.module.css';
+import styles from './ComingSoonGateCard.module.css';
 
 function toInputValue(isoString) {
   if (!isoString) return '';

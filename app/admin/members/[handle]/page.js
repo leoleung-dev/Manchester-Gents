@@ -1,11 +1,7 @@
 import Image from 'next/image';
 import Link from 'next/link';
-import { getServerSession } from 'next-auth';
-import { redirect, notFound } from 'next/navigation';
+import { notFound } from 'next/navigation';
 import prisma from '@/lib/prisma';
-import { authOptions } from '@/lib/auth';
-import NavBar from '@/components/NavBar';
-import Footer from '@/components/Footer';
 import { getDisplayName } from '@/lib/displayName';
 import AdminMemberEditor from '@/components/AdminMemberEditor';
 import AdminMemberEventManager from '@/components/AdminMemberEventManager';
@@ -79,11 +75,6 @@ export const metadata = {
 };
 
 export default async function MemberDetailPage({ params }) {
-  const session = await getServerSession(authOptions);
-  if (!session?.user || session.user.role !== 'ADMIN') {
-    redirect('/');
-  }
-
   const member = await getMember(params.handle);
   if (!member) {
     notFound();
@@ -110,132 +101,125 @@ export default async function MemberDetailPage({ params }) {
   const attendedEventIds = eventHistory.map((entry) => entry.event.id);
 
   return (
-    <div className={styles.page}>
-      <NavBar />
-      <main className={styles.main}>
-        <header className={styles.header}>
-          <Link href="/admin/members" className={styles.backLink}>
-            ← Back to members
-          </Link>
-          <h1>{displayName}</h1>
-          <p>@{member.instagramHandle || 'no-instagram'}</p>
-        </header>
-        <section className={styles.content}>
-          <div className={styles.profileColumn}>
-            <div className={styles.profileCard}>
-              {member.profilePhotoUrl ? (
-                <Image
-                  src={member.profilePhotoUrl}
-                  alt={`Reference for ${displayName}`}
-                  width={160}
-                  height={160}
-                  className={styles.profileImage}
-                />
-              ) : (
-                <div className={styles.profilePlaceholder}>{displayName.charAt(0)}</div>
-              )}
-              <dl className={styles.infoList}>
-                <div>
-                  <dt>First name</dt>
-                  <dd>{member.firstName || '—'}</dd>
-                </div>
-                <div>
-                  <dt>Last name</dt>
-                  <dd>{member.lastName || '—'}</dd>
-                </div>
-                <div>
-                  <dt>Preferred name</dt>
-                  <dd>{member.preferredName || '—'}</dd>
-                </div>
-                <div>
-                  <dt>Name sharing</dt>
-                  <dd>{member.shareFirstName ? 'Shares first name' : 'Prefers alias'}</dd>
-                </div>
-                <div>
-                  <dt>Status</dt>
-                  <dd>{member.isPlaceholder ? 'Placeholder' : 'Full member'}</dd>
-                </div>
-                <div>
-                  <dt>Email</dt>
-                  <dd>{member.email}</dd>
-                </div>
-                <div>
-                  <dt>Phone</dt>
-                  <dd>{member.phoneNumber || '—'}</dd>
-                </div>
-                <div>
-                  <dt>Joined</dt>
-                  <dd>{new Date(member.createdAt).toLocaleDateString('en-GB')}</dd>
-                </div>
-              </dl>
-            </div>
+    <main className={styles.main}>
+      <header className={styles.header}>
+        <Link href="/admin/members" className={styles.backLink}>
+          ← Back to members
+        </Link>
+        <h1>{displayName}</h1>
+        <p>@{member.instagramHandle || 'no-instagram'}</p>
+      </header>
+      <section className={styles.content}>
+        <div className={styles.profileColumn}>
+          <div className={styles.profileCard}>
+            {member.profilePhotoUrl ? (
+              <Image
+                src={member.profilePhotoUrl}
+                alt={`Reference for ${displayName}`}
+                width={160}
+                height={160}
+                className={styles.profileImage}
+              />
+            ) : (
+              <div className={styles.profilePlaceholder}>{displayName.charAt(0)}</div>
+            )}
+            <dl className={styles.infoList}>
+              <div>
+                <dt>First name</dt>
+                <dd>{member.firstName || '—'}</dd>
+              </div>
+              <div>
+                <dt>Last name</dt>
+                <dd>{member.lastName || '—'}</dd>
+              </div>
+              <div>
+                <dt>Preferred name</dt>
+                <dd>{member.preferredName || '—'}</dd>
+              </div>
+              <div>
+                <dt>Name sharing</dt>
+                <dd>{member.shareFirstName ? 'Shares first name' : 'Prefers alias'}</dd>
+              </div>
+              <div>
+                <dt>Status</dt>
+                <dd>{member.isPlaceholder ? 'Placeholder' : 'Full member'}</dd>
+              </div>
+              <div>
+                <dt>Email</dt>
+                <dd>{member.email}</dd>
+              </div>
+              <div>
+                <dt>Phone</dt>
+                <dd>{member.phoneNumber || '—'}</dd>
+              </div>
+              <div>
+                <dt>Joined</dt>
+                <dd>{new Date(member.createdAt).toLocaleDateString('en-GB')}</dd>
+              </div>
+            </dl>
           </div>
-          <div className={styles.detailsColumn}>
-            <div className={styles.consentCard}>
-              <h2>Photo consents</h2>
-              <ul>
-                {consentPairs.map(([label, value]) => (
-                  <li key={label} className={value ? styles.consentYes : styles.consentNo}>
-                    <span>{label}</span>
-                    <strong>{value ? 'Yes' : 'No'}</strong>
+        </div>
+        <div className={styles.detailsColumn}>
+          <div className={styles.consentCard}>
+            <h2>Photo consents</h2>
+            <ul>
+              {consentPairs.map(([label, value]) => (
+                <li key={label} className={value ? styles.consentYes : styles.consentNo}>
+                  <span>{label}</span>
+                  <strong>{value ? 'Yes' : 'No'}</strong>
+                </li>
+              ))}
+            </ul>
+          </div>
+          <div className={styles.eventsCard}>
+            <div className={styles.eventsHeader}>
+              <h2>Event history</h2>
+              <span className={styles.eventsMeta}>
+                {eventHistory.length} {eventHistory.length === 1 ? 'attendance' : 'attendances'}
+              </span>
+            </div>
+            {eventHistory.length > 0 ? (
+              <ul className={styles.eventList}>
+                {eventHistory.map((signup) => (
+                  <li key={signup.id} className={styles.eventRow}>
+                    <div className={styles.eventInfo}>
+                      <Link href={`/events/${signup.event.slug}/admin`} className={styles.eventTitle}>
+                        {signup.event.title}
+                      </Link>
+                      <span className={styles.eventStart}>
+                        {signup.event.startTime
+                          ? new Date(signup.event.startTime).toLocaleString('en-GB', {
+                              dateStyle: 'medium',
+                              timeStyle: 'short'
+                            })
+                          : 'Schedule TBA'}
+                      </span>
+                    </div>
+                    <span className={styles.eventJoined}>
+                      Joined {new Date(signup.createdAt).toLocaleDateString('en-GB')}
+                    </span>
                   </li>
                 ))}
               </ul>
-            </div>
-            <div className={styles.eventsCard}>
-              <div className={styles.eventsHeader}>
-                <h2>Event history</h2>
-                <span className={styles.eventsMeta}>
-                  {eventHistory.length} {eventHistory.length === 1 ? 'attendance' : 'attendances'}
-                </span>
-              </div>
-              {eventHistory.length > 0 ? (
-                <ul className={styles.eventList}>
-                  {eventHistory.map((signup) => (
-                    <li key={signup.id} className={styles.eventRow}>
-                      <div className={styles.eventInfo}>
-                        <Link
-                          href={`/events/${signup.event.slug}/admin`}
-                          className={styles.eventTitle}
-                        >
-                          {signup.event.title}
-                        </Link>
-                        <span className={styles.eventStart}>
-                          {signup.event.startTime
-                            ? new Date(signup.event.startTime).toLocaleString('en-GB', {
-                                dateStyle: 'medium',
-                                timeStyle: 'short'
-                              })
-                            : 'Schedule TBA'}
-                        </span>
-                      </div>
-                      <span className={styles.eventJoined}>
-                        Joined {new Date(signup.createdAt).toLocaleDateString('en-GB')}
-                      </span>
-                    </li>
-                  ))}
-                </ul>
-              ) : (
-                <p className={styles.emptyEvents}>No events attended yet.</p>
-              )}
-              <div className={styles.eventActions}>
-                <h3>Add to event</h3>
-                <AdminMemberEventManager
-                  memberId={member.id}
-                  memberName={displayName}
-                  events={events}
-                  existingEventIds={attendedEventIds}
-                />
-              </div>
+            ) : (
+              <p className={styles.emptyEvents}>No events attended yet.</p>
+            )}
+            <div className={styles.eventActions}>
+              <h3>Add to event</h3>
+              <AdminMemberEventManager
+                memberId={member.id}
+                memberName={displayName}
+                events={events}
+                existingEventIds={attendedEventIds}
+              />
             </div>
           </div>
-        </section>
-        <section className={styles.editorSection}>
-          <h2>Edit member</h2>
-          <AdminMemberEditor member={member} />
-        </section>
-      </main>
-      <Footer />
-    </div>
+        </div>
+      </section>
+      <section className={styles.editorSection}>
+        <h2>Edit member</h2>
+        <AdminMemberEditor member={member} />
+      </section>
+    </main>
   );
 }

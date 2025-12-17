@@ -1,13 +1,8 @@
 import Image from 'next/image';
 import Link from 'next/link';
-import { getServerSession } from 'next-auth';
-import { redirect } from 'next/navigation';
 import { FaCamera } from 'react-icons/fa';
 import { FaPeopleGroup, FaPerson, FaUserTag } from 'react-icons/fa6';
 import prisma from '@/lib/prisma';
-import { authOptions } from '@/lib/auth';
-import NavBar from '@/components/NavBar';
-import Footer from '@/components/Footer';
 import AdminPlaceholderForm from '@/components/AdminPlaceholderForm';
 import styles from './members.module.css';
 
@@ -60,11 +55,6 @@ const directionLabels = {
 };
 
 export default async function AdminMembersPage({ searchParams }) {
-  const session = await getServerSession(authOptions);
-  if (!session?.user || session.user.role !== 'ADMIN') {
-    redirect('/');
-  }
-
   const sortParam = typeof searchParams?.sort === 'string' ? searchParams.sort : '';
   const directionParam = typeof searchParams?.direction === 'string' ? searchParams.direction : '';
   const sortField = sortParam === 'events' ? 'events' : 'joined';
@@ -118,49 +108,48 @@ export default async function AdminMembersPage({ searchParams }) {
   const directionLabel = directionLabels[sortField][sortDirection];
 
   return (
-    <div className={styles.page}>
-      <NavBar />
-      <main className={styles.main}>
-        <header className={styles.header}>
-          <h1>Member directory</h1>
-          <p>Review all registered gents, their consent preferences, and private reference photos.</p>
-        </header>
-        <section className={styles.placeholderSection}>
-          <AdminPlaceholderForm />
-        </section>
-        <div className={styles.controls}>
-          <span className={styles.sortLabel}>Sort members by</span>
-          <Link
-            href={buildFieldHref('joined')}
-            className={`${styles.sortButton} ${sortField === 'joined' ? styles.sortButtonActive : ''}`}
-          >
-            {sortFieldLabel('joined')}
-          </Link>
-          <Link
-            href={buildFieldHref('events')}
-            className={`${styles.sortButton} ${sortField === 'events' ? styles.sortButtonActive : ''}`}
-          >
-            {sortFieldLabel('events')}
-          </Link>
-          <Link href={buildDirectionHref()} className={styles.sortDirectionButton}>
-            {directionLabel}
-          </Link>
-        </div>
-        <MemberTable
-          title="Registered members"
-          members={registeredMembers}
-          emptyMessage="No registered members yet."
-          consentColumns={consentColumns}
-        />
-        <MemberTable
-          title="Placeholder profiles"
-          members={placeholderMembers}
-          emptyMessage="No placeholder profiles available."
-          consentColumns={consentColumns}
-        />
-      </main>
-      <Footer />
-    </div>
+    <main className={styles.main}>
+      <header className={styles.header}>
+        <Link href="/admin" className={styles.backLink}>
+          ← Back to admin
+        </Link>
+        <h1>Member directory</h1>
+        <p>Review all registered gents, their consent preferences, and private reference photos.</p>
+      </header>
+      <section className={styles.placeholderSection}>
+        <AdminPlaceholderForm />
+      </section>
+      <div className={styles.controls}>
+        <span className={styles.sortLabel}>Sort members by</span>
+        <Link
+          href={buildFieldHref('joined')}
+          className={`${styles.sortButton} ${sortField === 'joined' ? styles.sortButtonActive : ''}`}
+        >
+          {sortFieldLabel('joined')}
+        </Link>
+        <Link
+          href={buildFieldHref('events')}
+          className={`${styles.sortButton} ${sortField === 'events' ? styles.sortButtonActive : ''}`}
+        >
+          {sortFieldLabel('events')}
+        </Link>
+        <Link href={buildDirectionHref()} className={styles.sortDirectionButton}>
+          {directionLabel}
+        </Link>
+      </div>
+      <MemberTable
+        title="Registered members"
+        members={registeredMembers}
+        emptyMessage="No registered members yet."
+        consentColumns={consentColumns}
+      />
+      <MemberTable
+        title="Placeholder profiles"
+        members={placeholderMembers}
+        emptyMessage="No placeholder profiles available."
+        consentColumns={consentColumns}
+      />
+    </main>
   );
 }
 
