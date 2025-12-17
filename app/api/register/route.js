@@ -1,38 +1,40 @@
-import { randomUUID } from 'crypto';
-import prisma from '@/lib/prisma';
-import { hashPassword } from '@/lib/password';
-import { registerSchema } from '@/lib/validators';
-import { getDisplayName } from '@/lib/displayName';
-import { sendMakeWebhook, buildMemberSignupPayload } from '@/lib/makeWebhook';
-import { getBaseUrl } from '@/lib/appUrl';
-import { sendInstagramDm } from '@/lib/instagramAutomation';
+import { randomUUID } from "crypto";
+import prisma from "@/lib/prisma";
+import { hashPassword } from "@/lib/password";
+import { registerSchema } from "@/lib/validators";
+import { getDisplayName } from "@/lib/displayName";
+import { sendMakeWebhook, buildMemberSignupPayload } from "@/lib/makeWebhook";
+import { getBaseUrl } from "@/lib/appUrl";
+import { sendInstagramDm } from "@/lib/instagramAutomation";
 
-export const dynamic = 'force-dynamic';
-export const runtime = 'nodejs';
+export const dynamic = "force-dynamic";
+export const runtime = "nodejs";
 
 function normaliseHandle(handle) {
-  return handle?.trim().replace(/^@/, '').toLowerCase() || '';
+  return handle?.trim().replace(/^@/, "").toLowerCase() || "";
 }
 
 function buildFallbackHandle(firstName, lastName) {
   const safeName = [firstName, lastName]
     .filter(Boolean)
-    .map((part) => part.toLowerCase().replace(/[^a-z0-9]/g, ''))
+    .map((part) => part.toLowerCase().replace(/[^a-z0-9]/g, ""))
     .find((part) => part.length > 0);
-  const suffix = randomUUID().replace(/-/g, '').slice(0, 6);
-  const base = safeName ? safeName.slice(0, 10) : 'member';
+  const suffix = randomUUID().replace(/-/g, "").slice(0, 6);
+  const base = safeName ? safeName.slice(0, 10) : "member";
   return `noinsta_${base}${suffix}`;
 }
 
 async function generateFallbackHandle(firstName, lastName) {
   for (let attempt = 0; attempt < 10; attempt += 1) {
     const candidate = buildFallbackHandle(firstName, lastName);
-    const existing = await prisma.user.findUnique({ where: { instagramHandle: candidate } });
+    const existing = await prisma.user.findUnique({
+      where: { instagramHandle: candidate },
+    });
     if (!existing) {
       return candidate;
     }
   }
-  throw new Error('Unable to generate fallback handle');
+  throw new Error("Unable to generate fallback handle");
 }
 
 export async function POST(request) {
@@ -42,29 +44,29 @@ export async function POST(request) {
 
     const email = data.email.toLowerCase();
     const hasInstagram = data.hasInstagram !== false;
-    let handle = normaliseHandle(data.instagramHandle || '');
+    let handle = normaliseHandle(data.instagramHandle || "");
     if (!hasInstagram) {
       handle = await generateFallbackHandle(data.firstName, data.lastName);
     }
     const preferredContactMethod = data.preferredContactMethod?.trim() || null;
 
     const existingHandleUser = await prisma.user.findUnique({
-      where: { instagramHandle: handle }
+      where: { instagramHandle: handle },
     });
     const existingEmailUser = await prisma.user.findUnique({
-      where: { email }
+      where: { email },
     });
 
     if (existingHandleUser && !existingHandleUser.isPlaceholder) {
       return Response.json(
-        { error: 'Instagram username already registered.' },
+        { error: "Instagram username already registered." },
         { status: 409 }
       );
     }
 
     if (existingEmailUser && existingEmailUser.id !== existingHandleUser?.id) {
       return Response.json(
-        { error: 'Email already registered.' },
+        { error: "Email already registered." },
         { status: 409 }
       );
     }
@@ -80,7 +82,7 @@ export async function POST(request) {
       preferredName,
       shareFirstName: data.shareFirstName,
       instagramHandle: handle,
-      name: data.preferredName
+      name: data.preferredName,
     });
 
     const baseUserData = {
@@ -109,7 +111,7 @@ export async function POST(request) {
       termsSignedAt: consentTimestamp,
       consentUpdatedAt: consentTimestamp,
       passwordHash,
-      isPlaceholder: false
+      isPlaceholder: false,
     };
 
     let user;
@@ -118,13 +120,13 @@ export async function POST(request) {
         where: { id: existingHandleUser.id },
         data: {
           ...baseUserData,
-          createdAt: consentTimestamp
+          createdAt: consentTimestamp,
         },
         select: {
           id: true,
           email: true,
-          instagramHandle: true
-        }
+          instagramHandle: true,
+        },
       });
     } else {
       user = await prisma.user.create({
@@ -132,8 +134,8 @@ export async function POST(request) {
         select: {
           id: true,
           email: true,
-          instagramHandle: true
-        }
+          instagramHandle: true,
+        },
       });
     }
 
@@ -142,38 +144,41 @@ export async function POST(request) {
         memberId: user.id,
         memberSlug: user.instagramHandle || user.id,
         memberName: displayName,
-        instagramHandle: user.instagramHandle || null
+        instagramHandle: user.instagramHandle || null,
       })
     );
 
     if (user.instagramHandle) {
-      const eventsLink = `${getBaseUrl()}/events`;
+      const eventsLink = `${getBaseUrl()}/events/latest`;
       const welcomeMessage = [
         `Hi ${displayName}!`,
-        '',
-        'Thank you for creating an account on the Manchester Gents website!',
-        '',
-        'Please continue RSVPing on the website',
+        "",
+        "Thank you for creating an account on the Manchester Gents website!",
+        "",
+        "Please continue RSVPing on the website",
         eventsLink,
-        '',
-        'If you have any quesionts, please feel free to message @manchestergents'
-      ].join('\n');
+        "",
+        "If you have any quesionts, please feel free to message @manchestergents",
+      ].join("\n");
       try {
         const dmResult = await sendInstagramDm({
           username: user.instagramHandle,
-          message: welcomeMessage
+          message: welcomeMessage,
         });
         if (dmResult?.response) {
-          console.log('Welcome DM response:', dmResult.response);
+          console.log("Welcome DM response:", dmResult.response);
         }
       } catch (dmError) {
-        console.error('Welcome DM failed:', dmError?.message || dmError);
+        console.error("Welcome DM failed:", dmError?.message || dmError);
       }
     }
 
     return Response.json({ user }, { status: 201 });
   } catch (error) {
-    console.error('Register error', error);
-    return Response.json({ error: 'Unable to create account.' }, { status: 500 });
+    console.error("Register error", error);
+    return Response.json(
+      { error: "Unable to create account." },
+      { status: 500 }
+    );
   }
 }
