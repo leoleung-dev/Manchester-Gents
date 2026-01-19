@@ -5,7 +5,6 @@ import NavBar from '@/components/NavBar';
 import Footer from '@/components/Footer';
 import prisma from '@/lib/prisma';
 import { authOptions } from '@/lib/auth';
-import { getDisplayName } from '@/lib/displayName';
 import { format } from 'date-fns';
 import consentItems from './consentItems';
 import ClientConsentDisplay from './ClientConsentDisplay';
@@ -27,16 +26,10 @@ function buildConsentRow(signup) {
   const hasUnset = values.some(
     (value) => value === null || typeof value === "undefined"
   );
-  const displayName = getDisplayName({
-    firstName: user.firstName,
-    lastName: user.lastName,
-    preferredName: user.preferredName,
-    shareFirstName: user.shareFirstName,
-    instagramHandle: user.instagramHandle,
-    name: user.name || null,
-    fullName: user.fullName || null,
-  });
-  const label = displayName || `@${user.instagramHandle}`;
+  const preferredName = user.preferredName?.trim();
+  const firstName = user.firstName?.trim();
+  const displayName = preferredName || firstName || user.instagramHandle || '';
+  const label = displayName || 'Member';
   const initialsSource = label.replace(/[^A-Za-z0-9]/g, "");
   const initials = (
     initialsSource.slice(0, 2) ||
