@@ -178,6 +178,8 @@ export default async function EventDetailPage({ params }) {
       }
       return a.sortName.localeCompare(b.sortName);
     });
+  const attendeeCount = event.attendees.length;
+  const attendeeLabel = attendeeCount === 1 ? '1 attendee' : `${attendeeCount} attendees`;
 
   return (
     <div className={styles.page}>
@@ -219,7 +221,10 @@ export default async function EventDetailPage({ params }) {
                 </div>
               )}
               <div className={styles.sidebarSection}>
-                <span className="heading-font">Guest list</span>
+                <div className={styles.guestListHeader}>
+                  <span className="heading-font">Guest list</span>
+                  <span className={styles.guestCount}>{attendeeLabel}</span>
+                </div>
                 <Link href={`/events/${event.slug}/consent`} className={styles.consentLink}>
                   Review other attendees&apos; photo consent
                 </Link>
